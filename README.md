@@ -23,7 +23,6 @@ src - 服务端
 查看本地文档docs:
 
 - [本地加强文档](http://127.0.0.1:2347/doc.html)
-- [dash.youngs.fun](https://dash.youngs.fun)
 ### 环境依赖
 
 #### 服务端
