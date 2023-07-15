@@ -1,0 +1,59 @@
+{
+  "name": "clinic",
+  "version": "0.1.1",
+  "description": "A minimal Electron application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "repository": "https://github.com/chuihairu/clinic",
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "tutorial",
+    "demo"
+  ],
+  "author": "GitHub",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^25.1.0",
+    "electron-builder": "^23.6.0"
+  },
+  "build": {
+    "productName": "Clinic",
+    "appId": "fun.youngs.www",
+    "directories": {
+      "output": "build"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false,
+      "shortcutName": "Clinic"
+    },
+    "win": {
+      "artifactName": "${productName}_${version}.${ext}",
+      "icon": "icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "publisherName": "clinic",
+      "certificateFile": "cer.pfx",
+      "certificatePassword": "youngs.fun"
+    }
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0"
+  }
+}

@@ -1,0 +1,71 @@
+spring:
+  cache:
+    cache-names: cache,customer,treat
+    caffeine:
+      spec: initialCapacity=50,maximumSize=10000,expireAfterAccess=300s
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql:3306/clinic?useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: clinic
+    password: Abc$*(12345)67890
+    dbcp2:
+      test-on-borrow: true
+      validation-query: SELECT 1
+      time-between-eviction-runs-millis: 3600000
+      test-while-idle: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        useUnicode: true
+        characterEncoding: UTF-8
+        dialect: org.hibernate.dialect.MySQLDialect
+        show_sql: true
+  security:
+    user:
+      name: admin
+      password: admin
+      roles: ADMIN
+
+application:
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      expiration: 86400000 # a day
+      refresh-token:
+        expiration: 604800000 # 7 days
+
+
+server:
+  port: 2347
+  servlet:
+    session:
+      timeout: 24h
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    enabled: true
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.clinic.controller
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+logging:
+    level:
+      org.hibernate.SQL: debug
+      org.hibernate.type: trace
+      org.springframework.security: debug
