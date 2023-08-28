@@ -1,9 +1,11 @@
 FROM openjdk:17-jdk-alpine
+RUN mkdir /app
 VOLUME /tmp
+
 ARG JAVA_OPTS
 ENV JAVA_OPTS=$JAVA_OPTS
-COPY target/clinic-0.1.0-SNAPSHOT.jar clinic.jar
-EXPOSE 3000
+COPY target/clinic-0.1.0-SNAPSHOT.jar /app/clinic.jar
+EXPOSE 2347
 ENTRYPOINT exec java $JAVA_OPTS -jar clinic.jar
 # For Spring-Boot project, use the entrypoint below to reduce Tomcat startup time.
 #ENTRYPOINT exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar clinic.jar

@@ -8,7 +8,6 @@ services:
     container_name: mysql
     volumes:
       - ./db:/var/lib/mysql
-      #- ./conf:/etc/mysql/conf.d
       - ./logs:/logs
     command:
       --character-set-server=utf8mb4
@@ -22,24 +21,21 @@ services:
     ports:
         - 3306:3306
     network_mode: "bridge"
-
-  clinic:
-    image: clinic
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    ports:
-      - 3000:3000
   nginx:
     container_name: nginx 
     image: nginx
     restart: always
+    links:
+      - clinic:clinic
     ports:
       - 80:80
       - 443:443
     volumes:
-      - /home/docker-nginx/nginx.conf:/etc/nginx/nginx.conf
-      - /home/www:/home/www
-      - /home/docker-nginx/log:/var/log/nginx
-      - /home/docker-nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
-      - /home/docker-nginx/html:/usr/share/nginx/html
+      - ../nginx_http.conf:/etc/nginx/sites-enabled/default
+      - ../web/dist:/usr/share/nginx/html
+  clinic:
+    container_name: clinic
+    image: cuihairu/clinic:v0.1.0 
+    ports:
+      - 2347:2347
+
