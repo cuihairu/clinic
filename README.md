@@ -2,7 +2,7 @@
 
 ## 开发文档
 
-[![Java CI with Maven](https://github.com/chuihairu/clinic-server/actions/workflows/maven.yml/badge.svg)](https://github.com/chuihairu/clinic-server/actions/workflows/maven.yml)
+[![Java CI with Maven](https://github.com/chuihairu/clinic/actions/workflows/maven.yml/badge.svg)](https://github.com/chuihairu/clinic/actions/workflows/maven.yml)
 
 技术栈： 
 - Java 17 TLS
