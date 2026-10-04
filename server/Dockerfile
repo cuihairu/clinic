@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-alpine
+FROM eclipse-temurin:21-jre-alpine
 RUN mkdir /app && mkdir -p /app/logs && mkdir -p /app/config
 VOLUME /app/logs 
 

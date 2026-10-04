@@ -7,7 +7,7 @@
 [![Java CI with Maven](https://github.com/cuihairu/sinomed/actions/workflows/maven.yml/badge.svg)](https://github.com/cuihairu/sinomed/actions/workflows/maven.yml)
 
 技术栈： 
-- Java 17 TLS
+- Java 21 LTS
 - Spring Boot 3 
 - React 18
 - Ant Pro 6
@@ -31,7 +31,7 @@ src - 服务端
 
 #### 服务端
 
-- Java 17 LTS
+- Java 21 LTS
 - Maven 3.9.1
 
 ### 项目初始化
@@ -44,7 +44,7 @@ mvn install #初始化依赖包
 
 #### 客户端
 
-- NodeJs 18
+- NodeJs 24
 - React 18
 - Electron 23
 
