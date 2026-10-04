@@ -3,11 +3,12 @@ import { defineConfig } from 'vitepress'
 // Sinomed 文档站 —— 中医医馆管理系统
 export default defineConfig({
   lang: 'zh-CN',
+  base: '/sinomed/',
   title: 'Sinomed',
   description:
     'Sinomed 中医医馆管理系统文档：顾客建档、中医诊疗记录、卡项、复盘回访、考勤管理与部署指南。',
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/sinomed/favicon.svg' }],
     [
       'meta',
       { name: 'theme-color', media: '(prefers-color-scheme: light)', content: '#C7A674' },
