@@ -35,6 +35,16 @@ features:
     title: 医馆板块规划
     details: 挂号、处方、中药房、收费等门诊板块在规划中，源码尚未实现；分层规划与参考来源见「调研 · 功能点清单」。
   - icon:
+      src: /icons/device-desktop.svg
+      alt: 桌面
+    title: 桌面工作站（规划）
+    details: 前台 / 医生工作站的 Windows 薄壳方案（Tauri 2）：打印处方笺、扫码定位顾客，业务仍在服务端。源码尚未实现。
+  - icon:
+      src: /icons/device-tablet.svg
+      alt: 平板
+    title: 广告展示端（规划）
+    details: 候诊区平板 Kiosk：广告与科普轮播、叫号联动、断网续播；素材与排期在管理端配置。源码尚未实现。
+  - icon:
       src: /icons/api.svg
       alt: 接口
     title: 接口与文档

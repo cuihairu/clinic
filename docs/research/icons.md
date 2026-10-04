@@ -1,6 +1,6 @@
 # 开源图标收集与对照表
 
-医馆场景图标全部来自现成开源图标库,未自行绘制任何图形。入库路径:`web/src/assets/icons/`,共 16 个场景、24 个图标(16 个主选 + 8 个备选)。
+医馆场景图标全部来自现成开源图标库,未自行绘制任何图形。入库路径:`web/src/assets/icons/`,共 29 个图标(16 个主选 + 8 个备选 + 5 个后续补充)。
 
 - **Healthicons**:医疗健康主题图标集,图标本体以 **CC0 1.0**(公共域)发布,任何用途免费、无需署名、可自由修改。48×48 填充式轮廓风格。
 - **Tabler Icons**:**MIT 许可**,可自由使用、修改、分发,分发时保留版权声明与许可文本即可。24×24 线性描边风格,支持 `currentColor` 着色。
@@ -38,6 +38,8 @@
 | 医生/诊疗(补充) | `stethoscope.svg` | Tabler | MIT | stethoscope | <https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/stethoscope.svg> |
 | 接口文档(补充) | `api.svg` | Tabler | MIT | api | <https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/api.svg> |
 | 顾客(补充) | `user.svg` | Tabler | MIT | user | <https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/user.svg> |
+| 工作站(补充) | `device-desktop.svg` | Tabler | MIT | device-desktop | <https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/device-desktop.svg> |
+| 平板展示(补充) | `device-tablet.svg` | Tabler | MIT | device-tablet | <https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/device-tablet.svg> |
 
 ## 来源说明
 

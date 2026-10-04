@@ -30,6 +30,7 @@ export default defineConfig({
       { text: '服务端', link: '/server/architecture', activeMatch: '/server/' },
       { text: '管理端', link: '/web', activeMatch: '/web' },
       { text: '小程序端', link: '/app', activeMatch: '/app' },
+      { text: '广告展示端', link: '/tablet', activeMatch: '/tablet' },
       { text: '设计', link: '/design/desktop', activeMatch: '/design/' },
       { text: '调研', link: '/research/projects', activeMatch: '/research/' }
     ],
@@ -65,6 +66,12 @@ export default defineConfig({
         {
           text: '小程序端',
           items: [{ text: '小程序端结构', link: '/app' }]
+        }
+      ],
+      '/tablet': [
+        {
+          text: '广告展示端',
+          items: [{ text: '广告展示端（平板 Kiosk）', link: '/tablet' }]
         }
       ],
       '/design/': [
