@@ -29,37 +29,6 @@
 | PUT | `/api/v1/customer/` | 更新顾客信息 |
 | DELETE | `/api/v1/customer/{id}` | 删除顾客 |
 
-## 员工与考勤 `/api/v1/staff`
-
-| 方法 | 路径 | 功能 |
-| ---- | ---- | ---- |
-| POST | `/api/v1/staff/` | 创建员工（账号唯一、密码 2-20 位、手机号查重） |
-| PUT | `/api/v1/staff/` | 更新员工（携带 `password` 则同步改密） |
-| GET | `/api/v1/staff/page` | 分页查询员工 |
-| GET | `/api/v1/staff/{id}` | 按 id 查询 |
-| GET | `/api/v1/staff/name/{name}` | 按姓名查询（值取自查询参数） |
-| GET | `/api/v1/staff/phone/{phone}` | 按手机号查询（当前实现按姓名匹配，待修） |
-| DELETE | `/api/v1/staff/{id}` | 删除员工 |
-| POST | `/api/v1/staff/sign` | 签到 / 签退（`signType`：1 上班、0 下班） |
-| GET | `/api/v1/staff/timesheet/today` | 本人今日考勤（打卡明细与总时长） |
-| GET | `/api/v1/staff/timesheet/month?month=` | 按月全员考勤统计（1-12，仅当年） |
-| POST | `/api/v1/staff/leave` | 请假（占位实现，返回空对象） |
-
-::: tip 考勤口径
-时长按整小时统计，不足 1 小时不显示；同日多次上班卡取最早、下班卡取最晚；未打下班卡但已上班的按当前时间计算。详见管理端的[考勤页面](/web#员工与考勤)。
-:::
-
-## 卡项 `/api/v1/item`
-
-| 方法 | 路径 | 功能 |
-| ---- | ---- | ---- |
-| POST | `/api/v1/item/` | 创建卡项（名称唯一、价格、描述） |
-| PUT | `/api/v1/item/` | 更新卡项 |
-| GET | `/api/v1/item/page` | 分页查询（当前实现未按条件过滤，返回全部） |
-| GET | `/api/v1/item/{id}` | 按 id 查询 |
-| GET | `/api/v1/item/name/{name}` | 按名称查询（值取自查询参数） |
-| DELETE | `/api/v1/item/{id}` | 删除，返回删除前的卡项 |
-
 ## 诊疗单 `/api/v1/treat`
 
 | 方法 | 路径 | 功能 |
@@ -91,6 +60,37 @@
 | DELETE | `/api/v1/review/customer/{id}` | 删除顾客回访 |
 | GET | `/api/v1/review/{id}` | 按 id 查询（占位） |
 | DELETE | `/api/v1/review/{id}` | 删除每日总结（占位，删除请用 id 查询后再操作） |
+
+## 卡项 `/api/v1/item`
+
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| POST | `/api/v1/item/` | 创建卡项（名称唯一、价格、描述） |
+| PUT | `/api/v1/item/` | 更新卡项 |
+| GET | `/api/v1/item/page` | 分页查询（当前实现未按条件过滤，返回全部） |
+| GET | `/api/v1/item/{id}` | 按 id 查询 |
+| GET | `/api/v1/item/name/{name}` | 按名称查询（值取自查询参数） |
+| DELETE | `/api/v1/item/{id}` | 删除，返回删除前的卡项 |
+
+## 员工与考勤（诊所运营） `/api/v1/staff`
+
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| POST | `/api/v1/staff/` | 创建员工（账号唯一、密码 2-20 位、手机号查重） |
+| PUT | `/api/v1/staff/` | 更新员工（携带 `password` 则同步改密） |
+| GET | `/api/v1/staff/page` | 分页查询员工 |
+| GET | `/api/v1/staff/{id}` | 按 id 查询 |
+| GET | `/api/v1/staff/name/{name}` | 按姓名查询（值取自查询参数） |
+| GET | `/api/v1/staff/phone/{phone}` | 按手机号查询（当前实现按姓名匹配，待修） |
+| DELETE | `/api/v1/staff/{id}` | 删除员工 |
+| POST | `/api/v1/staff/sign` | 签到 / 签退（`signType`：1 上班、0 下班） |
+| GET | `/api/v1/staff/timesheet/today` | 本人今日考勤（打卡明细与总时长） |
+| GET | `/api/v1/staff/timesheet/month?month=` | 按月全员考勤统计（1-12，仅当年） |
+| POST | `/api/v1/staff/leave` | 请假（占位实现，返回空对象） |
+
+::: tip 考勤口径
+时长按整小时统计，不足 1 小时不显示；同日多次上班卡取最早、下班卡取最晚；未打下班卡但已上班的按当前时间计算。详见[管理端](/web)页面说明。
+:::
 
 ## 订单 `/api/v1/order`（预留）
 

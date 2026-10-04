@@ -1,6 +1,6 @@
 <h1 align="center">Sinomed</h1>
 <p align="center"><img src="docs/public/logo.svg" width="64" alt="Sinomed logo" /></p>
-<p align="center"><b>中医医馆管理系统</b>：顾客建档 · 中医诊疗记录 · 卡项 · 复盘回访 · 员工考勤</p>
+<p align="center"><b>中医医馆管理系统</b>：顾客建档 · 中医诊疗记录 · 卡项 · 复盘回访</p>
 <p align="center">文档站：<a href="https://cuihairu.github.io/sinomed/">cuihairu.github.io/sinomed</a></p>
 
 ## 目录结构

@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Sinomed
   text: 中医医馆管理系统
-  tagline: 围绕中医门诊日常运转设计：顾客建档、中医诊疗记录（四诊 / 脉象 / 取穴）、卡项、每日报表与回访、员工考勤，服务端、管理端与小程序端一套仓库。
+  tagline: 围绕中医医馆日常接诊设计：顾客建档、中医诊疗记录（四诊 / 脉象 / 五行 / 取穴 / 诊断与调理方案）、卡项、复盘与回访。服务端、管理端与小程序端一套仓库。
   actions:
     - theme: brand
       text: 快速上手
@@ -18,22 +18,22 @@ features:
       src: /icons/stethoscope.svg
       alt: 诊疗
     title: 顾客与诊疗记录
-    details: 顾客建档、查询、更新；诊疗单覆盖主诉、望闻问切、脉象（左右手）、五行生克、取穴、诊断与调理方案。
-  - icon:
-      src: /icons/report-analytics.svg
-      alt: 报表
-    title: 每日报表与回访
-    details: 每日总结按天沉淀，员工复盘与顾客回访按日汇总；回访到期待办自动出现在每日报表。
-  - icon:
-      src: /icons/schedule.svg
-      alt: 考勤
-    title: 员工与考勤
-    details: 员工账号与角色管理、上/下班签到，按天与按月自动汇总工作时长。
+    details: 顾客建档、查询、更新；诊疗单覆盖主诉、望闻问切、脉象（左右手）、五行生克、取穴、诊断与调理方案，复诊可调阅历史。
   - icon:
       src: /icons/receipt-yuan.svg
       alt: 卡项
-    title: 卡项管理
-    details: 门店卡项（服务项目）的创建、查询与维护，为订单与耗卡打基础。
+    title: 卡项与会员
+    details: 门店卡项（服务项目）的创建、查询与维护；顾客档案带会员等级，为会员运营与订单打基础。
+  - icon:
+      src: /icons/report-analytics.svg
+      alt: 复盘
+    title: 复盘与回访
+    details: 每日总结按天沉淀，员工复盘与顾客回访按日汇总；回访到期待办自动出现在每日报表。
+  - icon:
+      src: /icons/prescription.svg
+      alt: 规划
+    title: 医馆板块规划
+    details: 挂号、处方、中药房、收费等门诊板块在规划中，源码尚未实现；分层规划与参考来源见「调研 · 功能点清单」。
   - icon:
       src: /icons/api.svg
       alt: 接口
