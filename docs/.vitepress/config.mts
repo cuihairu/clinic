@@ -30,6 +30,7 @@ export default defineConfig({
       { text: '服务端', link: '/server/architecture', activeMatch: '/server/' },
       { text: '管理端', link: '/web', activeMatch: '/web' },
       { text: '小程序端', link: '/app', activeMatch: '/app' },
+      { text: '设计', link: '/design/desktop', activeMatch: '/design/' },
       { text: '调研', link: '/research/projects', activeMatch: '/research/' }
     ],
     sidebar: {
@@ -64,6 +65,15 @@ export default defineConfig({
         {
           text: '小程序端',
           items: [{ text: '小程序端结构', link: '/app' }]
+        }
+      ],
+      '/design/': [
+        {
+          text: '设计',
+          items: [
+            { text: '桌面版设计（Tauri 2 薄壳）', link: '/design/desktop' },
+            { text: '平板展示设计（Kiosk）', link: '/design/tablet' }
+          ]
         }
       ],
       '/research/': [
