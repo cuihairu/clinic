@@ -8,13 +8,10 @@
 clinic/
 ├── app/       # 服务端（Java 17 / Maven，含 Dockerfile 与部署脚本）
 ├── web/       # 管理端前端（Ant Design Pro / Umi，pnpm）
-├── broker/    # 子模块：clinic-broker
-├── loader/    # 子模块：clinic-loader
-├── miniapp/   # 子模块：clinic-app（小程序）
 └── docs/      # 文档（在 app/docs）
 ```
 
-- `app/` 与 `web/` 的源码直接在本仓维护；`broker/`、`loader/`、`miniapp/` 仍为 git 子模块，按需 `git submodule update --init`。
+- `app/` 与 `web/` 的源码直接在本仓维护。
 - 后端构建：`mvn -B package --file app/pom.xml`。
 - 前端构建：进入 `web/`，`pnpm install && pnpm build`。
 
