@@ -3,7 +3,7 @@ services:
     restart: always
     privileged: true
     image: mysql:8.0
-    container_name: clinic-mysql
+    container_name: sinomed-mysql
     volumes:
       - ./init/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
       - ./db:/var/lib/mysql
@@ -14,14 +14,14 @@ services:
       --explicit_defaults_for_timestamp=true
     environment:
       MYSQL_ROOT_PASSWORD: "Abc*(12345)67890"
-      MYSQL_USER: "clinic"
+      MYSQL_USER: "sinomed"
       MYSQL_PASSWORD: "Abc$*(12345)67890"
       MYSQL_INITDB_SKIP_TZINFO: "Asia/Shanghai"
     ports:
         - 3306:3306
   server:
-    container_name: clinic-server 
-    image: clinic
+    container_name: sinomed-server 
+    image: sinomed
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -29,8 +29,8 @@ services:
       JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5008
       DB_HOST: db
       DB_PORT: 3306
-      DB_NAME: clinic
-      DB_USERNAME: clinic
+      DB_NAME: sinomed
+      DB_USERNAME: sinomed
       DB_PASSWORD: Abc$*(12345)67890
       SERVER_PORT: 2347
     ports:
@@ -38,7 +38,7 @@ services:
       - 3000:3000
       - 5008:5008
   web:
-    container_name: clinic-web 
+    container_name: sinomed-web 
     image: nginx
     restart: always
     depends_on:

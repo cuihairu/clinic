@@ -1,10 +1,10 @@
-# clinic
+# sinomed
 
 [使用文档](docs/useage.md)
 
 ## 开发文档
 
-[![Java CI with Maven](https://github.com/chuihairu/clinic/actions/workflows/maven.yml/badge.svg)](https://github.com/chuihairu/clinic/actions/workflows/maven.yml)
+[![Java CI with Maven](https://github.com/cuihairu/sinomed/actions/workflows/maven.yml/badge.svg)](https://github.com/cuihairu/sinomed/actions/workflows/maven.yml)
 
 技术栈： 
 - Java 17 TLS

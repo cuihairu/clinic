@@ -1,5 +1,5 @@
 const config = {
-  projectName: 'clinic-app',
+  projectName: 'sinomed-app',
   date: '2024-5-27',
   designWidth: 375,
   deviceRatio: {

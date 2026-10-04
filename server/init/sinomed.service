@@ -1,0 +1,16 @@
+[Unit]
+Description=Sinomed Server
+After=syslog.target
+
+[Service]
+WorkingDirectory=/data/sinomed
+SyslogIdentifier=gm
+ExecStart=/bin/bash -c "java -server -Xms256m -Xmx2048m -jar sinomed.jar"
+User=ubuntu
+Type=simple
+Restart=always
+TimeoutStopSec=5min 20s
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

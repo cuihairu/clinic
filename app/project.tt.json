@@ -1,7 +1,7 @@
 {
   "miniprogramRoot": "./",
-  "projectname": "clinic-app",
-  "description": "clinic app",
+  "projectname": "sinomed-app",
+  "description": "sinomed app",
   "appid": "touristappid",
   "setting": {
     "urlCheck": true,

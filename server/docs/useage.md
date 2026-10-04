@@ -82,7 +82,7 @@ sudo apt install mysql-server
 ```
 mysql -u root -p
 # 输入密码
-mysql> create DATABASE clinic;
+mysql> create DATABASE sinomed;
 ```
 
 ##### Java
@@ -214,9 +214,9 @@ sudo systemctl start nginx
 
 ```
 sudo cp -r dist/* /usr/share/nginx/html/
-sudo mkdir /data/clinic
-sudo chown ubuntu:ubuntu -R /data/clinic
-sudo cp clinic-*.jar /data/clinic/clinic.jar
+sudo mkdir /data/sinomed
+sudo chown ubuntu:ubuntu -R /data/sinomed
+sudo cp sinomed-*.jar /data/sinomed/sinomed.jar
 ```
 
 
@@ -224,9 +224,9 @@ sudo cp clinic-*.jar /data/clinic/clinic.jar
 ##### Systemd 配置
 
 ```
-sudo cp clinic.service /lib/systemd/system/clinic.service
-sudo systemctl enable clinic
-sudo systemctl start clinic
+sudo cp sinomed.service /lib/systemd/system/sinomed.service
+sudo systemctl enable sinomed
+sudo systemctl start sinomed
 ```
 
 
@@ -250,7 +250,7 @@ sudo systemctl start clinic
 
 ![](img/password1.png)
 
-新建服务账号`clinic`并设置密码，Role 确保为`DB Admin`,密码等下需要使用。
+新建服务账号`sinomed`并设置密码，Role 确保为`DB Admin`,密码等下需要使用。
 
 ![](img/mysql.4.png)
 
@@ -265,7 +265,7 @@ sudo systemctl start clinic
 ```
 mysql -u root -p
 # 输入密码
-mysql> create DATABASE clinic;
+mysql> create DATABASE sinomed;
 ```
 
 ##### Java

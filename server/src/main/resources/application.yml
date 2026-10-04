@@ -56,7 +56,7 @@ springdoc:
   group-configs:
     - group: 'default'
       paths-to-match: '/**'
-      packages-to-scan: com.clinic.controller
+      packages-to-scan: com.sinomed.controller
 
 knife4j:
   enable: true

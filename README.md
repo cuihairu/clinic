@@ -1,11 +1,11 @@
-# Clinic
+# Sinomed
 
 门诊系统 monorepo。
 
 ## 目录结构
 
 ```
-clinic/
+sinomed/
 ├── server/    # 服务端（Java 17 / Maven，含 Dockerfile 与部署脚本）
 ├── app/       # 小程序端（Taro/多端工程，pnpm）
 ├── web/       # 管理端前端（Ant Design Pro / Umi，pnpm）

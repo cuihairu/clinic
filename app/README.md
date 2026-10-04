@@ -1,4 +1,4 @@
-# clinic-app
+# sinomed-app
 
 # 开发
 

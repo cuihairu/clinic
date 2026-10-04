@@ -14,7 +14,7 @@ services:
       --explicit_defaults_for_timestamp=true
     environment:
       MYSQL_ROOT_PASSWORD: "Abc*(12345)67890"
-      MYSQL_USER: "clinic"
+      MYSQL_USER: "sinomed"
       MYSQL_PASSWORD: "Abc$*(12345)67890"
       MYSQL_INITDB_SKIP_TZINFO: "Asia/Shanghai"
     ports:
@@ -22,7 +22,7 @@ services:
     network_mode: "bridge"
   server:
     container_name: server
-    image: cuihairu/clinic:v0.1.0
+    image: cuihairu/sinomed:v0.1.0
     ports:
       - 2347:2347
     depends_on:

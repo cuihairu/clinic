@@ -1,8 +1,8 @@
 {
-  "name": "clinic-app",
+  "name": "sinomed-app",
   "version": "1.0.0",
   "private": true,
-  "description": "clinic app",
+  "description": "sinomed app",
   "templateInfo": {
     "name": "react-NutUI",
     "typescript": true,

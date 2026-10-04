@@ -13,7 +13,7 @@ web/node_modules/
 loader/build/
 loader/node_modules/
 loader/.idea
-loader/.clinic
+loader/.sinomed
 
 ### STS ###
 .apt_generated
