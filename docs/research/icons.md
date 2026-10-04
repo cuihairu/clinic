@@ -35,6 +35,9 @@
 | 消息通知 | `notification.svg` | Tabler | MIT | bell-ringing | <https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/bell-ringing.svg> |
 | 库存 | `inventory.svg` | Tabler | MIT | packages | <https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/packages.svg> |
 | 库存(备选) | `stock-out.svg` | Healthicons | CC0 | objects/stock-out | <https://raw.githubusercontent.com/resolvetosavelives/healthicons/main/public/icons/svg/outline/objects/stock-out.svg> |
+| 医生/诊疗(补充) | `stethoscope.svg` | Tabler | MIT | stethoscope | <https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/stethoscope.svg> |
+| 接口文档(补充) | `api.svg` | Tabler | MIT | api | <https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/api.svg> |
+| 顾客(补充) | `user.svg` | Tabler | MIT | user | <https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/user.svg> |
 
 ## 来源说明
 

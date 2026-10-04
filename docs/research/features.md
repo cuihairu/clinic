@@ -48,6 +48,6 @@
 
 ## 四、规划时的取材建议
 
-- **业务模型**优先参照 Yukang(与中医医馆重合度最高)与 openhis-clinic(诊所 5 模块闭环);两者见[开源项目盘点](/projects)。
+- **业务模型**优先参照 Yukang(与中医医馆重合度最高)与 openhis-clinic(诊所 5 模块闭环);两者见[开源项目盘点](/research/projects)。
 - 涉及**复用代码**前先看许可证:MIT/Apache 可放宽参考;GPL-3.0(openhis 系)有传染性;无许可证项目(chinese_medicine_store_cos、his_mvp 等)只能借鉴思路,不可复制代码。
 - 功能命名与文案以本仓源码为准(顾客/诊断/反馈/员工/卡项系统),引入新模块时避免与现有命名冲突。

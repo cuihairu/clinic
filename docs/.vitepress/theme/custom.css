@@ -1,0 +1,220 @@
+/**
+ * Sinomed 文档站主题定制
+ * 品牌色取自 logo 笔触：主色 #C7A674（唯一彩色），中性墨灰 #666666 为正文/边框基调。
+ * 亮暗双套 token；中文正文首行缩进 2em；行高 1.75；段落与表格/公式/卡片留呼吸间距。
+ */
+
+/* ============ 亮色 token ============ */
+:root {
+  /* 品牌金（logo 点睛笔触色） */
+  --vp-c-brand-1: #c7a674;
+  --vp-c-brand-2: #b9955e;
+  --vp-c-brand-3: #a8874d;
+  --vp-c-brand-soft: rgba(199, 166, 116, 0.16);
+  /* 兼容旧变量名 */
+  --vp-c-brand: #c7a674;
+
+  /* 中性墨灰基调（正文/边框） */
+  --vp-c-text-1: #666666;
+  --vp-c-text-2: #8c8c8c;
+  --vp-c-text-3: #b0b0b0;
+  --vp-c-divider: rgba(102, 102, 102, 0.16);
+  --vp-c-border: rgba(102, 102, 102, 0.24);
+  --vp-c-gutter: rgba(102, 102, 102, 0.12);
+
+  /* 宣纸底色 */
+  --vp-c-bg: #fbfaf7;
+  --vp-c-bg-alt: #f5f3ee;
+  --vp-c-bg-soft: #f5f3ee;
+  --vp-c-bg-elv: #ffffff;
+
+  /* 按钮：金底墨字 */
+  --vp-button-brand-bg: #c7a674;
+  --vp-button-brand-text: #3d3117;
+  --vp-button-brand-border: #c7a674;
+  --vp-button-brand-hover-bg: #b9955e;
+  --vp-button-brand-hover-text: #3d3117;
+  --vp-button-brand-hover-border: #b9955e;
+  --vp-button-brand-active-bg: #a8874d;
+  --vp-button-brand-active-text: #3d3117;
+  --vp-button-brand-active-border: #a8874d;
+
+  --vp-button-alt-bg: #f5f3ee;
+  --vp-button-alt-text: #666666;
+  --vp-button-alt-border: rgba(102, 102, 102, 0.24);
+  --vp-button-alt-hover-bg: #efece5;
+  --vp-button-alt-hover-text: #4d4d4d;
+  --vp-button-alt-hover-border: rgba(102, 102, 102, 0.32);
+
+  /* 代码块 */
+  --vp-code-block-bg: #f2efe8;
+  --vp-code-tab-divider: rgba(102, 102, 102, 0.16);
+  --vp-code-line-highlight-color: rgba(199, 166, 116, 0.18);
+
+  /* 自定义块 */
+  --vp-custom-block-tip-bg: rgba(199, 166, 116, 0.1);
+  --vp-custom-block-tip-border: rgba(199, 166, 116, 0.4);
+  --vp-custom-block-tip-text: #666666;
+  --vp-custom-block-tip-code-bg: rgba(199, 166, 116, 0.14);
+
+  /* 阅读版心 */
+  --vp-content-max-width: 760px;
+}
+
+/* ============ 暗色 token（品牌金提亮一档） ============ */
+.dark {
+  --vp-c-brand-1: #d9bd8e;
+  --vp-c-brand-2: #e2cba2;
+  --vp-c-brand-3: #cfb07a;
+  --vp-c-brand-soft: rgba(217, 189, 142, 0.16);
+  --vp-c-brand: #d9bd8e;
+
+  --vp-c-text-1: rgba(255, 255, 255, 0.86);
+  --vp-c-text-2: rgba(235, 227, 214, 0.66);
+  --vp-c-text-3: rgba(235, 227, 214, 0.42);
+  --vp-c-divider: rgba(235, 227, 214, 0.14);
+  --vp-c-border: rgba(235, 227, 214, 0.2);
+  --vp-c-gutter: rgba(235, 227, 214, 0.1);
+
+  --vp-c-bg: #1e1d1b;
+  --vp-c-bg-alt: #242320;
+  --vp-c-bg-soft: #242320;
+  --vp-c-bg-elv: #2a2825;
+
+  --vp-button-brand-bg: #d9bd8e;
+  --vp-button-brand-text: #2e2819;
+  --vp-button-brand-border: #d9bd8e;
+  --vp-button-brand-hover-bg: #e2cba2;
+  --vp-button-brand-hover-text: #2e2819;
+  --vp-button-brand-hover-border: #e2cba2;
+  --vp-button-brand-active-bg: #cfb07a;
+  --vp-button-brand-active-text: #2e2819;
+  --vp-button-brand-active-border: #cfb07a;
+
+  --vp-button-alt-bg: #2a2825;
+  --vp-button-alt-text: rgba(235, 227, 214, 0.86);
+  --vp-button-alt-border: rgba(235, 227, 214, 0.2);
+  --vp-button-alt-hover-bg: #33302c;
+  --vp-button-alt-hover-text: rgba(235, 227, 214, 0.95);
+  --vp-button-alt-hover-border: rgba(235, 227, 214, 0.28);
+
+  --vp-code-block-bg: #26241f;
+  --vp-code-line-highlight-color: rgba(217, 189, 142, 0.16);
+
+  --vp-custom-block-tip-bg: rgba(217, 189, 142, 0.12);
+  --vp-custom-block-tip-border: rgba(217, 189, 142, 0.4);
+  --vp-custom-block-tip-text: rgba(235, 227, 214, 0.86);
+}
+
+/* ============ 排版：读优化 ============ */
+.vp-doc {
+  line-height: 1.75;
+  font-size: 16px;
+}
+
+/* 中文正文首行缩进 2em（仅正文段落；列表、表格、代码、图注除外） */
+.vp-doc p {
+  text-indent: 2em;
+  margin: 0.9em 0 1.1em;
+}
+.vp-doc li p,
+.vp-doc th p,
+.vp-doc td p,
+.vp-doc blockquote p,
+.vp-doc .custom-block p,
+.vp-doc p:has(> img:only-child),
+.vp-doc p:has(> span.katex-display) {
+  text-indent: 0;
+}
+
+/* 标题与正文之间的呼吸感 */
+.vp-doc h1 {
+  margin-top: 0.4em;
+  margin-bottom: 1em;
+  font-weight: 600;
+}
+.vp-doc h2 {
+  margin-top: 2.4em;
+  margin-bottom: 1em;
+}
+.vp-doc h3 {
+  margin-top: 1.8em;
+  margin-bottom: 0.8em;
+}
+
+/* 表格、代码块、引用、公式的留白 */
+.vp-doc table {
+  margin: 1.3em 0;
+  display: table;
+  width: 100%;
+  overflow: auto;
+}
+.vp-doc .table-container,
+.vp-doc div[class*='language-'] {
+  margin: 1.3em 0;
+}
+.vp-doc blockquote {
+  margin: 1.3em 0;
+  color: var(--vp-c-text-2);
+}
+.vp-doc ul,
+.vp-doc ol {
+  margin: 0.9em 0;
+  padding-left: 1.6em;
+}
+.vp-doc li {
+  margin: 0.35em 0;
+}
+.vp-doc .katex-display,
+.vp-doc .math-block {
+  margin: 1.4em 0;
+}
+
+/* 首页 hero/feature：暖色卡片 */
+.VPFeature {
+  border-color: var(--vp-c-border) !important;
+  background-color: var(--vp-c-bg-elv) !important;
+  transition:
+    border-color 0.25s,
+    box-shadow 0.25s;
+}
+.VPFeature:hover {
+  border-color: var(--vp-c-brand-2) !important;
+  box-shadow: 0 4px 16px rgba(199, 166, 116, 0.18);
+}
+.VPFeature .title {
+  color: var(--vp-c-text-1);
+}
+.VPFeature .details {
+  color: var(--vp-c-text-2);
+}
+.VPHero .name,
+.VPHero .text {
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+}
+.VPHero .name {
+  color: var(--vp-c-brand-1);
+}
+.VPHero .text {
+  color: var(--vp-c-text-1);
+}
+.VPHero .tagline {
+  color: var(--vp-c-text-2);
+}
+
+/* 行内代码与链接 */
+.vp-doc :not(pre, h1, h2, h3, h4, h5, h6) > code {
+  color: var(--vp-c-brand-3);
+  background: var(--vp-c-brand-soft);
+}
+.dark .vp-doc :not(pre, h1, h2, h3, h4, h5, h6) > code {
+  color: var(--vp-c-brand-2);
+}
+.vp-doc a {
+  text-decoration-color: rgba(199, 166, 116, 0.5);
+}
+.dark .vp-doc a {
+  text-decoration-color: rgba(217, 189, 142, 0.5);
+}
