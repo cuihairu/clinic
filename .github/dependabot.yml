@@ -1,0 +1,64 @@
+# Dependabot 版本更新配置。
+# 背景：仓库此前未落 dependabot.yml，安全更新任务在 /app（Taro 3）与 /web（umi 4）的
+# 旧工具链依赖上批量失败（大量「已最新但仍有漏洞、无可用修复版本」的传递依赖），
+# 把「Dependabot Updates」工作流打红；安全更新已改为在仓库设置里关闭（告警保留，
+# 人工在 Security 页评估），本文件只管**版本更新**，保持小步、分组、不打红。
+version: 2
+updates:
+  # CI 动作
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: [ "*" ]
+
+  # 服务端 Maven 依赖
+  - package-ecosystem: maven
+    directory: /server
+    schedule:
+      interval: weekly
+    groups:
+      maven:
+        patterns: [ "*" ]
+
+  # 前端三端：小版本/补丁合并成一个 PR；主版本会破坏 Taro/umi 构建，一律不自动升
+  - package-ecosystem: npm
+    directory: /app
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      app-minor-patch:
+        patterns: [ "*" ]
+        update-types: [ "minor", "patch" ]
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major" ]
+
+  - package-ecosystem: npm
+    directory: /web
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      web-minor-patch:
+        patterns: [ "*" ]
+        update-types: [ "minor", "patch" ]
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major" ]
+
+  - package-ecosystem: npm
+    directory: /docs
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      docs-minor-patch:
+        patterns: [ "*" ]
+        update-types: [ "minor", "patch" ]
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major" ]
