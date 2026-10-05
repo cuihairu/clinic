@@ -11,6 +11,8 @@
 | `DB_HOST` / `DB_PORT` | MySQL 地址与端口 | `db` / `3306` |
 | `DB_NAME` | 库名 | `sinomed` |
 | `DB_USERNAME` / `DB_PASSWORD` | 数据库账号 | `sinomed` |
+| `DB_URL` / `DB_DRIVER` / `DB_DIALECT` | 整串覆盖数据源（演示环境换 SQLite 用） | `jdbc:sqlite:/app/data/sinomed.db?journal_mode=WAL&busy_timeout=5000` / `org.sqlite.JDBC` / `org.hibernate.community.dialect.SQLiteDialect` |
+| `DEMO_SEED` | 演示种子数据开关（幂等，重复启动跳过） | `true` |
 | `SERVER_PORT` | 服务端口 | `2347` |
 | `JAVA_OPTS` | JVM 参数（Dockerfile 注入） | `-Xms256m -Xmx2048m` |
 
@@ -45,7 +47,19 @@ cd server
 
 Dockerfile 基于 `eclipse-temurin:21-jre-alpine`，把 jar 复制为 `/app/server.jar`，`JAVA_OPTS` 可注入 JVM 参数，日志目录 `/app/logs`。
 
-## 方式一：Docker Compose（整套）
+## 演示编排（根目录 `compose.yml`，SQLite 一键起）
+
+在线演示与本地体验用根目录 `compose.yml`：两个服务（server + web，web 的 nginx 把 `/api` 反代到 server）、SQLite 数据库文件落 `sinomed-data` 持久卷、`DEMO_SEED=true` 幂等播种虚构演示数据：
+
+```bash
+docker compose up -d
+# 管理端 http://localhost:8080 （admin / 123）
+# 接口文档 http://localhost:2347/doc.html
+```
+
+空卷首启自动建表并创建 `admin/123`；重复启动按账号/手机号/卡项名等自然键判重，不会产生重复数据。接回 MySQL 时替换 compose 里 `DB_*` 五个环境变量即可（构建层另有 `MVN_DIST_MIRROR` / `MAVEN_MIRROR_URL` 可选国内源参数，出境受限也能构建）。
+
+## 方式一：Docker Compose（MySQL 整套）
 
 `server/docker-compose.yml` 编排三个服务：MySQL（自动执行 `init/init.sql` 建库建账号）+ 服务端镜像 + Nginx（挂载 `web/dist` 静态站与 `init/nginx_http.conf`）：
 
@@ -75,6 +89,13 @@ sudo cp server/init/sinomed.service /lib/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now sinomed
 ```
+
+## 在线演示预案
+
+- **CI 出镜像**：`Docker Images` 工作流（`.github/workflows/docker.yml`）在 push main 且 `server/`、`web/` 变更时构建并推送 ghcr.io，tag 为 `latest`（main 滚动）与 `sha-<短提交>`（可回溯、可回滚）；首次发布后在 GitHub Package 设置把 `sinomed-server` / `sinomed-web` 改为 **Public**，演示机才能匿名拉取。
+- **演示机**：runner-Docker（内网 `192.168.5.5`），部署目录 `/data/deploy/sinomed`；放一份仓库的 `compose.yml`，`IMAGE_TAG=sha-<短提交>` 固定版本拉起，回滚即把 tag 改回上一短提交号后 `up -d`。
+- **域名与隧道**：`*.cuihairu.site` 走 Cloudflare Tunnel（域名待定，先占位 `sinomed.cuihairu.site`），隧道指向演示机 web 服务的 `8080` 端口，无需公网 IP 与备案端口暴露。
+- **数据重置**：演示数据全部为种子脚本虚构内容，`docker compose down -v && docker compose up -d` 即回到全新演示态。
 
 ## Nginx 转发关系
 
