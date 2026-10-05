@@ -4,7 +4,12 @@
 # 首次启动由 JPA ddl-auto=update 建表，admin/123 账号自动创建；演示种子数据见 demo-seed（后续步骤）。
 services:
   server:
-    build: ./server
+    build:
+      context: ./server
+      args:
+        # 国内源默认开启（出境受限也能构建）；置环境变量为空串即回退官方源
+        MVN_DIST_MIRROR: ${MVN_DIST_MIRROR-https://mirrors.cloud.tencent.com/nexus/repository/maven-public}
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL-https://mirrors.cloud.tencent.com/nexus/repository/maven-public}
     # tag 约定：本地 :local；CI 推 ghcr.io :latest 与 :sha-<短提交>（IMAGE_TAG=latest 可覆盖）
     image: ghcr.io/cuihairu/sinomed-server:${IMAGE_TAG:-local}
     container_name: sinomed-server
@@ -12,6 +17,7 @@ services:
     environment:
       SERVER_PORT: "2347"
       TZ: Asia/Shanghai
+      DEMO_SEED: "true" # 演示种子数据（幂等，重复启动跳过）；置 false 即空库
       # 演示数据层用 SQLite（文件放持久卷 /app/data）；接 MySQL 时替换这五项即可
       DB_DRIVER: org.sqlite.JDBC
       DB_URL: "jdbc:sqlite:/app/data/sinomed.db?journal_mode=WAL&busy_timeout=5000"

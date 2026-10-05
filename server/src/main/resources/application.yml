@@ -43,6 +43,10 @@ application:
         expiration: 604800000 # 7 days
 
 
+# 演示种子数据开关：DEMO_SEED=true 时启动播种（虚构脱敏数据，逐表幂等，已有数据跳过）
+demo:
+  seed: ${DEMO_SEED:false}
+
 server:
   port: ${SERVER_PORT}
   servlet:
