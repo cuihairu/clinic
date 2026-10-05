@@ -1,0 +1,46 @@
+# Sinomed 演示环境一键起：
+#   docker compose up -d
+# 服务拓扑：web（管理端静态资源 + nginx 反代 /api）→ server（API，SQLite 落持久卷）
+# 首次启动由 JPA ddl-auto=update 建表，admin/123 账号自动创建；演示种子数据见 demo-seed（后续步骤）。
+services:
+  server:
+    build: ./server
+    # tag 约定：本地 :local；CI 推 ghcr.io :latest 与 :sha-<短提交>（IMAGE_TAG=latest 可覆盖）
+    image: ghcr.io/cuihairu/sinomed-server:${IMAGE_TAG:-local}
+    container_name: sinomed-server
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: "2347"
+      TZ: Asia/Shanghai
+      # 演示数据层用 SQLite（文件放持久卷 /app/data）；接 MySQL 时替换这五项即可
+      DB_DRIVER: org.sqlite.JDBC
+      DB_URL: "jdbc:sqlite:/app/data/sinomed.db?journal_mode=WAL&busy_timeout=5000"
+      DB_DIALECT: org.hibernate.community.dialect.SQLiteDialect
+      DB_USERNAME: demo
+      DB_PASSWORD: demo
+    volumes:
+      - sinomed-data:/app/data # SQLite 数据库文件（含 WAL）
+      - sinomed-logs:/app/logs
+    ports:
+      - "2347:2347" # Knife4j 接口文档 http://localhost:2347/doc.html
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:2347/doc.html"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  web:
+    build: ./web
+    image: ghcr.io/cuihairu/sinomed-web:${IMAGE_TAG:-local}
+    container_name: sinomed-web
+    restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
+    ports:
+      - "8080:8080" # 管理端 http://localhost:8080（/api 由 nginx 转发到 server:2347）
+
+volumes:
+  sinomed-data:
+  sinomed-logs:
