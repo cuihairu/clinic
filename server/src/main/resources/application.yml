@@ -4,10 +4,13 @@ spring:
     caffeine:
       spec: initialCapacity=50,maximumSize=10000,expireAfterAccess=300s
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    # 默认 MySQL；演示环境可整串换 SQLite（见根目录 compose.yml），如：
+    #   DB_URL=jdbc:sqlite:/app/data/sinomed.db?journal_mode=WAL&busy_timeout=5000
+    #   DB_DRIVER=org.sqlite.JDBC DB_DIALECT=org.hibernate.community.dialect.SQLiteDialect
+    driver-class-name: ${DB_DRIVER:com.mysql.cj.jdbc.Driver}
+    url: ${DB_URL:jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
     dbcp2:
       test-on-borrow: true
       validation-query: SELECT 1
@@ -22,7 +25,7 @@ spring:
         use_sql_comments: true
         useUnicode: true
         characterEncoding: UTF-8
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: ${DB_DIALECT:org.hibernate.dialect.MySQLDialect}
         show_sql: true
     open-in-view: false
   security:

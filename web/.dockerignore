@@ -1,0 +1,6 @@
+node_modules/
+dist/
+src/.umi/
+src/.umi-production/
+src/.umi-test/
+.umi-production/
