@@ -1,258 +1,151 @@
-import { EllipsisOutlined } from '@ant-design/icons';
-import type { ActionType, ProColumns } from '@ant-design/pro-components';
+import { PageContainer } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
-import {Button, Dropdown, message} from 'antd';
-import { history } from '@umijs/max';
+import type { ProColumns } from '@ant-design/pro-components';
+import type { ActionType } from '@ant-design/pro-components';
+import { message, Popconfirm, Tag } from 'antd';
 import { useRef } from 'react';
-import { queryCustomerByPage,deleteCustomer} from '@/services/ant-design-pro/customer';
-export const waitTimePromise = async (time: number = 100) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, time);
-  });
+import type { ReactNode } from 'react';
+import {
+  deleteOrder,
+  queryOrderPage,
+  updateOrderStatus,
+  ORDER_STATUS,
+  type Order,
+} from '@/services/ant-design-pro/order';
+
+const statusTag = (status?: number) => {
+  switch (status) {
+    case ORDER_STATUS.CREATED:
+      return <Tag color="blue">已下单</Tag>;
+    case ORDER_STATUS.CONFIRMED:
+      return <Tag color="orange">接待中</Tag>;
+    case ORDER_STATUS.DONE:
+      return <Tag color="green">已完成</Tag>;
+    case ORDER_STATUS.CANCELLED:
+      return <Tag>已取消</Tag>;
+    default:
+      return '-';
+  }
 };
 
-export const waitTime = async (time: number = 100) => {
-  await waitTimePromise(time);
-};
+export default function OrderQuery() {
+  const actionRef = useRef<ActionType>();
 
-type Customer = {
-  id?: number;
-  name?: string;
-  age?: number;
-  gender?: number;
-  phone?: string;
-  address?: string;
-  level?: number;
-  birthday?: string;
-  createTime?: string;
-};
+  const flow = async (id: number, status: number, tip: string) => {
+    const res = await updateOrderStatus({ id, status });
+    if (res?.id) {
+      message.success(tip);
+      actionRef.current?.reload();
+    }
+  };
 
-const columns: ProColumns<Customer>[] = [
-  {
-    dataIndex: 'index',
-    valueType: 'indexBorder',
-    width: 48,
-  },
-  {
-    title: '名字',
-    dataIndex: 'name',
-    copyable: true,
-    ellipsis: true,
-    tip: '目前只会根据客人的名字和手机号码查询',
-    formItemProps: {
-      rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
-      ],
+  const columns: ProColumns<Order>[] = [
+    { title: 'id', dataIndex: 'id', width: 60, hideInSearch: true },
+    {
+      title: '顾客',
+      dataIndex: 'customerName',
+      width: 110,
+      render: (_, entity) =>
+        entity.customerName ? `${entity.customerName}${entity.customerPhone ? `（${entity.customerPhone}）` : ''}` : '-',
     },
-  },
-  {
-    title: '会员等级',
-    dataIndex: 'level',
-    ellipsis: true,
-    formItemProps: {
-      rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
-      ],
+    { title: '卡项', dataIndex: 'itemName', width: 150, render: (_, entity) => entity.itemName || '-' },
+    { title: '金额', dataIndex: 'price', width: 90, hideInSearch: true, render: (_, entity) => (entity.price == null ? '-' : `¥${entity.price}`) },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      width: 90,
+      valueType: 'select',
+      valueEnum: {
+        0: { text: '已下单' },
+        1: { text: '接待中' },
+        2: { text: '已完成' },
+        9: { text: '已取消' },
+      },
+      render: (_, entity) => statusTag(entity.status),
     },
-  },
-  {
-    title: '手机号码',
-    dataIndex: 'phone',
-    copyable: true,
-    ellipsis: true,
-    tip: '目前只会根据客人的名字和手机号码查询',
-    formItemProps: {
-      rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
-      ],
+    {
+      title: '下单时间',
+      dataIndex: 'createTime',
+      width: 160,
+      hideInSearch: true,
+      render: (_, entity) =>
+        entity.createTime ? new Date(entity.createTime).toLocaleString('zh-CN', { hour12: false }) : '-',
     },
-  },{
-    title: '年龄',
-    dataIndex: 'age',
-    ellipsis: true,
-    formItemProps: {
-      rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
-      ],
-    },
-  },
-  {
-    title: '性别',
-    dataIndex: 'gender',
-    valueType: 'select',
-    valueEnum: {
-      0: {text: '女'},
-      1: {text: '男'}
-    },
-    fieldProps:{
-      options:[{
-        label: '女',
-        value: 0
-      },{
-        label: '男',
-        value: 1
-      }],
-    },
-    ellipsis: true,
-    formItemProps: {
-      rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
-      ],
-    },
-  },
-  {
-    title: '生日',
-    key: 'birthday',
-    dataIndex: 'birthday',
-    valueType: 'date',
-    sorter: true,
-    hideInSearch: true,
-  },
-  {
-    title: '创建时间',
-    dataIndex: 'created_at',
-    valueType: 'dateRange',
-    hideInTable: true,
-    search: {
-      transform: (value) => {
-        return {
-          startTime: value[0],
-          endTime: value[1],
-        };
+    {
+      title: '操作',
+      valueType: 'option',
+      key: 'option',
+      width: 200,
+      render: (_, entity) => {
+        if (!entity.id) return [];
+        const actions: ReactNode[] = [];
+        if (entity.status === ORDER_STATUS.CREATED) {
+          actions.push(
+            <a key="confirm" onClick={() => flow(entity.id!, ORDER_STATUS.CONFIRMED, '已接单')}>
+              接单
+            </a>,
+          );
+        }
+        if (entity.status === ORDER_STATUS.CONFIRMED) {
+          actions.push(
+            <a key="done" onClick={() => flow(entity.id!, ORDER_STATUS.DONE, '已完成')}>
+              完成
+            </a>,
+          );
+        }
+        if (entity.status === ORDER_STATUS.CREATED || entity.status === ORDER_STATUS.CONFIRMED) {
+          actions.push(
+            <Popconfirm
+              key="cancel"
+              title="取消这笔订单？"
+              onConfirm={() => flow(entity.id!, ORDER_STATUS.CANCELLED, '已取消')}
+            >
+              <a>取消</a>
+            </Popconfirm>,
+          );
+        }
+        if (entity.status === ORDER_STATUS.CANCELLED) {
+          actions.push(
+            <Popconfirm
+              key="delete"
+              title="删除这条已取消的订单？"
+              onConfirm={async () => {
+                const res = await deleteOrder(entity.id!);
+                if (res && (res.message || res.message === undefined)) {
+                  message.success('删除成功');
+                  actionRef.current?.reload();
+                }
+              }}
+            >
+              <a>删除</a>
+            </Popconfirm>,
+          );
+        }
+        if (actions.length === 0) actions.push(<span key="none">-</span>);
+        return actions;
       },
     },
-  },
-  {
-    title: '操作',
-    valueType: 'option',
-    key: 'option',
-    render: (text, record, _, action) => [
-      <a
-        key="createTreat"
-        onClick={() => {
-          if (record.id) {
-            history.push(`/treat/create?customerId=${record.id}`);
-          }else{
-            message.error('记录id不存,该数据可不可以编辑');
-          }
-        }}
-      >
-        诊断
-      </a>,
-      <a
-        key="update"
-        onClick={() => {
-          if (record.id) {
-            history.push(`/customer/update?customerId=${record.id}`);
-          }else{
-            message.error('记录id不存,该数据可不可以编辑');
-          }
-        }}
-      >
-        更新
-      </a>,
-      <a
-        key="delete"
-        onClick={() => {
-          if (record.id) {
-            deleteCustomer(record.id).then(() => {
-              message.success('删除成功');
-              action?.reload();
-            });
-          }else{
-            message.warning('记录id不存,无法删除,请刷新再试');
-          }
-        }}
-      >
-        删除
-      </a>,
-    ],
-  },
-];
+  ];
 
-export default () => {
-  const actionRef = useRef<ActionType>();
   return (
-    <ProTable<Customer>
-      columns={columns}
-      actionRef={actionRef}
-      cardBordered
-      request={async (params = {}, sort, filter) => {
-        console.log(sort, filter);
-        const msg = await queryCustomerByPage(params);
-        return {
-          data: msg.data,
-          success: true,
-          total: msg.total,
-        }
-      }}
-      editable={{
-        type: 'multiple',
-      }}
-      columnsState={{
-        persistenceKey: 'pro-table-singe-demos',
-        persistenceType: 'localStorage',
-        onChange(value) {
-          console.log('value: ', value);
-        },
-      }}
-      rowKey="id"
-      search={{
-        labelWidth: 'auto',
-      }}
-      options={{
-        setting: {
-          listsHeight: 400,
-        },
-      }}
-      form={{
-        // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
-        syncToUrl: (values, type) => {
-          if (type === 'get') {
-            return {
-              ...values,
-              created_at: [values.startTime, values.endTime],
-            };
-          }
-          return values;
-        },
-      }}
-      pagination={{
-        pageSize: 10,
-        onChange: (page) => console.log(page),
-      }}
-      dateFormatter="string"
-      headerTitle="已经查询到的客人信息:"
-      toolBarRender={() => [
-        <Dropdown
-          key="menu"
-          menu={{
-            items: [
-            ],
-          }}
-        >
-          <Button>
-            <EllipsisOutlined />
-          </Button>
-        </Dropdown>,
-      ]}
-    />
+    <PageContainer title="订单管理" content="顾客 Kiosk 下的单在这里接待：接单 → 完成，未接待可取消；删除仅限已取消的单">
+      <ProTable<Order>
+        rowKey="id"
+        columns={columns}
+        actionRef={actionRef}
+        cardBordered
+        request={async (params) => {
+          const res = await queryOrderPage({
+            current: params.current,
+            pageSize: params.pageSize,
+            status: params.status ? Number(params.status) : undefined,
+          });
+          return { data: res?.data || [], success: true, total: res?.total || 0 };
+        }}
+        pagination={{ pageSize: 10 }}
+        dateFormatter="string"
+        search={{ labelWidth: 'auto' }}
+      />
+    </PageContainer>
   );
-};
+}

@@ -6,6 +6,8 @@ import com.sinomed.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -53,5 +55,33 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void deleteById(Long id) {
         orderRepository.deleteById(id);
+    }
+
+    /**
+     * 管理端分页；status 为空查全部
+     */
+    @Override
+    public Page<OrderEntity> findPage(Integer status, Pageable pageable) {
+        if (status == null) {
+            return orderRepository.findAll(pageable);
+        }
+        return orderRepository.findByStatus(status, pageable);
+    }
+
+    /**
+     * 状态流转：只允许 0→1、1→2 正向与 0/1→9 取消
+     */
+    @Override
+    public OrderEntity updateStatus(Long id, Integer status) {
+        OrderEntity order = orderRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("订单不存在：" + id));
+        Integer current = order.getStatus();
+        boolean allowed = (current == null || current == 0) && (status == 1 || status == 9)
+                || current != null && current == 1 && (status == 2 || status == 9);
+        if (!allowed) {
+            throw new IllegalArgumentException("订单状态不允许从 " + current + " 流转到 " + status);
+        }
+        order.setStatus(status);
+        return orderRepository.save(order);
     }
 }

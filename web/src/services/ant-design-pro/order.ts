@@ -1,12 +1,70 @@
 import { request } from '@umijs/max';
 
-export async function createOrder(body: API.Staff,options?: { [key: string]: any }) {
-  return request<API.Staff>('/api/v1/staff/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+/** 订单状态：0 已下单、1 已确认（接待中）、2 已完成、9 已取消 */
+export const ORDER_STATUS = {
+  CREATED: 0,
+  CONFIRMED: 1,
+  DONE: 2,
+  CANCELLED: 9,
+} as const;
+
+export interface Order {
+  id?: number;
+  customerId?: number;
+  /** 列表联出的展示字段 */
+  customerName?: string;
+  customerPhone?: string;
+  itemId?: number;
+  itemName?: string;
+  /** 接待员工 id，Kiosk 单为空 */
+  staffId?: number | null;
+  status?: number;
+  /** 成交价（元，下单时刻卡项价格快照） */
+  price?: number;
+  createTime?: string;
+  updateTime?: string;
+}
+
+export interface OrderPageResult {
+  data?: Order[];
+  total?: number;
+  pages?: number;
+  success?: boolean;
+}
+
+export async function queryOrderPage(
+  params: { current?: number; pageSize?: number; status?: number },
+  options?: { [key: string]: any },
+) {
+  return request<OrderPageResult>('/api/v1/order/page', {
+    method: 'GET',
+    params,
+    ...(options || {}),
+  });
+}
+
+export async function fetchOrder(id: number, options?: { [key: string]: any }) {
+  return request<Order>(`/api/v1/order/${id}`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 状态流转：0→1 接单、1→2 完成、0/1→9 取消（服务端校验非法流转） */
+export async function updateOrderStatus(
+  body: { id: number; status: number },
+  options?: { [key: string]: any },
+) {
+  return request<Order>('/api/v1/order/status', {
+    method: 'PUT',
     data: body,
+    ...(options || {}),
+  });
+}
+
+export async function deleteOrder(id: number, options?: { [key: string]: any }) {
+  return request<{ message?: string }>(`/api/v1/order/${id}`, {
+    method: 'DELETE',
     ...(options || {}),
   });
 }

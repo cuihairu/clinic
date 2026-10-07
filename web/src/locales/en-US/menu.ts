@@ -8,6 +8,8 @@ export default {
   'menu.register': 'Register',
   'menu.register-result': 'Register Result',
   'menu.dashboard': 'Dashboard',
+  'menu.order': 'Orders',
+  'menu.order.order-query': 'Order Management',
   'menu.ads': 'Ads Display',
   'menu.ads.ads-materials': 'Materials',
   'menu.ads.ads-schedules': 'Schedules',

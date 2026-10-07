@@ -1,49 +1,68 @@
 package com.sinomed.vo;
 
+
+import com.sinomed.entity.OrderEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.io.Serializable;
+
 import java.util.Date;
 
+/**
+ * 订单视图：字段与 orders 表对齐；customerName/itemName 是管理端列表联出的展示字段，落库不涉及。
+ * 状态：0 已下单、1 已确认（接待中）、2 已完成、9 已取消（见 docs/design/kiosk.md）。
+ */
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Schema(title = "订单信息")
-public class OrderView implements Serializable {
-    @Schema(title = "订单id",description = "订单id",example = "1234567890")
+public class OrderView {
+    @Schema(title = "订单id", example = "12")
     private Long id;
 
-    @Schema(title = "用户id",description = "用户id",example = "1234567890")
+    @Schema(title = "顾客id", example = "8")
     private Long customerId;
 
-    @Schema(title = "商品id",description = "商品id",example = "1234567890")
-    private Integer itemId;
+    @Schema(title = "顾客名（列表联出）", example = "王女士")
+    private String customerName;
 
-    @Schema(title = "员工id",description = "员工Id",example = "1")
-    private Integer staffId;
+    @Schema(title = "顾客手机号（列表联出）", example = "13700003333")
+    private String customerPhone;
 
-    @Schema(title = "外部订单id",description = "外部订单支付的id,比如支付宝,微信",example = "ZFB12654176319873971973912")
-    private String extOrderId;
+    @Schema(title = "卡项id", example = "3")
+    private Long itemId;
 
-    @Schema(title = "支付类型",description = "支付的类型，0 支付宝 1 微信 3 现金 4 刷卡")
-    private Integer payType;
+    @Schema(title = "卡项名（列表联出）", example = "拔罐体验券")
+    private String itemName;
 
-    @Schema(title = "订单的状态",description = "支付的状态")
+    @Schema(title = "接待员工id（Kiosk 单为空）", example = "1")
+    private Long staffId;
+
+    @Schema(title = "状态：0 已下单、1 已确认、2 已完成、9 已取消", example = "0")
     private Integer status;
-    
-    @Schema(title = "价格",description = "支付时服务的价格")
-    private Double price;
 
-    @Schema(title = "支付款项",description = "实际支付的钱")
-    private Double payment;
+    @Schema(title = "成交价（元，下单时刻卡项价格快照）", example = "99")
+    private Integer price;
 
-    @Schema(title = "创建时间",description = "订单的生成时间",example = "2013-01-01 12:00:12")
+    @Schema(title = "下单时间", example = "2026-10-07 15:00:00")
     private Date createTime;
 
-    @Schema(title = "更新时间",description = "订单的最后修改时间",example = "2013-01-01 12:00:12")
+    @Schema(title = "更新时间", example = "2026-10-07 15:30:00")
     private Date updateTime;
+
+    public static OrderView FromOrderEntity(OrderEntity entity) {
+        return OrderView.builder()
+                .id(entity.getId())
+                .customerId(entity.getUserId())
+                .itemId(entity.getItemId())
+                .staffId(entity.getStaffId())
+                .status(entity.getStatus())
+                .price(entity.getPrice())
+                .createTime(entity.getCreateTime())
+                .updateTime(entity.getUpdateTime())
+                .build();
+    }
 }
