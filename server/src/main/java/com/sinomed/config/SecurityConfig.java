@@ -57,6 +57,7 @@ public class SecurityConfig {
                         "/doc.html",  // Knife4j HTML page
                         "/api/v1/ads/playlist",  // 平板拉排期（只读 + 屏 code 校验，见 docs/design/tablet.md）
                         "/api/v1/calls/latest",  // 平板拉叫号（只读 + 屏 code 校验）
+                        "/api/v1/kiosk/**",  // 顾客选服务 Kiosk：浏览只读 + 下单唯一写入口（见 docs/design/kiosk.md）
                         "/media/**",  // 广告媒体静态资源（Nginx 托管时不受此约束）
                         "/actuator/**",
                         LoginAPI).permitAll()

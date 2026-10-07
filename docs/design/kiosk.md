@@ -56,7 +56,7 @@
 | 方法 | 路径 | 说明 |
 | ---- | ---- | ---- |
 | GET | `/api/v1/kiosk/items` | Kiosk 浏览：`enabled=1` 的卡项按 `sort,name` 升序，返回 `id / name / price / cover / description`（不含审计字段） |
-| POST | `/api/v1/kiosk/orders` | Kiosk 下单：`{ phone, name?, items: [{ itemId }] }`；校验手机号格式与卡项存在且上架；按手机号找/建顾客；逐项写订单（status=0、price=卡项现价）；返回 `{ customerId, orders: [{ id, itemId, itemName, price }], totalFee }` |
+| POST | `/api/v1/kiosk/orders` | Kiosk 下单：`{ phone, name?, itemIds: [卡项id…] }`；校验手机号格式与卡项存在且上架；按手机号找/建顾客；逐项写订单（status=0、price=卡项现价）；返回 `{ customerId, customerName, orders: [{ id, itemId, itemName, price }], totalFee }` |
 
 免登录边界（如实）：Kiosk 是内网设备，浏览接口纯只读；下单接口是唯一写入口，写范围限定「一条顾客档案（按手机号幂等）+ N 条 status=0 订单」，不暴露任何查询/删除能力。如暴露公网需另加验证码或屏 token。
 
