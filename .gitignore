@@ -56,3 +56,6 @@ logs/
 ### server 本地落盘
 /data/
 tablet/tsconfig.tsbuildinfo
+/kiosk/node_modules/
+/kiosk/dist/
+kiosk/tsconfig.tsbuildinfo
