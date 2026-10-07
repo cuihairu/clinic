@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>小票</title>
+    <style>
+      /* 80mm 热敏：高度不限，@page auto 让驱动按内容出纸 */
+      @page {
+        size: 80mm auto;
+        margin: 4mm;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; color: #111; font-family: 'SimSun', 'Songti SC', serif;
+        font-size: 9pt; line-height: 1.55; width: 72mm;
+      }
+      h1 { font-size: 12pt; text-align: center; margin: 0 0 1mm; letter-spacing: 0.2em; }
+      .clinic { text-align: center; margin-bottom: 3mm; }
+      .meta { border-top: 0.3mm dashed #555; border-bottom: 0.3mm dashed #555; padding: 1.5mm 0; margin-bottom: 2mm; }
+      .meta div { display: flex; justify-content: space-between; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 2mm; }
+      th { border-bottom: 0.3mm solid #333; text-align: left; font-weight: 600; padding: 1mm 0; }
+      td { padding: 1mm 0; vertical-align: top; }
+      td.amt, th.amt { text-align: right; white-space: nowrap; }
+      .total { display: flex; justify-content: space-between; border-top: 0.3mm dashed #555; padding-top: 1.5mm; font-weight: 700; font-size: 10.5pt; }
+      .foot { text-align: center; margin-top: 3mm; }
+    </style>
+  </head>
+  <body>
+    <h1>收 据</h1>
+    <div class="clinic">{{clinicName}}</div>
+    <div class="meta">
+      <div><span>单号</span><span>{{orderNo}}</span></div>
+      <div><span>顾客</span><span>{{customerName}}</span></div>
+      <div><span>日期</span><span>{{date}}</span></div>
+    </div>
+    <table>
+      <thead><tr><th>项目</th><th class="amt">金额</th></tr></thead>
+      <tbody>
+        <!-- BEGIN items -->
+        <tr><td>{{name}} × {{qty}}</td><td class="amt">{{amount}}</td></tr>
+        <!-- END items -->
+      </tbody>
+    </table>
+    <div class="total"><span>合计</span><span>{{total}}</span></div>
+    <div class="foot">经手人：{{staff}} · 谢谢惠顾</div>
+  </body>
+</html>

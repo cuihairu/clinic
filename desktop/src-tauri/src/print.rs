@@ -3,8 +3,8 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder, WindowEvent};
 
-/// 内置模板白名单（desktop.md D2：处方笺 A5 / 小票 80mm）
-fn builtin_template(name: &str) -> Option<&'static str> {
+/// 内置模板白名单（desktop.md D2：处方笺 A5 / 小票 80mm；templates.rs 缓存缺失时兜底）
+pub(crate) fn builtin_template(name: &str) -> Option<&'static str> {
     match name {
         "prescription" => Some(include_str!("../templates/prescription.html")),
         "receipt" => Some(include_str!("../templates/receipt.html")),
@@ -15,10 +15,16 @@ fn builtin_template(name: &str) -> Option<&'static str> {
 /// 极简模板填充：
 /// - `<!-- BEGIN key -->…<!-- END key -->` 段按 data[key] 数组逐项重复（子项内 {{字段}} 再填充）；
 /// - `{{key}}` 替换为标量值，对象/数组转 JSON 文本，缺省置空。
-pub fn render(name: &str, data: &serde_json::Value) -> Result<String, String> {
-    let raw = builtin_template(name)
+///
+/// D7：渲染统一走「本地缓存模板优先（缓存缺失 / 为空回落内置）」，未知模板报错
+pub fn render_cached(
+    cache_dir: Option<&std::path::Path>,
+    name: &str,
+    data: &serde_json::Value,
+) -> Result<String, String> {
+    let raw = crate::templates::resolve(cache_dir, name)
         .ok_or_else(|| format!("未知模板：{name}（可用：prescription / receipt）"))?;
-    Ok(fill_sections(raw, data))
+    Ok(fill_sections(&raw, data))
 }
 
 fn fill_sections(raw: &str, data: &serde_json::Value) -> String {
@@ -92,17 +98,35 @@ fn fill_inline(text: &str, data: &serde_json::Value) -> String {
 const PRINT_BOOTSTRAP: &str =
     "<script>window.addEventListener('afterprint',function(){window.close()});setTimeout(function(){window.print()},400)</script>";
 
-/// 渲染结果 + 打印引导脚本（print_html 落盘的就是它）
-pub fn printable_document(name: &str, data: &serde_json::Value) -> Result<String, String> {
-    Ok(format!("{}\n{PRINT_BOOTSTRAP}", render(name, data)?))
+/// 渲染结果 + 打印引导脚本（print_html 落盘的就是它）；缓存优先，内置兜底
+fn printable_document_cached(
+    cache_dir: Option<&std::path::Path>,
+    name: &str,
+    data: &serde_json::Value,
+) -> Result<String, String> {
+    Ok(format!(
+        "{}\n{PRINT_BOOTSTRAP}",
+        render_cached(cache_dir, name, data)?
+    ))
 }
 
 static PRINT_SEQ: AtomicU64 = AtomicU64::new(0);
 
-/// 打开隐藏打印窗口：渲染模板落盘 app_cache_dir/prints/，窗口销毁时清临时文件。
+/// 打开隐藏打印窗口：先尽量刷新模板缓存（离线/旧服务端只记日志），再缓存优先渲染落盘
+/// app_cache_dir/prints/，窗口销毁时清临时文件。
 #[tauri::command]
-pub fn print_html(app: AppHandle, template: String, data: serde_json::Value) -> Result<String, String> {
-    let html = printable_document(&template, &data)?;
+pub async fn print_html(
+    app: AppHandle,
+    template: String,
+    data: serde_json::Value,
+) -> Result<String, String> {
+    crate::templates::refresh(app.clone()).await;
+    let templates_dir = app
+        .path()
+        .app_cache_dir()
+        .ok()
+        .map(|dir| dir.join("templates"));
+    let html = printable_document_cached(templates_dir.as_deref(), &template, &data)?;
     let dir = app
         .path()
         .app_cache_dir()
@@ -138,13 +162,14 @@ mod tests {
 
     #[test]
     fn unknown_template_rejected() {
-        assert!(render("nope", &json!({})).is_err());
-        assert!(render("../../etc/passwd", &json!({})).is_err());
+        assert!(render_cached(None, "nope", &json!({})).is_err());
+        assert!(render_cached(None, "../../etc/passwd", &json!({})).is_err());
     }
 
     #[test]
     fn placeholders_replaced_and_missing_blank() {
-        let html = printable_document(
+        let html = printable_document_cached(
+            None,
             "receipt",
             &json!({
                 "clinicName": "示例医馆",
@@ -180,9 +205,30 @@ mod tests {
 
     #[test]
     fn prescription_page_rule_present() {
-        let html = render("prescription", &json!({})).unwrap();
+        let html = render_cached(None, "prescription", &json!({})).unwrap();
         assert!(html.contains("size: A5 portrait"));
-        let receipt = render("receipt", &json!({})).unwrap();
+        let receipt = render_cached(None, "receipt", &json!({})).unwrap();
         assert!(receipt.contains("size: 80mm auto"));
+    }
+
+    #[test]
+    fn cached_template_shadows_builtin_when_rendering() {
+        // D7：缓存目录里的模板优先于内置
+        let dir = std::env::temp_dir().join(format!("sinomed-d7-print-{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+        fs::write(dir.join("receipt.html"), "<html>缓存版小票 {{clinicName}}</html>").unwrap();
+        let html = printable_document_cached(
+            Some(&dir),
+            "receipt",
+            &json!({ "clinicName": "覆盖医馆" }),
+        )
+        .unwrap();
+        assert!(html.contains("缓存版小票"));
+        assert!(html.contains("覆盖医馆"));
+        assert!(html.contains("window.print()"));
+        fs::remove_dir_all(&dir).ok();
+        // 目录移除后回落内置
+        let fallback = printable_document_cached(Some(&dir), "receipt", &json!({})).unwrap();
+        assert!(fallback.contains("80mm"));
     }
 }

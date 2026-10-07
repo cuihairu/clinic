@@ -101,6 +101,14 @@
 | GET | `/api/v1/kiosk/items` | 上架卡项列表（enabled=1，sort+name 升序），只透 id/name/price/cover/description |
 | POST | `/api/v1/kiosk/orders` | 下单：body `{ phone, name?, itemIds[] }`。手机号须 `1\d{10}`；卡项须存在且上架（先全量校验再建档）；按手机号幂等建档（缺称呼默认「到店客人」），逐项落 `status=0` 订单并取卡项现价快照。返回 `{ customerId, customerName, orders[{id,itemId,itemName,price}], totalFee }` |
 
+## 打印模板 `/api/v1/print`（desktop.md D7）
+
+免登录（空白版式、不含业务数据；桌面工作站壳未登录也要拉模板，见[桌面版设计](/design/desktop)）。
+
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| GET | `/api/v1/print/templates` | 全部白名单模板（prescription / receipt）与内容摘要版本 `{ version, templates[{ name, content }] }`；版本为内容 SHA-256 前 16 位，内容不变则不变。模板解析：`data/printtemplates/{name}.html`（`PRINT_TEMPLATES_DIR` 可配）覆盖目录优先，缺失回落 jar 内置版式——模板更新只需改服务端文件，不发壳版本 |
+
 ## 订单 `/api/v1/order`（kiosk.md K3，需登录）
 
 | 方法 | 路径 | 功能 |

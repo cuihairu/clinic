@@ -43,6 +43,9 @@ sinomed:
   ads:
     upload-dir: ${ADS_UPLOAD_DIR:data/ads}
     url-prefix: /media
+  # 打印模板：覆盖目录（放同名 .html 覆盖内置版式，桌面壳经 /api/v1/print/templates 拉取，见 desktop.md D7）
+  print:
+    templates-dir: ${PRINT_TEMPLATES_DIR:data/printtemplates}
 
 application:
   security:

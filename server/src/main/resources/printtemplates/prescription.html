@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>处方笺</title>
+    <style>
+      /* A5 竖版：@page 分页交给系统打印驱动，页面内不再硬分页 */
+      @page {
+        size: A5 portrait;
+        margin: 12mm;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; color: #111; font-family: 'SimSun', 'Songti SC', serif;
+        font-size: 12pt; line-height: 1.6;
+      }
+      h1 { font-size: 18pt; text-align: center; margin: 0 0 2mm; letter-spacing: 0.3em; }
+      .clinic { text-align: center; font-size: 11pt; margin-bottom: 6mm; }
+      .meta { display: flex; flex-wrap: wrap; gap: 2mm 8mm; border-bottom: 0.4mm solid #333; padding-bottom: 3mm; margin-bottom: 4mm; }
+      .meta span { min-width: 30%; }
+      .dx { margin-bottom: 4mm; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 6mm; }
+      th, td { border: 0.3mm solid #333; padding: 2mm 3mm; text-align: left; font-size: 11pt; }
+      th { background: #f2f2f2; font-weight: 600; }
+      .sign { display: flex; justify-content: space-between; margin-top: 10mm; }
+      .note { margin-top: 6mm; font-size: 10pt; color: #333; }
+    </style>
+  </head>
+  <body>
+    <h1>处 方 笺</h1>
+    <div class="clinic">{{clinicName}}</div>
+    <div class="meta">
+      <span>姓名：{{patient}}</span>
+      <span>性别：{{gender}}</span>
+      <span>年龄：{{age}}</span>
+      <span>电话：{{phone}}</span>
+      <span>日期：{{date}}</span>
+    </div>
+    <div class="dx">诊断 / 主诉：{{diagnosis}}</div>
+    <table>
+      <thead>
+        <tr><th style="width:34%">项目</th><th>用法用量</th><th style="width:18%">次数</th></tr>
+      </thead>
+      <tbody>
+        <!-- BEGIN items -->
+        <tr><td>{{name}}</td><td>{{usage}}</td><td>{{qty}}</td></tr>
+        <!-- END items -->
+      </tbody>
+    </table>
+    <div class="sign"><span>医师：{{doctor}}</span><span>签字：____________</span></div>
+    <div class="note">本单由工作站按当日卡项价格生成，仅作调理方案凭据，不含收费。</div>
+  </body>
+</html>

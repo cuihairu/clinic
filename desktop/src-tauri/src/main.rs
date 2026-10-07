@@ -8,6 +8,7 @@
 mod commands;
 mod config;
 mod print;
+mod templates;
 
 use std::time::{Duration, Instant};
 
@@ -79,6 +80,7 @@ fn run_app() {
             // 开机自启状态收敛到配置：装机迁移 / 注册表被清等场景自动恢复
             commands::apply_autostart(&handle, cfg.autostart);
             open_main_window(&handle, &cfg)?;
+            tauri::async_runtime::spawn(templates::refresh(handle.clone()));
             tauri::async_runtime::spawn(check_for_updates(handle));
             Ok(())
         })
