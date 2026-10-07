@@ -37,8 +37,8 @@ features:
   - icon:
       src: /icons/device-desktop.svg
       alt: 桌面
-    title: 桌面工作站（规划）
-    details: 前台 / 医生工作站的 Windows 薄壳方案（Tauri 2）：打印处方笺、扫码定位顾客，业务仍在服务端。源码尚未实现。
+    title: 桌面工作站
+    details: 前台 / 医生工作站的 Windows 薄壳（Tauri 2）：直接加载管理端页面、处方笺 / 小票打印、扫码定位顾客、自动更新，业务仍在服务端。见「设计 · 桌面版」。
   - icon:
       src: /icons/device-tablet.svg
       alt: 平板

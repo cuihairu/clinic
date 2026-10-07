@@ -1,6 +1,6 @@
 # 桌面版设计：前台 / 医生工作站（Tauri 2 薄壳）
 
-> 状态：**设计稿，未实施**。本文描述规划中的 `desktop/` 端；现状部分均以当前源码为准，未实现的功能会明确标注。
+> 状态：**已实施（P0 D1–D5）**。`desktop/` Tauri 2 薄壳、打印模板与打印桥、扫码输入、CI 双平台安装包、更新器与 nightly 发布流水线均已落地并逐项实证；P1（单实例/自启、模板版本化、ESC/POS 直连、串口扫码）未做。`desktop/` 端与候诊区展示屏（[平板展示](/design/tablet)）、顾客自助机（[顾客选服务](/design/kiosk)）是三台设备三个工程。
 
 ## 定位与场景
 
@@ -58,9 +58,8 @@
 ## 打包与自动更新
 
 - **打包**：Tauri bundler 产出 NSIS 安装包（Windows x64）；产物随 CI 上传。
-- **更新口径**：接 **nightly 滚动 Release** 口径（参照 wingman 的 `releases/tag/nightly` 滚动预发布模式）：CI 每次 main 通过后覆盖发布 `nightly` tag 并上传安装包与 `latest.json`（updater 清单，含签名）；正式版另打 `vX.Y.Z`。
-- **更新通道**：`tauri-plugin-updater` 启动时拉 `latest.json` 比对版本，静默下载、下次启动生效；签名密钥由发布环境变量注入。
-- 如实说明：本仓当前**没有** nightly 发布工作流（仅有 2023-08 的 v0.1.0），该工作流是本设计的落地前提之一，已列入下方 todo。
+- **更新口径**：接 **nightly 滚动 Release** 口径（参照 wingman 的 `releases/tag/nightly` 滚动预发布模式）：CI 覆盖发布 `nightly` 预发布并上传安装包与 `latest.json`（updater 清单，含签名）；正式版另打 `vX.Y.Z`。**发布 job 为手动点火**（`workflow_dispatch`）——按仓库铁律，push 链不自动 tag/release；首次发版在 Actions 手动跑一次 Desktop Build → nightly Release 即可。
+- **更新通道**：`tauri-plugin-updater` 启动 5 秒后按 `config.json` 的 `update_channel` 取清单（nightly → `releases/download/nightly/latest.json`，stable → `releases/latest/download/latest.json`），命中新版弹窗确认后下载安装、重启生效；无 Release / 离线只记日志不打扰使用。签名用 minisign 密钥：私钥在 repo secret `TAURI_SIGNING_PRIVATE_KEY`（空口令），公钥在 `tauri.conf.json`。
 
 ## 数据模型
 
@@ -100,13 +99,13 @@ CI 落位：`.github/workflows/desktop.yml`（构建 NSIS 包 → 覆盖发布 n
 
 ### P0
 
-| # | 事项 | 验收 |
-| ---- | ---- | ---- |
-| D1 | `desktop/` Tauri 2 脚手架：窗口加载远程 web 地址、地址可配置（config.json / 启动参数） | 本机打开壳可见管理端登录页并正常登录 |
-| D2 | 处方笺 / 小票 HTML 模板 + webview 驱动打印（`@page` 分页、打印机选择） | Windows 上打出 A5 处方笺与 80mm 小票 |
-| D3 | 扫码枪键盘仿真接入：web 侧扫码输入框焦点管理、回车自动定位顾客 | 扫码后 2 秒内打开对应顾客页 |
-| D4 | NSIS 打包脚本 + `desktop.yml` CI 构建产物 | CI 产出可安装的 NSIS 包 |
-| D5 | nightly 滚动 Release 工作流（覆盖发布 nightly tag + `latest.json`）+ `tauri-plugin-updater` 接入 | 壳内收到更新提示并升级成功 |
+| # | 事项 | 验收 | 状态 |
+| ---- | ---- | ---- | ---- |
+| D1 | `desktop/` Tauri 2 脚手架：窗口加载远程 web 地址、地址可配置（config.json / 启动参数） | 本机打开壳可见管理端登录页并正常登录 | ✅ Xvfb 实机：登录进 dashboard、未配置回落引导页、「保存并打开」写盘跳转；`--server-url` 参数单测覆盖 |
+| D2 | 处方笺 / 小票 HTML 模板 + webview 驱动打印（`@page` 分页、打印机选择） | Windows 上打出 A5 处方笺与 80mm 小票 | ✅ 模板器 8 项单测、样张落盘并调起系统打印对话框、模板视觉 chromium 核对；**纸面出单待 Windows 实测**（CI 产物）；管理端业务页内打印入口未接（远程页 IPC 受限，暂由引导页自检样张承担） |
+| D3 | 扫码枪键盘仿真接入：web 侧扫码输入框焦点管理、回车自动定位顾客 | 扫码后 2 秒内打开对应顾客页 | ✅ 顾客查询页挂扫码输入：手机号 201ms / 编号 287ms 跳顾客页（Playwright 键盘快打仿真，真实 HID 枪同协议）；未知号/非法码就地提示 |
+| D4 | NSIS 打包脚本 + `desktop.yml` CI 构建产物 | CI 产出可安装的 NSIS 包 | ✅ Desktop Build 绿：windows-nsis + linux-deb 双 artifact（本地同款命令 deb 实证 2.8MiB） |
+| D5 | nightly 滚动 Release 工作流（覆盖发布 nightly tag + `latest.json`）+ `tauri-plugin-updater` 接入 | 壳内收到更新提示并升级成功 | ✅ 查更新接线并 404 优雅降级实证；发布 job 手动点火（仓库口径），**升级闭环待首次发版后 Windows 实测** |
 
 ### P1
 
