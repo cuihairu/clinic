@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import type { QueueCallItem } from '../types'
 import { playChime } from './chime'
+import { speakCall } from './speech'
 import './call.css'
 
 /**
@@ -17,6 +18,7 @@ export function CallOverlay({
 }) {
   useEffect(() => {
     playChime()
+    speakCall(call)
     const timer = window.setTimeout(onDone, holdMs)
     return () => window.clearTimeout(timer)
   }, [call.id])
