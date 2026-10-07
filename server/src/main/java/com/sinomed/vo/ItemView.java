@@ -31,6 +31,15 @@ public class ItemView {
     @Schema(title = "商品描述",description = "商品描述，一个简介",example = "妙手回春",requiredMode = Schema.RequiredMode.REQUIRED)
     private String description;
 
+    @Schema(title = "上架状态",description = "1 上架、0 下架（Kiosk 只展示上架项），缺省 1",example = "1")
+    private Integer enabled;
+
+    @Schema(title = "封面图",description = "相对 url，走 /media 静态托管，可空",example = "/media/202610/xxx.png")
+    private String cover;
+
+    @Schema(title = "展示顺序",description = "Kiosk 展示顺序，小者在前，缺省 0",example = "0")
+    private Integer sort;
+
     @Schema(title = "商品创建时间",description = "商品的创建时间",example = "2021-01-01 12:00:00")
     private Date createTime;
 
@@ -43,6 +52,9 @@ public class ItemView {
         itemEntity.setName(name);
         itemEntity.setPrice(price);
         itemEntity.setDescription(description);
+        itemEntity.setEnabled(enabled != null ? enabled : 1);
+        itemEntity.setCover(cover);
+        itemEntity.setSort(sort != null ? sort : 0);
         return itemEntity;
     }
 
@@ -52,6 +64,9 @@ public class ItemView {
                 .name(itemEntity.getName())
                 .price(itemEntity.getPrice())
                 .description(itemEntity.getDescription())
+                .enabled(itemEntity.getEnabled())
+                .cover(itemEntity.getCover())
+                .sort(itemEntity.getSort())
                 .createTime(itemEntity.getCreateTime())
                 .updateTime(itemEntity.getUpdateTime())
                 .build();

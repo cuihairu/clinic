@@ -1,7 +1,7 @@
 import { EllipsisOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { ProTable, TableDropdown } from '@ant-design/pro-components';
-import {Button, Dropdown, message} from 'antd';
+import {Button, Dropdown, Image, message, Tag} from 'antd';
 import { useRef } from 'react';
 import { queryItemByPage,deleteItem } from '@/services/ant-design-pro/item';
 import { history } from '@umijs/max';
@@ -24,6 +24,10 @@ type Item = {
   name?: string;
   price?: number;
   description?: string;
+  /** 1 上架、0 下架（顾客 Kiosk 只展示上架项） */
+  enabled?: number;
+  cover?: string;
+  sort?: number;
   createTime?: string;
   updateTime?: string;
 };
@@ -84,6 +88,28 @@ const columns: ProColumns<Item>[] = [
         },
       ],
     },
+  },
+  {
+    title: '封面',
+    dataIndex: 'cover',
+    hideInSearch: true,
+    width: "8%",
+    render: (_, record) =>
+      record.cover ? <Image src={record.cover} width={48} height={48} style={{objectFit: 'cover'}}/> : '-',
+  },
+  {
+    title: '上架',
+    dataIndex: 'enabled',
+    hideInSearch: true,
+    width: "8%",
+    render: (_, record) =>
+      record.enabled === 0 ? <Tag>下架</Tag> : <Tag color="green">上架</Tag>,
+  },
+  {
+    title: '排序',
+    dataIndex: 'sort',
+    hideInSearch: true,
+    width: "8%",
   },
   {
     title: '操作',
