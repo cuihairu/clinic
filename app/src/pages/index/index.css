@@ -1,27 +1,80 @@
-.nutui-react-demo {
-  height: 100vh;
+/* 品牌自检页：纯色 + 清晰层级 + 留白，不靠渐变 */
+.brand-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 96px 48px 64px;
+  background: #fbfaf7;
+}
+
+.brand-head {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  margin-bottom: 64px;
 }
 
-.index {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 16px;
-  margin-bottom: 30px;
+.brand-icon {
+  width: 144px;
+  height: 144px;
+  margin-bottom: 32px;
 }
 
-.title {
-  display: block;
-  margin: 20px 0;
+.brand-name {
+  font-size: 48px;
   font-weight: 600;
+  color: var(--brand-color, #c7a674);
+  margin-bottom: 12px;
 }
 
-.btn {
-  display: block;
-  width: 200px;
-  margin-bottom: 20px;
+.brand-sub {
+  font-size: 26px;
+  color: #8c8c8c;
+}
+
+.brand-card {
+  background: #ffffff;
+  border: 1px solid rgba(102, 102, 102, 0.16);
+  border-radius: 16px;
+  padding: 8px 32px;
+  margin-bottom: 40px;
+}
+
+.brand-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px 0;
+}
+
+.brand-row + .brand-row {
+  border-top: 1px solid rgba(102, 102, 102, 0.1);
+}
+
+.brand-label {
+  font-size: 26px;
+  color: #666666;
+}
+
+.brand-value {
+  display: flex;
+  align-items: center;
+}
+
+.brand-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  margin-right: 16px;
+  border: 1px solid rgba(102, 102, 102, 0.2);
+}
+
+.brand-mono {
+  font-size: 24px;
+  color: #3d3d3d;
+}
+
+.brand-tip {
+  font-size: 24px;
+  line-height: 1.7;
+  color: #8c8c8c;
 }

@@ -1,3 +1,19 @@
+import { getBrand } from './brand'
+import path from 'path'
+
+// 白标品牌参数：BRAND_* 环境变量 > 仓库默认值（见 ./brand.ts）。
+// 这里注入两处——
+//  1. env → DefinePlugin：业务代码与 app.config.ts 里的 process.env.TARO_APP_* 编译期替换；
+//  2. h5.htmlPluginOption：H5 <title> / favicon / meta。
+const brand = getBrand()
+// app.config.ts 由 CLI 在 webpack 之外提前求值，DefinePlugin 管不到；
+// 这里把真实值写进 process.env，config 求值时才能读到品牌字段。
+process.env.TARO_APP_BRAND_NAME = brand.name
+process.env.TARO_APP_BRAND_THEME = brand.themeColor
+process.env.TARO_APP_API_BASE = brand.apiBase
+process.env.TARO_APP_BRAND_ICON = brand.iconData || ''
+const defaultIcon = path.resolve(__dirname, '../brand-assets/logo.png')
+
 const config = {
   projectName: 'sinomed-app',
   date: '2024-5-27',
@@ -11,6 +27,12 @@ const config = {
   sourceRoot: 'src',
   outputRoot: 'dist',
   plugins: ['@tarojs/plugin-html'],
+  env: {
+    TARO_APP_BRAND_NAME: JSON.stringify(brand.name),
+    TARO_APP_BRAND_THEME: JSON.stringify(brand.themeColor),
+    TARO_APP_API_BASE: JSON.stringify(brand.apiBase),
+    TARO_APP_BRAND_ICON: JSON.stringify(brand.iconData || '')
+  },
   defineConstants: {
   },
   copy: {
@@ -50,6 +72,14 @@ const config = {
   h5: {
     publicPath: '/',
     staticDirectory: 'static',
+    htmlPluginOption: {
+      title: brand.name,
+      favicon: brand.iconFile || defaultIcon,
+      meta: {
+        description: brand.description,
+        'theme-color': brand.themeColor
+      }
+    },
     // esnextModules: ['nutui-react'],
     postcss: {
       pxtransform: {

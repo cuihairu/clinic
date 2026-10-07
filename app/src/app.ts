@@ -16,4 +16,13 @@ function App(props) {
   return props.children
 }
 
+// 白标主题色：H5 侧注入 CSS 变量供全局样式取用；
+// 小程序端组件直接读 BRAND.themeColor 内联样式（无 document 概念）。
+if (process.env.TARO_ENV === 'h5') {
+  document.documentElement.style.setProperty(
+    '--brand-color',
+    process.env.TARO_APP_BRAND_THEME
+  )
+}
+
 export default App

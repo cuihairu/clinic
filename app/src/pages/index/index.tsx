@@ -1,21 +1,45 @@
 import React from 'react'
-import { View } from '@tarojs/components'
-import { Button } from "@nutui/nutui-react-taro"
+import { View, Image } from '@tarojs/components'
+import { BRAND } from '../../services/brand'
 import './index.css'
 
-function Index() {
+export default function Index() {
   return (
-    <View className="nutui-react-demo">
-      <View className="index">
-        欢迎使用 NutUI React 开发 Taro 多端项目。
+    <View className="brand-page">
+      <View className="brand-head">
+        {BRAND.iconData ? (
+          <Image className="brand-icon" src={BRAND.iconData} mode="aspectFit" />
+        ) : null}
+        <View className="brand-name">{BRAND.name}</View>
+        <View className="brand-sub">白标构建参数自检页</View>
       </View>
-      <View className="index">
-        <Button type="primary" className="btn">
-          NutUI React Button
-        </Button>
+
+      <View className="brand-card">
+        <View className="brand-row">
+          <View className="brand-label">主题色</View>
+          <View className="brand-value">
+            <View className="brand-swatch" style={{ background: BRAND.themeColor }} />
+            <View className="brand-mono">{BRAND.themeColor}</View>
+          </View>
+        </View>
+        <View className="brand-row">
+          <View className="brand-label">后端域名</View>
+          <View className="brand-value">
+            <View className="brand-mono">{BRAND.apiBase}</View>
+          </View>
+        </View>
+        <View className="brand-row">
+          <View className="brand-label">页内图标</View>
+          <View className="brand-value">
+            <View className="brand-mono">{BRAND.iconData ? '已注入（商家 icon）' : '未注入位图'}</View>
+          </View>
+        </View>
+      </View>
+
+      <View className="brand-tip">
+        以上参数由构建脚本注入，改参数不改代码；换商家出包见
+        仓库 docs/app-white-label.md。
       </View>
     </View>
   )
 }
-
-export default Index
