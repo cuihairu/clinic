@@ -52,3 +52,15 @@ export async function fetchCustomerById(cid:number|string,options?: { [key: stri
     ...(options || {}),
   });
 }
+
+export async function fetchCustomerByPhone(phone:string,options?: { [key: string]: any }) {
+  return request<API.Customer>(`/api/v1/customer/phone/${phone}`, {
+    method: 'GET',
+    params: {
+    },
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...(options || {}),
+  });
+}

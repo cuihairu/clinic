@@ -5,6 +5,7 @@ import {Button, Dropdown, message} from 'antd';
 import { history } from '@umijs/max';
 import { useRef } from 'react';
 import { queryCustomerByPage,deleteCustomer} from '@/services/ant-design-pro/customer';
+import ScannerInput from '@/components/ScannerInput';
 export const waitTimePromise = async (time: number = 100) => {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -214,7 +215,9 @@ const columns: ProColumns<Customer>[] = [
 export default () => {
   const actionRef = useRef<ActionType>();
   return (
-    <ProTable<Customer>
+    <>
+      <ScannerInput />
+      <ProTable<Customer>
       columns={columns}
       actionRef={actionRef}
       cardBordered
@@ -278,5 +281,6 @@ export default () => {
         </Dropdown>,
       ]}
     />
+    </>
   );
 };
