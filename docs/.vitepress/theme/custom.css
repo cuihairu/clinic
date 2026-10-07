@@ -218,3 +218,10 @@
 .dark .vp-doc a {
   text-decoration-color: rgba(217, 189, 142, 0.5);
 }
+
+/* hero 名用纯品牌色,不用 VitePress 默认渐变名 */
+:root {
+  --vp-home-hero-name-color: var(--vp-c-brand-1);
+  --vp-home-hero-name-background: transparent;
+}
+
