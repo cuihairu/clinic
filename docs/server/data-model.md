@@ -99,3 +99,25 @@
 | create_time | Date | 打卡时间 |
 
 考勤统计在查询时实时计算（无定时任务）：同日多次上班卡取最早、下班卡取最晚，时长按整小时计。
+
+## ad_materials / ad_screens / ad_schedules — 广告投屏（平板展示）
+
+配套 [tablet/](/design/tablet) Kiosk 端，设计见[平板展示设计](/design/tablet)。文件本体不上库：素材上传落盘 `data/ads/yyyyMM/`（`sinomed.ads.upload-dir` 可改），表里存相对 url。
+
+**ad_materials — 素材**：`name`、`type`（1 图片、2 视频）、`url`、`duration_ms`（轮播停留毫秒）、`enabled`、`sort`（顺序，小者在前）。
+
+**ad_screens — 屏**：`code`（唯一，平板以 `?screen=code` 打开）、`name`、`location`、`enabled`、`last_seen_at`（平板拉 playlist 时顺带心跳，管理端按 2 分钟阈值显示在线角标）。
+
+**ad_schedules — 排期**：`screen_id` / `material_id`（业务外键）、`weekdays`（`1=周一…7=周日` 逗号分隔，空 = 每天）、`start_time` / `end_time`（`HH:mm`，空 = 全天）、`enabled`。
+
+## queue_calls — 叫号记录（平板展示）
+
+| 字段 | 类型 | 含义 |
+| ---- | ---- | ---- |
+| id | Long | 主键（同时作平板拉取游标 `since`） |
+| screen_id | Long | 定向屏（业务外键；为空 = 全部屏广播） |
+| number | String | 号码（如 `08`） |
+| room | String | 诊室名 |
+| patient_masked | String | 脱敏姓名（如 `张*`，隐私默认） |
+| status | Integer | 0 待叫、1 已叫（当前写入即 1） |
+| called_at | Date | 叫号时间 |

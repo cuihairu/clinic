@@ -1,6 +1,6 @@
 # 平板展示设计：候诊区 Kiosk（广告 / 科普 / 叫号）
 
-> 状态：**设计稿，未实施**。本文描述规划中的 `tablet/` 端与配套的服务端 ads 模块；源码现状如实标注，未实现的不作可用功能表述。
+> 状态：**已实施（T1–T10、T12）**。`tablet/` 端、服务端 ads/calls 模块、dash 四个管理页均已落地并逐项实证；T11（WS 广播）评估后**不采用**——叫号轮询降到 1 秒一次，实测上屏 ~1.5s，远低于 3s 验收线，不值得为它给服务端引入 WebSocket 依赖。
 
 ## 定位与场景
 
@@ -13,10 +13,9 @@
 素材管理不在平板上做——**管理端（web dash）新增素材 / 排期 / 屏管理页面**，服务端新增 ads 模块统一下发。
 
 ```text
-web dash（素材/排期/屏管理） ──► server ads 模块（表 + 下发接口）
-                                        │
-                       tablet/（Kiosk 全屏页）◄── 轮询拉取排期与叫号（P0）
-                                                ◄── WS 广播（P1）
+web dash（素材/排期/屏/叫号管理） ──► server ads/calls 模块（表 + 下发接口）
+                                          │
+                         tablet/（Kiosk 全屏页）◄── 轮询拉取排期（30s）与叫号（1s）
 ```
 
 ## 数据模型（服务端新表）
@@ -83,7 +82,7 @@ web dash（素材/排期/屏管理） ──► server ads 模块（表 + 下发
 | 叫号动作 | `POST /api/v1/calls` | 前台触发（P0 手动输入号码 / 选顾客） |
 | 叫号拉取 | `GET /api/v1/calls/latest?screen={code}&since={id}` | 平板轮询，返回 `since` 之后的新叫号 |
 
-安全边界（如实）：平板为内网设备，P0 下发接口按**只读 + 屏 code 校验**放行；如暴露公网，再补屏 token。服务端当前无 WebSocket 依赖，P0 用轮询（平板每 30s 拉排期、每 3s 拉叫号），P1 评估 WS 广播。
+安全边界（如实）：平板为内网设备，下发接口按**只读 + 屏 code 校验**放行（`/api/v1/ads/playlist`、`/api/v1/calls/latest`、`/media/**` 免登录）；如暴露公网，再补屏 token。轮询节奏：排期 30s 一次，叫号 1s 一次（索引查询开销小，实测叫号上屏 ~1.5s）；WS 广播评估后不采用——收益不足以抵消服务端新增 WebSocket 依赖与连接管理。
 
 ## 排期模型
 
@@ -108,7 +107,7 @@ tablet 轮询 calls/latest?since=… → 发现新叫号
   → 自动回轮播；轮询游标推进
 ```
 
-语音播报（TTS）各平板浏览器支持度不一，P0 只做提示音，P1 评估 Web Speech API 可用性后可选开启。
+语音播报（TTS）已按「按设备可用性开关」落地（T12）：Web Speech API 播「请 X 号到 Y 诊室就诊」，不支持或无中文语音引擎的设备静默跳过，只留提示音。
 
 ## 离线容错
 
@@ -119,18 +118,17 @@ tablet 轮询 calls/latest?since=… → 发现新叫号
 ## 目录落位
 
 ```text
-tablet/                     # monorepo 新增目录（与 server/ web/ app/ 平级）
+tablet/                     # monorepo 目录（与 server/ web/ app/ 平级）
 ├── src/
-│   ├── player/             # 轮播引擎：图片/视频序列、时长、转场
-│   ├── call/               # 叫号提示页：全屏卡片、提示音、自动回轮播
-│   ├── net/                # 排期/叫号拉取、version 比对、心跳
-│   ├── cache/              # Service Worker 媒体预缓存
-│   └── App.tsx
+│   ├── player/             # Carousel 轮播引擎 + CallOverlay 叫号提示层 + chime/speech 提示音与播报
+│   ├── net/                # 排期/叫号拉取、version 比对、心跳、媒体预缓存调用
+│   └── App.tsx             # 屏标识读取、Wake Lock、全屏、离线角标
+├── public/sw.js            # Service Worker：/media 缓存优先 + 后台刷新（媒体预缓存）
 ├── index.html              # 全屏、禁止休眠（Wake Lock API 尽力而为）
 ├── package.json            # name: sinomed-tablet（Vite + React + TS，Node.js 24 / pnpm）
 └── .nvmrc
 
-web/src/pages/Ads/          # dash 新增：素材管理 / 排期管理 / 屏管理 / 叫号操作入口
+web/src/pages/Ads/          # dash：素材管理 / 排期管理 / 屏管理 / 叫号操作（Calls）
 server/src/main/java/com/sinomed/
 ├── entity/                 # AdMaterialEntity / AdScreenEntity / AdScheduleEntity / QueueCallEntity
 ├── controller/             # AdsController / CallController
@@ -139,26 +137,26 @@ server/src/main/java/com/sinomed/
 
 部署落位：Nginx 增加两段静态托管——`/tablet/`（`tablet/dist`）与 `/media/`（`data/ads/`）；平板浏览器打开 `https://…/tablet/?screen=xxx` 并设为全屏启动页。
 
-## todo 原子项
+## todo 原子项（已全部验收）
 
 ### P0
 
-| # | 事项 | 验收 |
-| ---- | ---- | ---- |
-| T1 | server ads 模块：三表实体 + 素材/排期/屏 CRUD 接口 + multipart 上传落盘 | Knife4j 可调通全部管理接口 |
-| T2 | 下发接口：`playlist`（含 version）与心跳 | curl 按屏拿到正确序列与内容戳 |
-| T3 | `tablet/` 脚手架 + 轮播引擎（图片/视频、时长、顺序） | 浏览器全屏轮播 dash 配置的素材 |
-| T4 | dash 素材管理页（上传 / 启停 / 排序 / 时长） | 页面完成素材全生命周期维护 |
-| T5 | dash 排期 + 屏管理页（时段、星期、按屏定向） | 两块屏配置不同排期各自生效 |
-| T6 | tablet 拉取与 version 比对、媒体预缓存 | 内容变更后 30s 内自动更新 |
-| T7 | 离线容错：断网续播 + 离线角标 + 恢复补拉 | 拔网续播、插网恢复 |
+| # | 事项 | 验收 | 状态 |
+| ---- | ---- | ---- | ---- |
+| T1 | server ads 模块：三表实体 + 素材/排期/屏 CRUD 接口 + multipart 上传落盘 | Knife4j 可调通全部管理接口 | ✅ curl 全接口实证 |
+| T2 | 下发接口：`playlist`（含 version）与心跳 | curl 按屏拿到正确序列与内容戳 | ✅ 含错屏报错、无排期兜底 |
+| T3 | `tablet/` 脚手架 + 轮播引擎（图片/视频、时长、顺序） | 浏览器全屏轮播 dash 配置的素材 | ✅ headless 双素材轮换实证 |
+| T4 | dash 素材管理页（上传 / 启停 / 排序 / 时长） | 页面完成素材全生命周期维护 | ✅ 浏览器实证 |
+| T5 | dash 排期 + 屏管理页（时段、星期、按屏定向） | 两块屏配置不同排期各自生效 | ✅ PAD-02 / PAD-TEST 双屏实证 |
+| T6 | tablet 拉取与 version 比对、媒体预缓存 | 内容变更后 30s 内自动更新 | ✅ 换图 27s 上屏 |
+| T7 | 离线容错：断网续播 + 离线角标 + 恢复补拉 | 拔网续播、插网恢复 | ✅ 角标即时切换、断网续播 |
 
 ### P1
 
-| # | 事项 | 说明 |
-| ---- | ---- | ---- |
-| T8 | server 叫号模块：`queue_calls` 表 + `POST /api/v1/calls` + `calls/latest` | 最小叫号闭环接口可用 |
-| T9 | dash 叫号操作入口（前台按钮：选诊室 / 输号码） | 前台一键叫号 |
-| T10 | tablet 叫号提示页（全屏切换、提示音、N 秒自动回轮播） | 叫号事件 3s 内上屏 |
-| T11 | WS 广播替代叫号轮询（可选） | 上屏延迟进一步降低 |
-| T12 | 语音播报（Web Speech API，按设备可用性开关） | 可选增强 |
+| # | 事项 | 说明 | 状态 |
+| ---- | ---- | ---- | ---- |
+| T8 | server 叫号模块：`queue_calls` 表 + `POST /api/v1/calls` + `calls/latest` | 最小叫号闭环接口可用 | ✅ curl 定向/广播/游标全通 |
+| T9 | dash 叫号操作入口（前台按钮：选诊室 / 输号码） | 前台一键叫号 | ✅ `/ads/calls` 浏览器实证 |
+| T10 | tablet 叫号提示页（全屏切换、提示音、N 秒自动回轮播） | 叫号事件 3s 内上屏 | ✅ 实测 1.5s 上屏 |
+| T11 | WS 广播替代叫号轮询（可选） | 上屏延迟进一步降低 | ⛔ 评估后不采用（1s 轮询已达标，不引 WS 依赖） |
+| T12 | 语音播报（Web Speech API，按设备可用性开关） | 可选增强 | ✅ 代码路径实证，可听效果以真机为准 |

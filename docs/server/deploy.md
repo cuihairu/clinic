@@ -102,8 +102,12 @@ sudo systemctl enable --now sinomed
 ```text
 浏览器 → Nginx(80/443)
   ├── /            → web/dist 静态资源（SPA fallback index.html）
-  └── /api/**      → http://<server>:2347（应用接口 /api/v1/**）
+  ├── /tablet/     → tablet/dist 静态资源（候诊区 Kiosk，平板打开 /tablet/?screen=屏标识）
+  ├── /media/**    → data/ads/ 静态托管（广告素材文件；平板 Service Worker 对其缓存优先）
+  └── /api/**      → http://<server>:2347（应用接口 /api/v1/**，含 ads 下发与叫号拉取）
 ```
+
+平板/Kiosk 部署要点：`tablet/dist` 构建产物放 Nginx 可达路径即可；素材上传目录默认在服务端工作目录 `data/ads`，Nginx `location /media/` 指到该目录（或用 `ADS_UPLOAD_DIR` 统一挪到独立盘后指向新路径）。上传体积已在 `application.yml` 放开到 100MB，Nginx 侧如有 `client_max_body_size` 需同步放开。
 
 ## 日志
 

@@ -104,6 +104,34 @@
 | GET | `/api/v1/order/user/{id}` |
 | DELETE | `/api/v1/order/{id}` |
 
+## 广告投屏 `/api/v1/ads`（tablet.md T1/T2）
+
+管理接口需登录；下发与媒体静态资源免登录（内网屏设备约定，见[平板展示设计](/design/tablet)）。
+
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| POST/PUT | `/api/v1/ads/materials` | 新建 / 更新素材（name、type 1图2视频、url、durationMs、enabled、sort） |
+| DELETE | `/api/v1/ads/materials/{id}` | 删除素材 |
+| GET | `/api/v1/ads/materials/page` | 素材分页（current、pageSize） |
+| POST | `/api/v1/ads/materials/upload` | multipart 上传媒体，落盘 `data/ads/yyyyMM/`，返回 `{ url, originalName, size }` |
+| POST/PUT | `/api/v1/ads/schedules` | 新建 / 更新排期（screenId、materialId、weekdays `1=周一…7=周日` 逗号分隔可空、start/end `HH:mm` 可空、enabled） |
+| DELETE | `/api/v1/ads/schedules/{id}` | 删除排期 |
+| GET | `/api/v1/ads/schedules/page` | 排期分页 |
+| POST/PUT | `/api/v1/ads/screens` | 新建 / 更新屏（code 唯一、name、location、enabled） |
+| DELETE | `/api/v1/ads/screens/{id}` | 删除屏 |
+| GET | `/api/v1/ads/screens/page` | 屏分页 |
+| GET | `/api/v1/ads/playlist?screen={code}` | 平板下发：心跳更新 `last_seen_at`，按星期/时段命中排期取素材（无排期兜底全部启用素材），返回 `{ version, items[] }`；`version` 为素材+排期的 `max(update_time)` 内容戳。屏 code 不存在报 400 |
+
+媒体文件经 `/media/**` 静态映射到上传目录（`sinomed.ads.upload-dir`，默认 `data/ads`），免登录直读。
+
+## 叫号 `/api/v1/calls`（tablet.md T8）
+
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| POST | `/api/v1/calls` | 前台叫号（需登录）：number、room 必填，patientMasked 可选，screenId 为空 = 全部屏广播；定向屏需存在且启用 |
+| GET | `/api/v1/calls/latest?screen={code}&since={id}` | 平板游标拉取（免登录）：`since` 之后、广播 + 定向本屏的记录按 id 升序，返回 `{ since, calls[] }`；`since` 回传下次调用。屏 code 不存在报 400 |
+| GET | `/api/v1/calls/recent` | 管理端最近 20 条（需登录），按 id 倒序 |
+
 ## 错误追踪 `/error`
 
 | 方法 | 路径 | 功能 |

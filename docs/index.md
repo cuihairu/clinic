@@ -42,8 +42,8 @@ features:
   - icon:
       src: /icons/device-tablet.svg
       alt: 平板
-    title: 广告展示端（规划）
-    details: 候诊区平板 Kiosk：广告与科普轮播、叫号联动、断网续播；素材与排期在管理端配置。源码尚未实现。
+    title: 广告展示端
+    details: 候诊区平板 Kiosk：广告与科普轮播、前台叫号 1 秒级上屏、断网续播；素材 / 排期 / 屏 / 叫号在管理端配置。见「设计 · 平板展示」。
   - icon:
       src: /icons/api.svg
       alt: 接口
