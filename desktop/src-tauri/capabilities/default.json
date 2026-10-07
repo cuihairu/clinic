@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "主窗口基础能力：核心事件 / 窗口 / 应用信息（引导页读版本号用）",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}
