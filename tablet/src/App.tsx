@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { usePlaylist } from './net/api'
+import { precacheMedia } from './net/precache'
 import { Carousel } from './player/Carousel'
 
 /** Kiosk 屏标识：URL ?screen=PAD-01；没配就停在配置提示页 */
@@ -72,6 +73,12 @@ export default function App() {
 function PlayerScreen({ screen }: { screen: string }) {
   const { playlist, online } = usePlaylist(screen)
   useWakeLock()
+
+  // 内容戳变化 → 把新序列的全部媒体交给 SW 预缓存，断网可续播
+  useEffect(() => {
+    if (!playlist || playlist.items.length === 0) return
+    precacheMedia(playlist.items.map((item) => item.url))
+  }, [playlist?.version])
 
   if (!playlist) {
     return (

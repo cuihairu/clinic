@@ -44,12 +44,18 @@ export function usePlaylist(screen: string, intervalMs = 30_000) {
     }
     pull()
     const timer = setInterval(pull, intervalMs)
-    const onOnline = () => pull()
+    const onOnline = () => {
+      setOnline(true)
+      pull()
+    }
+    const onOffline = () => setOnline(false)
     window.addEventListener('online', onOnline)
+    window.addEventListener('offline', onOffline)
     return () => {
       alive = false
       clearInterval(timer)
       window.removeEventListener('online', onOnline)
+      window.removeEventListener('offline', onOffline)
     }
   }, [screen, intervalMs])
 
