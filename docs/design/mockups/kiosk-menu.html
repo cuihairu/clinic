@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>自助机 · 选服务</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { width: 900px; height: 1200px; overflow: hidden; background: var(--paper); display: flex; flex-direction: column; }
+  /* 顶部问候 */
+  .hero { padding: 44px 40px 8px; display: flex; align-items: center; gap: 16px; }
+  .seal { width: 58px; height: 58px; border-radius: 15px; background: var(--amber); color: #fff;
+    font-family: var(--serif); font-size: 30px; font-weight: 700; display: grid; place-items: center; }
+  .hero .ht { flex: 1; }
+  .hero h1 { font-family: var(--serif); font-size: 30px; letter-spacing: 1px; }
+  .hero p { font-size: 15px; color: var(--muted); margin-top: 6px; }
+  .clock { text-align: right; }
+  .clock .tm { font-family: var(--serif); font-size: 34px; font-weight: 700; color: var(--brand-deep); }
+  .clock .dt { font-size: 13px; color: var(--faint); margin-top: 3px; }
+  .steps { display: flex; gap: 10px; padding: 22px 40px 6px; }
+  .step { font-size: 14.5px; color: var(--faint); background: var(--card); border: 1px solid var(--line);
+    border-radius: 999px; padding: 8px 18px; }
+  .step.on { background: var(--brand-tint); color: var(--brand-deep); font-weight: 600; border-color: transparent; }
+  /* 服务网格 */
+  .grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 18px 40px; overflow: hidden; }
+  .svc { background: var(--card); border: 2px solid var(--line); border-radius: 20px; overflow: hidden;
+    display: flex; flex-direction: column; }
+  .svc.sel { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(47,109,79,0.12); }
+  .svc .cover { flex: 1; display: grid; place-items: center; font-family: var(--serif); font-size: 44px; min-height: 150px; }
+  .svc .cover.c1 { background: linear-gradient(135deg, #dce9e1, #b9d2c3); color: var(--brand-deep); }
+  .svc .cover.c2 { background: linear-gradient(135deg, #efe6d4, #e0cba6); color: var(--amber-deep); }
+  .svc .bd { padding: 16px 20px 18px; display: flex; align-items: center; gap: 10px; }
+  .svc .nm { font-size: 20px; font-weight: 600; flex: 1; }
+  .svc .pr { font-family: var(--serif); font-size: 21px; font-weight: 700; color: var(--brand-deep); }
+  .check { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ccd4ce; flex-shrink: 0;
+    display: grid; place-items: center; color: transparent; font-size: 15px; }
+  .svc.sel .check { background: var(--brand); border-color: var(--brand); color: #fff; }
+  /* 底部购物篮 */
+  .basket { background: var(--card); border-top: 1px solid var(--line); padding: 22px 40px 34px; }
+  .basket .bk { display: flex; align-items: baseline; gap: 10px; font-size: 15px; color: var(--muted); }
+  .basket .bk b { font-size: 15.5px; color: var(--ink); }
+  .basket .bk .names { font-size: 13.5px; color: var(--faint); }
+  .basket .sum { display: flex; align-items: center; margin-top: 14px; gap: 16px; }
+  .basket .amount { font-family: var(--serif); font-size: 40px; font-weight: 700; }
+  .basket .amount small { font-size: 18px; }
+  .submit { flex: 1; background: var(--brand); color: #fff; border-radius: 16px; text-align: center;
+    padding: 20px; font-size: 20px; font-weight: 600; letter-spacing: 2px; }
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="seal">养</div>
+    <div class="ht">
+      <h1>欢迎光临 Youngs 中医养生</h1>
+      <p>点选想做的项目，提交后前台马上为您安排</p>
+    </div>
+    <div class="clock"><div class="tm">14:30</div><div class="dt">10 月 8 日 星期三</div></div>
+  </div>
+  <div class="steps">
+    <span class="step on">① 选服务</span>
+    <span class="step">② 留手机号</span>
+    <span class="step">③ 前台接待</span>
+  </div>
+  <div class="grid">
+    <div class="svc sel">
+      <div class="cover c1">灸</div>
+      <div class="bd"><span class="check">✓</span><span class="nm">艾灸调理</span><span class="pr">¥100</span></div>
+    </div>
+    <div class="svc sel">
+      <div class="cover c2">推</div>
+      <div class="bd"><span class="check">✓</span><span class="nm">腹部推拿</span><span class="pr">¥180</span></div>
+    </div>
+    <div class="svc">
+      <div class="cover c1">肩</div>
+      <div class="bd"><span class="check">✓</span><span class="nm">肩颈推拿</span><span class="pr">¥160</span></div>
+    </div>
+    <div class="svc">
+      <div class="cover c2">浴</div>
+      <div class="bd"><span class="check">✓</span><span class="nm">足浴熏蒸</span><span class="pr">¥120</span></div>
+    </div>
+  </div>
+  <div class="basket">
+    <div class="bk"><b>已选 2 项</b><span class="names">艾灸调理 ×1、腹部推拿 ×1</span></div>
+    <div class="sum">
+      <span class="amount"><small>¥</small>280</span>
+      <div class="submit">提交到前台</div>
+    </div>
+  </div>
+</body>
+</html>

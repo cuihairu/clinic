@@ -17,6 +17,30 @@
 
 > 演示环境由根目录 `compose.yml` 一键起：服务端 + 管理端 + SQLite 持久卷，`DEMO_SEED=true` 幂等播种一套全虚构脱敏的演示数据（顾客、中医诊疗记录、卡项、复盘回访）。员工演示账号 `gu`（馆长）、`shen`（中医师）、`su`（前台），密码均为 `123`。镜像由 CI 推送 ghcr.io（`latest` + `sha-<短提交>`）。
 
+## 产品预览
+
+一套界面语言贯穿五个设备端：墨绿主色、宣纸底、金棕点缀、宋体标题。以下为各端界面原型（设计稿，数据全为虚构演示），源文件在 [`docs/design/mockups/`](docs/design/mockups/)。
+
+**管理后台**（web · 顾客档案）
+
+<p align="center"><img src="docs/public/screenshots/admin-customer.png" width="880" alt="管理后台 · 顾客档案（界面原型）" /></p>
+
+**桌面工作站**（desktop · 接诊开单 + 小票机 / 扫码枪外设状态）
+
+<p align="center"><img src="docs/public/screenshots/desktop-workstation.png" width="880" alt="桌面工作站 · 接诊开单（界面原型）" /></p>
+
+**小程序端**（app · 顾客首页，业务页面规划中）
+
+<p align="center"><img src="docs/public/screenshots/mobile-home.png" width="300" alt="小程序端 · 首页（界面原型）" /></p>
+
+**门店自助机**（kiosk · 选服务下单）
+
+<p align="center"><img src="docs/public/screenshots/kiosk-menu.png" width="400" alt="门店自助机 · 选服务（界面原型）" /></p>
+
+**候诊区展示屏**（tablet · 广告轮播 + 叫号）
+
+<p align="center"><img src="docs/public/screenshots/tablet-screen.png" width="880" alt="候诊区展示屏 · 广告轮播与叫号（界面原型）" /></p>
+
 ## 目录结构
 
 ```

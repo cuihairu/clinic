@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>桌面工作站 · 接诊开单</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { width: 1440px; height: 900px; overflow: hidden; background: #dcdedd; display: flex;
+    align-items: center; justify-content: center; }
+  /* 壳窗口 */
+  .win { width: 1360px; height: 832px; background: var(--paper); border-radius: 12px; overflow: hidden;
+    box-shadow: 0 24px 70px rgba(29, 39, 33, 0.28); display: flex; flex-direction: column; }
+  .titlebar { height: 40px; background: var(--card); border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; padding: 0 14px; flex-shrink: 0; }
+  .dots { display: flex; gap: 7px; }
+  .dots i { width: 11px; height: 11px; border-radius: 50%; background: #d7dcd8; }
+  .dots i:first-child { background: #c94f42; }
+  .dots i:nth-child(2) { background: #d9a441; }
+  .dots i:nth-child(3) { background: #5b9e6c; }
+  .titlebar .wt { flex: 1; text-align: center; font-size: 12.5px; color: var(--muted); }
+  .titlebar .ws { width: 60px; }
+  .shell-body { flex: 1; display: flex; overflow: hidden; }
+  /* 侧栏（与管理后台一致） */
+  .side { width: 208px; background: var(--card); border-right: 1px solid var(--line); padding: 16px 12px; flex-shrink: 0; }
+  .logo { display: flex; align-items: center; gap: 9px; padding: 2px 8px 16px; }
+  .logo-mark { width: 31px; height: 31px; border-radius: 8px; background: var(--brand); color: #fff;
+    font-family: var(--serif); font-size: 17px; display: grid; place-items: center; }
+  .logo-name { font-family: var(--serif); font-size: 15.5px; font-weight: 700; }
+  .logo-sub { font-size: 10.5px; color: var(--faint); }
+  .nav { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px;
+    font-size: 13.5px; color: #47524b; margin-bottom: 2px; }
+  .nav .ico { width: 8px; height: 8px; border: 1.7px solid #9aa49d; border-radius: 50%; }
+  .nav.active { background: var(--brand-tint); color: var(--brand-deep); font-weight: 600; }
+  .nav.active .ico { border-color: var(--brand); background: var(--brand); }
+  /* 主区：接诊单 */
+  .main { flex: 1; padding: 20px 24px; display: flex; flex-direction: column; overflow: hidden; }
+  .scan-row { display: flex; align-items: center; gap: 12px; }
+  .scan-box { flex: 1; background: var(--card); border: 1.6px solid var(--brand); border-radius: 11px;
+    padding: 11px 15px; display: flex; align-items: center; gap: 11px; box-shadow: 0 0 0 3px rgba(47,109,79,0.08); }
+  .scan-ic { width: 15px; height: 15px; border: 2.5px solid var(--brand); border-radius: 50%; flex-shrink: 0; }
+  .scan-box .hint { font-size: 13px; color: var(--faint); }
+  .toast { background: var(--brand); color: #fff; font-size: 13px; padding: 9px 15px; border-radius: 9px;
+    box-shadow: 0 4px 14px rgba(35,79,57,0.3); }
+  .customer-strip { margin-top: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 11px;
+    padding: 13px 16px; display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--brand-tint); color: var(--brand-deep);
+    font-family: var(--serif); font-size: 17px; display: grid; place-items: center; }
+  .cs .nm { font-size: 14.5px; font-weight: 600; }
+  .cs .nm span { font-size: 11px; color: var(--amber-deep); background: var(--amber-tint); border: 1px solid #e6d5b8;
+    padding: 1.5px 8px; border-radius: 999px; margin-left: 8px; font-weight: 600; }
+  .cs .mt { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .card-balance { margin-left: auto; text-align: right; font-size: 12px; color: var(--muted); }
+  .card-balance b { font-family: var(--serif); font-size: 16px; color: var(--amber-deep); }
+  /* 单据表 */
+  .bill { margin-top: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 11px;
+    padding: 16px 18px; }
+  .bill h4 { font-size: 13px; color: var(--muted); font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  th { font-size: 11.5px; color: var(--faint); font-weight: 500; text-align: left; padding: 8px 6px;
+    border-bottom: 1px solid var(--line); }
+  td { font-size: 13.5px; padding: 12px 6px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td .item-nm { font-weight: 600; }
+  td .item-ds { font-size: 11.5px; color: var(--faint); margin-top: 2px; }
+  .qty { display: inline-flex; align-items: center; gap: 9px; }
+  .qty i { width: 20px; height: 20px; border: 1px solid var(--line); border-radius: 6px; display: grid;
+    place-items: center; font-style: normal; color: var(--muted); font-size: 13px; }
+  .add-row { margin-top: 14px; border: 1.5px dashed #c8d1cb; border-radius: 9px; padding: 10px;
+    text-align: center; font-size: 12.5px; color: var(--faint); }
+  /* 右侧结算栏 */
+  .pay { width: 264px; flex-shrink: 0; margin-left: 14px; display: flex; flex-direction: column; }
+  .total-card { background: var(--card); border: 1px solid var(--line); border-radius: 11px; padding: 18px; }
+  .total-card .tk { font-size: 12px; color: var(--muted); }
+  .total-card .tv { font-family: var(--serif); font-size: 34px; font-weight: 700; margin-top: 4px; }
+  .total-card .td2 { font-size: 12px; color: var(--faint); margin-top: 6px; line-height: 1.7; }
+  .pay-btn { margin-top: 12px; background: var(--brand); border-radius: 11px; color: #fff; text-align: center;
+    padding: 13px; font-size: 15px; font-weight: 600; }
+  .pay-btn.ghost { background: var(--card); border: 1px solid var(--line); color: var(--ink); font-weight: 500; }
+  /* 外设状态条（桌面版专属） */
+  .devices { margin-top: auto; background: var(--card); border: 1px solid var(--line); border-radius: 11px;
+    padding: 13px 15px; }
+  .devices .dh { font-size: 11.5px; color: var(--faint); letter-spacing: 1px; margin-bottom: 10px; }
+  .dev { display: flex; align-items: center; gap: 9px; font-size: 12.5px; padding: 5px 0; color: var(--ink); }
+  .dev .st { width: 7px; height: 7px; border-radius: 50%; background: var(--brand); }
+  .dev .nm { flex: 1; }
+  .dev .tag { font-size: 11px; color: var(--brand-deep); background: var(--brand-tint); padding: 2px 8px; border-radius: 6px; }
+  .dev.dim .st { background: #c8d1cb; }
+  .dev.dim .tag { background: var(--paper); color: var(--faint); }
+</style>
+</head>
+<body>
+  <div class="win">
+    <div class="titlebar">
+      <div class="dots"><i></i><i></i><i></i></div>
+      <div class="wt">Sinomed 工作站</div>
+      <div class="ws"></div>
+    </div>
+    <div class="shell-body">
+      <aside class="side">
+        <div class="logo">
+          <div class="logo-mark">养</div>
+          <div><div class="logo-name">Youngs 医馆</div><div class="logo-sub">桌面工作站</div></div>
+        </div>
+        <div class="nav"><i class="ico"></i>工作台</div>
+        <div class="nav"><i class="ico"></i>顾客</div>
+        <div class="nav"><i class="ico"></i>员工</div>
+        <div class="nav active"><i class="ico"></i>接诊</div>
+        <div class="nav"><i class="ico"></i>卡项</div>
+        <div class="nav"><i class="ico"></i>订单</div>
+        <div class="nav"><i class="ico"></i>复盘回访</div>
+      </aside>
+      <main class="main">
+        <div class="scan-row">
+          <div class="scan-box"><i class="scan-ic"></i><span class="hint">扫码定位顾客：扫顾客码（手机号 / 顾客编号）后自动打开顾客页</span></div>
+          <div class="toast">已定位顾客：王女士</div>
+        </div>
+        <div class="customer-strip">
+          <div class="avatar">王</div>
+          <div class="cs">
+            <div class="nm">王女士 <span>金卡会员</span></div>
+            <div class="mt">137****3333 · 到店 12 次 · 最近到店 3 天前</div>
+          </div>
+          <div class="card-balance">10 次艾灸卡剩余<br><b>6 次</b></div>
+        </div>
+        <div class="bill">
+          <h4>接诊单 · 2026-10-08</h4>
+          <table>
+            <tr><th>项目</th><th style="text-align:center">次数</th><th class="num">单价</th><th class="num">小计</th></tr>
+            <tr>
+              <td><div class="item-nm">艾灸调理</div><div class="item-ds">使用 10 次艾灸卡抵扣</div></td>
+              <td style="text-align:center"><span class="qty"><i>−</i>1<i>＋</i></span></td>
+              <td class="num" style="color:var(--faint)">卡项抵扣</td>
+              <td class="num">¥0</td>
+            </tr>
+            <tr>
+              <td><div class="item-nm">腹部推拿</div><div class="item-ds">沈中医师 · 30 分钟</div></td>
+              <td style="text-align:center"><span class="qty"><i>−</i>2<i>＋</i></span></td>
+              <td class="num">¥180</td>
+              <td class="num">¥360</td>
+            </tr>
+            <tr>
+              <td><div class="item-nm">足浴熏蒸</div><div class="item-ds">首次体验 · 苏技师</div></td>
+              <td style="text-align:center"><span class="qty"><i>−</i>1<i>＋</i></span></td>
+              <td class="num">¥120</td>
+              <td class="num">¥120</td>
+            </tr>
+          </table>
+          <div class="add-row">从卡项列表添加项目</div>
+        </div>
+      </main>
+      <aside class="pay">
+        <div class="total-card">
+          <div class="tk">应收合计</div>
+          <div class="tv">¥480</div>
+          <div class="td2">卡项抵扣 ¥100<br>已含卡项抵扣，按项目现价合计</div>
+        </div>
+        <div class="pay-btn">收款并打印小票</div>
+        <div class="pay-btn ghost">保存接诊单</div>
+        <div class="total-card" style="margin-top:12px; padding:15px 18px">
+          <div class="tk">今日工作站</div>
+          <div class="td2" style="margin-top:8px">接诊 <b style="font-family:var(--serif); font-size:19px; color:var(--ink)">8</b> 单 · 打印小票 <b style="font-family:var(--serif); font-size:19px; color:var(--ink)">12</b> 张<br>扫码定位顾客 <b style="font-family:var(--serif); font-size:19px; color:var(--ink)">5</b> 次</div>
+        </div>
+        <div class="devices">
+          <div class="dh">外设状态</div>
+          <div class="dev"><i class="st"></i><span class="nm">80mm 小票机（USB 串口）</span><span class="tag">已连接</span></div>
+          <div class="dev"><i class="st"></i><span class="nm">扫码枪（串口监听）</span><span class="tag">监听中</span></div>
+          <div class="dev dim"><i class="st"></i><span class="nm">A5 处方笺打印机</span><span class="tag">系统打印</span></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>

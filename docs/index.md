@@ -60,3 +60,27 @@ features:
     title: 容器化部署
     details: 提供 Dockerfile 与 docker-compose 编排（MySQL + 服务端 + Nginx），亦支持 systemd 裸机部署。
 ---
+
+## 产品预览
+
+一套界面语言贯穿五个设备端：墨绿主色、宣纸底、金棕点缀、宋体标题。以下为各端界面原型（设计稿，数据全为虚构演示），源稿在仓库 `docs/design/mockups/`。
+
+**管理后台**（web · 顾客档案）
+
+![管理后台 · 顾客档案（界面原型）](/screenshots/admin-customer.png)
+
+**桌面工作站**（desktop · 接诊开单 + 外设状态）
+
+![桌面工作站 · 接诊开单（界面原型）](/screenshots/desktop-workstation.png)
+
+**小程序端**（app · 顾客首页，业务页面规划中）
+
+![小程序端 · 首页（界面原型）](/screenshots/mobile-home.png)
+
+**门店自助机**（kiosk · 选服务下单）
+
+![门店自助机 · 选服务（界面原型）](/screenshots/kiosk-menu.png)
+
+**候诊区展示屏**（tablet · 广告轮播 + 叫号）
+
+![候诊区展示屏 · 广告轮播与叫号（界面原型）](/screenshots/tablet-screen.png)

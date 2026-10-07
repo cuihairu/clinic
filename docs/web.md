@@ -2,6 +2,10 @@
 
 `web/` 是医馆日常运转的主工作台：Ant Design Pro + Umi（@umijs/max）工程，Node.js 24 / pnpm，中文界面。
 
+界面原型（顾客档案页，设计稿 · 数据为虚构演示）：
+
+![管理后台 · 顾客档案（界面原型）](/screenshots/admin-customer.png)
+
 ## 运行方式
 
 ```bash
