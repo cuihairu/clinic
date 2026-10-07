@@ -12,10 +12,10 @@
 export default {
   // 如果需要自定义本地开发服务器  请取消注释按需调整
   dev: {
-    // localhost:8000/api/** -> https://preview.pro.ant.design/api/**
+    // localhost:8000/api/** -> 本地服务端（默认 2347；用 DEV_SERVER_BASE 覆盖，如指向另一端口起的 server）
     '/api/': {
       // 要代理的地址
-      target: 'http://127.0.0.1:2347',
+      target: process.env.DEV_SERVER_BASE || 'http://127.0.0.1:2347',
       // 配置了这个可以从 http 代理到 https
       // 依赖 origin 的功能可能需要这个，比如 cookie
       changeOrigin: true,

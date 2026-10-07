@@ -164,6 +164,28 @@ export default [
     ],
   },
   {
+    path: '/ads/',
+    icon: 'PlayCircleOutlined',
+    name: 'ads',
+    routes:[
+      {
+        name: 'ads-materials',
+        path: '/ads/materials',
+        component: './Ads/Materials',
+      },
+      {
+        name: 'ads-schedules',
+        path: '/ads/schedules',
+        component: './Ads/Schedules',
+      },
+      {
+        name: 'ads-screens',
+        path: '/ads/screens',
+        component: './Ads/Screens',
+      }
+    ],
+  },
+  {
     path: '/review/',
     icon: 'WhatsAppOutlined',
     name: 'review',
