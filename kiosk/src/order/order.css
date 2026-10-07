@@ -1,0 +1,163 @@
+/* 下单 / 成功页：居中单卡，大字输入，与首页同一套暖白 + 墨绿点缀 */
+.order-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+}
+
+.order-card {
+  width: min(560px, 100%);
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(20, 24, 22, 0.12);
+  padding: 36px 36px 32px;
+}
+
+.order-title {
+  font-size: 34px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.order-sub {
+  margin-top: 10px;
+  font-size: 19px;
+  color: #6b7a71;
+  text-align: center;
+}
+
+.order-lines {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0;
+  border-top: 1px solid #e7ebe8;
+}
+
+.order-lines li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid #e7ebe8;
+  font-size: 22px;
+}
+
+.order-line-name {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-line-id {
+  font-size: 16px;
+  color: #6b7a71;
+}
+
+.order-line-price {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.order-total {
+  margin-top: 18px;
+  text-align: right;
+  font-size: 30px;
+  font-weight: 700;
+  color: #2f6d4f;
+  font-variant-numeric: tabular-nums;
+}
+
+.order-field {
+  display: block;
+  margin-top: 22px;
+}
+
+.order-label {
+  display: block;
+  font-size: 18px;
+  color: #6b7a71;
+  margin-bottom: 8px;
+}
+
+.order-input {
+  width: 100%;
+  font-size: 24px;
+  padding: 14px 16px;
+  border: 2px solid #cfd8d2;
+  border-radius: 12px;
+  background: #fbfbf9;
+  color: #17211b;
+  font-family: inherit;
+}
+
+.order-input:focus {
+  outline: none;
+  border-color: #2f6d4f;
+}
+
+.order-error {
+  margin-top: 16px;
+  font-size: 19px;
+  color: #b3402f;
+}
+
+.order-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.order-btn {
+  flex: 1;
+  font-size: 24px;
+  font-weight: 600;
+  padding: 16px 0;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.order-btn:active {
+  transform: scale(0.98);
+}
+
+.order-btn-primary {
+  background: #2f6d4f;
+  color: #fff;
+}
+
+.order-btn-primary:disabled {
+  opacity: 0.6;
+}
+
+.order-btn-ghost {
+  background: #eef1ee;
+  color: #17211b;
+}
+
+.order-card-success {
+  text-align: center;
+}
+
+.order-success-mark {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: #2f6d4f;
+  color: #fff;
+  font-size: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.order-countdown {
+  margin-top: 16px;
+  font-size: 17px;
+  color: #6b7a71;
+}

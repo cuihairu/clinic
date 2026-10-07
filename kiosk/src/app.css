@@ -83,3 +83,20 @@ body {
   font-weight: 600;
   color: #2f6d4f;
 }
+
+.basket-go {
+  margin-left: 24px;
+  font-size: 26px;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 14px 44px;
+  border: none;
+  border-radius: 14px;
+  background: #2f6d4f;
+  color: #fff;
+  cursor: pointer;
+}
+
+.basket-go:active {
+  transform: scale(0.98);
+}
