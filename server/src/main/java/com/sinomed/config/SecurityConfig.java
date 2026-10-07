@@ -58,6 +58,7 @@ public class SecurityConfig {
                         "/api/v1/ads/playlist",  // 平板拉排期（只读 + 屏 code 校验，见 docs/design/tablet.md）
                         "/api/v1/calls/latest",  // 平板拉叫号（只读 + 屏 code 校验）
                         "/media/**",  // 广告媒体静态资源（Nginx 托管时不受此约束）
+                        "/actuator/**",
                         LoginAPI).permitAll()
                 .anyRequest().authenticated()
         ).exceptionHandling(exceptionHandling -> exceptionHandling

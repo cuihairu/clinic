@@ -31,6 +31,19 @@ public class ItemEntity {
     @Column(name = "description",nullable = false,columnDefinition = "TEXT")
     private String description;
 
+    /** 1 上架、0 下架（Kiosk 只展示上架项；列默认 1，存量行加列即为上架）。
+     *  注意不写字段初始化器——卡项分页查询用 Example 匹配，初始化器会把默认值带进查询条件 */
+    @Column(name = "enabled", nullable = false, columnDefinition = "integer default 1")
+    private Integer enabled;
+
+    /** 封面图相对 url（可空，走 /media 静态托管） */
+    @Column(name = "cover")
+    private String cover;
+
+    /** Kiosk 展示顺序，小者在前 */
+    @Column(name = "sort", nullable = false, columnDefinition = "integer default 0")
+    private Integer sort;
+
     @CreatedDate
     @Column(name = "create_time")
     private Date createTime;
