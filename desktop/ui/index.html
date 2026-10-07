@@ -33,6 +33,8 @@
       .status.err { color: #b3402f; }
       .status.ok { color: #2f6d4f; }
       .diag { margin-top: 18px; padding-top: 14px; border-top: 1px solid #e7ebe8; font-size: 12px; color: #6b7a71; line-height: 1.7; }
+      .print-row { display: flex; gap: 10px; margin-top: 16px; }
+      .print-row button { margin-top: 0; font-size: 14px; padding: 10px 0; background: #eef1ee; color: #17211b; }
     </style>
   </head>
   <body>
@@ -43,6 +45,11 @@
       <input id="serverUrl" type="url" placeholder="如 http://192.168.1.10/" autocomplete="off" />
       <button id="saveBtn" type="button">保存并打开</button>
       <div id="status" class="status"></div>
+      <div class="print-row">
+        <button id="printPrescription" type="button">打印自检 · A5 处方笺</button>
+        <button id="printReceipt" type="button">打印自检 · 80mm 小票</button>
+      </div>
+      <div id="printStatus" class="status"></div>
       <div id="diag" class="diag"></div>
     </div>
     <script>
@@ -71,6 +78,51 @@
           btn.disabled = false
         }
       })
+
+      // 打印自检：用样张数据走完整渲染 + 隐藏窗口 + 系统打印对话框链路（desktop.md D2）
+      const printStatus = document.getElementById('printStatus')
+      const sampleData = {
+        prescription: {
+          clinicName: '示例医馆（样张）',
+          patient: '张三',
+          gender: '女',
+          age: '38',
+          phone: '138****0000',
+          date: new Date().toLocaleDateString('zh-CN'),
+          diagnosis: '脾胃虚寒，宜温中健脾',
+          doctor: '李医师',
+          items: [
+            { name: '艾灸调理', usage: '隔日一次，每次 40 分钟', qty: '3 次' },
+            { name: '腹部推拿', usage: '每日一次，每次 30 分钟', qty: '5 次' }
+          ]
+        },
+        receipt: {
+          clinicName: '示例医馆（样张）',
+          orderNo: '12',
+          customerName: '测试客人',
+          date: new Date().toLocaleString('zh-CN', { hour12: false }),
+          items: [
+            { name: '艾灸调理', qty: '1', amount: '¥100' },
+            { name: '腹部推拿', qty: '2', amount: '¥360' }
+          ],
+          total: '¥460',
+          staff: '前台'
+        }
+      }
+      async function printSample(name) {
+        printStatus.textContent = '正在调起打印…'
+        printStatus.className = 'status'
+        try {
+          const path = await invoke('print_html', { template: name, data: sampleData[name] })
+          printStatus.textContent = '已调起系统打印对话框（临时文件 ' + path.split('/').pop() + '）'
+          printStatus.className = 'status ok'
+        } catch (e) {
+          printStatus.textContent = String(e)
+          printStatus.className = 'status err'
+        }
+      }
+      document.getElementById('printPrescription').addEventListener('click', () => printSample('prescription'))
+      document.getElementById('printReceipt').addEventListener('click', () => printSample('receipt'))
 
       ;(async () => {
         try {

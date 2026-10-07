@@ -5,6 +5,7 @@
 
 mod commands;
 mod config;
+mod print;
 
 use tauri::{AppHandle, WebviewUrl, WebviewWindowBuilder};
 
@@ -16,7 +17,8 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             commands::get_config,
-            commands::set_config
+            commands::set_config,
+            print::print_html
         ])
         .setup(move |app| {
             let handle = app.handle().clone();
