@@ -20,6 +20,9 @@ pub struct AppConfig {
     /// 开机自启（D6 无人值守）：配置为唯一事实来源，启动时收敛到系统自启项
     #[serde(default)]
     pub autostart: bool,
+    /// 串口扫码枪（D9 兜底）：如 /dev/ttyUSB0 或 COM3；空 = 不启用（走 HID 键盘仿真）
+    #[serde(default)]
+    pub scanner_port: String,
 }
 
 fn default_width() -> u32 {
@@ -43,6 +46,7 @@ impl Default for AppConfig {
             printer: String::new(),
             update_channel: default_channel(),
             autostart: false,
+            scanner_port: String::new(),
         }
     }
 }

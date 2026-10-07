@@ -9,6 +9,7 @@ mod commands;
 mod config;
 mod escpos;
 mod print;
+mod scanner;
 mod templates;
 
 use std::time::{Duration, Instant};
@@ -71,8 +72,11 @@ fn run_app() {
             commands::set_config,
             commands::set_autostart,
             print::print_html,
-            escpos::print_escpos
+            escpos::print_escpos,
+            scanner::scanner_start,
+            scanner::scanner_stop
         ])
+        .manage(scanner::ScannerState::default())
         .setup(move |app| {
             let handle = app.handle().clone();
             let mut cfg = commands::load(&handle);
@@ -82,6 +86,17 @@ fn run_app() {
             // 开机自启状态收敛到配置：装机迁移 / 注册表被清等场景自动恢复
             commands::apply_autostart(&handle, cfg.autostart);
             open_main_window(&handle, &cfg)?;
+            // 串口扫码枪（D9）：配置了端口即开监听，收码以事件推给当前页面
+            if !cfg.scanner_port.is_empty() {
+                if let Err(e) = scanner::start(
+                    handle.clone(),
+                    &handle.state::<scanner::ScannerState>(),
+                    cfg.scanner_port.clone(),
+                    None,
+                ) {
+                    eprintln!("[scanner] {e}");
+                }
+            }
             tauri::async_runtime::spawn(templates::refresh(handle.clone()));
             tauri::async_runtime::spawn(check_for_updates(handle));
             Ok(())

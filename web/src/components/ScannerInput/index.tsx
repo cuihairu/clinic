@@ -10,6 +10,8 @@ import { fetchCustomerById, fetchCustomerByPhone } from '@/services/ant-design-p
  * 本输入框落焦点即收码；失焦后仅当焦点落到页面空白处才自动收回，不打断其它表单。
  * 码值约定：11 位手机号（1 开头）按手机号定位顾客，纯数字短码按顾客 id 定位；
  * 定位成功跳顾客详情页（建档 / 接诊入口）。没有扫码枪时手动输入等价。
+ * 壳内串口模式（desktop.md D9）：桌面工作站配置了串口扫码枪时由壳读码并广播
+ * scanner-code 事件，这里订阅后走同一套定位流程；浏览器无 __TAURI__ 自动退化。
  */
 export default function ScannerInput() {
   const inputRef = useRef<InputRef>(null);
@@ -52,6 +54,34 @@ export default function ScannerInput() {
       setBusy(false);
     }
   };
+
+  // 串口模式订阅只挂一次，locate 闭包随 busy 重建，经 ref 取最新避免陈旧状态
+  const locateRef = useRef(locate);
+  useEffect(() => {
+    locateRef.current = locate;
+  });
+
+  useEffect(() => {
+    const tauri = (window as unknown as {
+      __TAURI__?: { event?: { listen?: (name: string, handler: (ev: { payload: unknown }) => Promise<() => void>) => Promise<() => void> } };
+    }).__TAURI__;
+    if (!tauri?.event?.listen) return;
+    let cancelled = false;
+    let unlisten: (() => void) | undefined;
+    tauri.event.listen('scanner-code', ({ payload }: { payload: unknown }) => {
+      if (typeof payload === 'string' && payload.trim()) {
+        setCode('');
+        locateRef.current(payload);
+      }
+    }).then((stop: () => void) => {
+      if (cancelled) stop();
+      else unlisten = stop;
+    });
+    return () => {
+      cancelled = true;
+      unlisten?.();
+    };
+  }, []);
 
   return (
     <div style={{ marginBottom: 16 }}>

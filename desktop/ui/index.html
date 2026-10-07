@@ -59,6 +59,10 @@
         <input id="escposPort" placeholder="小票机串口（如 /dev/ttyUSB0 或 COM3）" autocomplete="off" />
         <button id="printEscpos" type="button" style="white-space:nowrap;">ESC/POS 直连</button>
       </div>
+      <div class="print-row">
+        <input id="scannerPort" placeholder="扫码枪串口（HID 仿真不可用时的兜底，D9）" autocomplete="off" />
+        <button id="scannerTest" type="button" style="white-space:nowrap;">监听测试</button>
+      </div>
       <div id="printStatus" class="status"></div>
       <div id="diag" class="diag"></div>
     </div>
@@ -152,6 +156,32 @@
           printStatus.textContent = String(e)
           printStatus.className = 'status err'
         }
+      })
+
+      // 串口扫码枪监听测试（desktop.md D9）：起监听后收到码值就地回显，收码事件由壳读线程推送
+      document.getElementById('scannerTest').addEventListener('click', async () => {
+        const port = document.getElementById('scannerPort').value.trim()
+        if (!port) {
+          printStatus.textContent = '先填扫码枪串口地址'
+          printStatus.className = 'status err'
+          return
+        }
+        try {
+          await invoke('scanner_start', { port })
+          printStatus.textContent = `正在监听 ${port}，请扫码（收到的码会显示在这里）`
+          printStatus.className = 'status ok'
+        } catch (e) {
+          printStatus.textContent = String(e)
+          printStatus.className = 'status err'
+        }
+      })
+      window.__TAURI__.event.listen('scanner-code', ({ payload }) => {
+        printStatus.textContent = `收到扫码：${payload}`
+        printStatus.className = 'status ok'
+      })
+      window.__TAURI__.event.listen('scanner-error', ({ payload }) => {
+        printStatus.textContent = String(payload)
+        printStatus.className = 'status err'
       })
 
       // 开机自启开关：即点即生效（写 config.json + 收敛系统自启项），不依赖「保存并打开」
