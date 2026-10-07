@@ -18,3 +18,21 @@ export interface Playlist {
   lastSeenAt: string | null
   items: PlaylistItem[]
 }
+
+/** 服务端 GET /api/v1/calls/latest 单条叫号（见 CallController） */
+export interface QueueCallItem {
+  id: number
+  /** 定向屏 id；null = 全部屏广播 */
+  screenId: number | null
+  number: string
+  room: string
+  patientMasked: string | null
+  status: number
+  calledAt: string | null
+}
+
+export interface CallsLatest {
+  /** 最新游标：平板下次拉取带上；无新记录时等于传入值 */
+  since: number
+  calls: QueueCallItem[]
+}

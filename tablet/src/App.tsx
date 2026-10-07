@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { usePlaylist } from './net/api'
+import { useCallPolling, usePlaylist } from './net/api'
 import { precacheMedia } from './net/precache'
+import { CallOverlay } from './player/CallOverlay'
 import { Carousel } from './player/Carousel'
 
 /** Kiosk 屏标识：URL ?screen=PAD-01；没配就停在配置提示页 */
@@ -72,6 +73,7 @@ export default function App() {
 
 function PlayerScreen({ screen }: { screen: string }) {
   const { playlist, online } = usePlaylist(screen)
+  const { current: call, dismiss } = useCallPolling(screen)
   useWakeLock()
 
   // 内容戳变化 → 把新序列的全部媒体交给 SW 预缓存，断网可续播
@@ -92,6 +94,7 @@ function PlayerScreen({ screen }: { screen: string }) {
   return (
     <>
       <Carousel key={playlist.code} items={playlist.items} mediaVersion={playlist.version} />
+      {call && <CallOverlay call={call} holdMs={15_000} onDone={dismiss} />}
       {!online && <div className="player-offline-badge">离线</div>}
     </>
   )

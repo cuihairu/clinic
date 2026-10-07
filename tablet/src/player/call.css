@@ -1,0 +1,54 @@
+/* 叫号提示层：盖住轮播，暗底大字，远距离可读优先 */
+.call-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #101613;
+  color: #f5f5f0;
+  font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  animation: call-in 0.25s ease-out;
+}
+
+@keyframes call-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.call-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2vh;
+}
+
+.call-room {
+  font-size: min(9vh, 7vw);
+  letter-spacing: 0.12em;
+  color: #b8c4ba;
+}
+
+.call-number {
+  font-size: min(42vh, 34vw);
+  line-height: 1;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.call-patient {
+  font-size: min(8vh, 6vw);
+  letter-spacing: 0.2em;
+}
+
+.call-hint {
+  margin-top: 2vh;
+  font-size: min(5.5vh, 4vw);
+  color: #8fa393;
+  letter-spacing: 0.15em;
+}
