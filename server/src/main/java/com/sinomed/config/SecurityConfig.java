@@ -55,6 +55,8 @@ public class SecurityConfig {
                         "/webjars/**",  // Webjars (for Swagger UI)
                         "/swagger-ui/**",  // Swagger UI path
                         "/doc.html",  // Knife4j HTML page
+                        "/api/v1/ads/playlist",  // 平板拉排期（只读 + 屏 code 校验，见 docs/design/tablet.md）
+                        "/media/**",  // 广告媒体静态资源（Nginx 托管时不受此约束）
                         LoginAPI).permitAll()
                 .anyRequest().authenticated()
         ).exceptionHandling(exceptionHandling -> exceptionHandling

@@ -1,4 +1,8 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
   cache:
     cache-names: cache,customer,treat
     caffeine:
@@ -33,6 +37,12 @@ spring:
       name: admin
       password: admin
       roles: ADMIN
+
+# 广告投屏：媒体落盘目录与对外前缀（Nginx /media/ 托管同目录，见 WebMvcConfig）
+sinomed:
+  ads:
+    upload-dir: ${ADS_UPLOAD_DIR:data/ads}
+    url-prefix: /media
 
 application:
   security:
