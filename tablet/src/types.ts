@@ -1,0 +1,20 @@
+/** 服务端 GET /api/v1/ads/playlist 返回结构（见 docs/design/tablet.md） */
+export interface PlaylistItem {
+  materialId: number
+  name: string
+  /** 1 图片、2 视频 */
+  type: 1 | 2
+  url: string
+  /** 图片停留时长（毫秒）；视频兜底计时 */
+  durationMs: number
+  sort: number
+}
+
+export interface Playlist {
+  /** 内容戳：素材/排期最近变更时间，未变则不重拉媒体 */
+  version: string
+  screenId: number
+  code: string
+  lastSeenAt: string | null
+  items: PlaylistItem[]
+}

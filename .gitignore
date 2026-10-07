@@ -48,3 +48,10 @@ target/
 ### docker
 db/
 logs/
+
+### tablet
+/tablet/node_modules/
+/tablet/dist/
+
+### server 本地落盘
+/data/
