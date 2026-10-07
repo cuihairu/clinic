@@ -7,6 +7,7 @@
 
 mod commands;
 mod config;
+mod escpos;
 mod print;
 mod templates;
 
@@ -69,7 +70,8 @@ fn run_app() {
             commands::get_config,
             commands::set_config,
             commands::set_autostart,
-            print::print_html
+            print::print_html,
+            escpos::print_escpos
         ])
         .setup(move |app| {
             let handle = app.handle().clone();

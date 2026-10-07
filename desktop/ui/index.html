@@ -37,6 +37,9 @@
       .diag { margin-top: 18px; padding-top: 14px; border-top: 1px solid #e7ebe8; font-size: 12px; color: #6b7a71; line-height: 1.7; }
       .print-row { display: flex; gap: 10px; margin-top: 16px; }
       .print-row button { margin-top: 0; font-size: 14px; padding: 10px 0; background: #eef1ee; color: #17211b; }
+      .print-row input { flex: 1; font-size: 14px; padding: 9px 12px; border: 2px solid #cfd8d2; border-radius: 10px; background: #fbfbf9; min-width: 0; }
+      .print-row input:focus { outline: none; border-color: #2f6d4f; }
+      .print-row button { width: auto; padding: 10px 14px; }
     </style>
   </head>
   <body>
@@ -51,6 +54,10 @@
       <div class="print-row">
         <button id="printPrescription" type="button">打印自检 · A5 处方笺</button>
         <button id="printReceipt" type="button">打印自检 · 80mm 小票</button>
+      </div>
+      <div class="print-row">
+        <input id="escposPort" placeholder="小票机串口（如 /dev/ttyUSB0 或 COM3）" autocomplete="off" />
+        <button id="printEscpos" type="button" style="white-space:nowrap;">ESC/POS 直连</button>
       </div>
       <div id="printStatus" class="status"></div>
       <div id="diag" class="diag"></div>
@@ -126,6 +133,26 @@
       }
       document.getElementById('printPrescription').addEventListener('click', () => printSample('prescription'))
       document.getElementById('printReceipt').addEventListener('click', () => printSample('receipt'))
+
+      // ESC/POS 直连自检（desktop.md D8）：小票样张数据编码后直写串口，免驱免打印对话框
+      document.getElementById('printEscpos').addEventListener('click', async () => {
+        const port = document.getElementById('escposPort').value.trim()
+        if (!port) {
+          printStatus.textContent = '先填小票机串口地址'
+          printStatus.className = 'status err'
+          return
+        }
+        printStatus.textContent = '正在写串口…'
+        printStatus.className = 'status'
+        try {
+          const size = await invoke('print_escpos', { port, data: sampleData.receipt })
+          printStatus.textContent = `已向 ${port} 写出 ${size} 字节 ESC/POS 小票`
+          printStatus.className = 'status ok'
+        } catch (e) {
+          printStatus.textContent = String(e)
+          printStatus.className = 'status err'
+        }
+      })
 
       // 开机自启开关：即点即生效（写 config.json + 收敛系统自启项），不依赖「保存并打开」
       const autostart = document.getElementById('autostart')

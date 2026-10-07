@@ -1,6 +1,6 @@
 # 桌面版设计：前台 / 医生工作站（Tauri 2 薄壳）
 
-> 状态：**已实施（P0 D1–D5，P1 D6–D7）**。`desktop/` Tauri 2 薄壳、打印模板与打印桥、扫码输入、CI 双平台安装包、更新器与 nightly 发布流水线、单实例/自启/崩溃自动重启、模板版本化均已落地并逐项实证；P1 其余（ESC/POS 直连 D8、串口扫码 D9）未做。`desktop/` 端与候诊区展示屏（[平板展示](/design/tablet)）、顾客自助机（[顾客选服务](/design/kiosk)）是三台设备三个工程。
+> 状态：**已实施（P0 D1–D5，P1 D6–D8）**。`desktop/` Tauri 2 薄壳、打印模板与打印桥、扫码输入、CI 双平台安装包、更新器与 nightly 发布流水线、单实例/自启/崩溃自动重启、模板版本化、ESC/POS 直连均已落地并逐项实证；P1 仅余扫码枪串口模式（D9）未做。`desktop/` 端与候诊区展示屏（[平板展示](/design/tablet)）、顾客自助机（[顾客选服务](/design/kiosk)）是三台设备三个工程。
 
 ## 定位与场景
 
@@ -48,7 +48,7 @@
 | 外设 | 用途 | P0 方案 | 插件位 |
 | ---- | ---- | ---- | ---- |
 | A4/A5 打印机 | 处方笺、调理方案单 | Windows 驱动模式：HTML 模板 + `@page` 分页，webview 打印（`window.print()` 定向打印 iframe） | 无需插件；P1 可换 Rust 侧静默打印 |
-| 58/80mm 热敏小票机 | 挂号小票、回执 | 同上（装 Windows 驱动后即系统打印机） | P1：ESC/POS 直连（Rust command，USB/串口） |
+| 58/80mm 热敏小票机 | 挂号小票、回执 | 同上（装 Windows 驱动后即系统打印机） | ✅ ESC/POS 直连已实施（`print_escpos` Rust command，GBK 直发，见 D8） |
 | USB 扫码枪 | 扫顾客码定位建档 / 接诊 | 键盘仿真（HID）模式：聚焦输入框即可收码，回车结尾；web 侧做焦点管理与自动提交 | 无需插件；P1：串口模式（serialport 插件位） |
 
 **打印模板与离线缓存**：处方笺 / 小票模板为 HTML 文件，随安装包内置并缓存到本地应用数据目录（`templates/`）；断网时模板壳仍可打开打印。P1 起模板**版本化**：服务端新增免登录模板接口（`GET /api/v1/print/templates`，空白版式不含业务数据），内置版式兜底、可被服务端同名模板覆盖（`data/printtemplates/` 目录放同名文件即可，`PRINT_TEMPLATES_DIR` 可配），壳启动与每次打印前按 `version`（内容摘要）增量拉取——模板更新只改服务端，不发壳版本。注意边界：模板里的**业务数据来自服务端接口**，完整离线接诊不在本设计范围内。
@@ -77,7 +77,7 @@
 
 - **业务**：复用现有 `/api/v1` 全量接口（与管理端一致，见[REST 接口清单](/server/api)），无新增。
 - **模板下发**（P1 D7 加项）：`GET /api/v1/print/templates`，免登录只读，详情见上「打印模板与离线缓存」。
-- **本机命令**（Tauri `invoke`，非 HTTP）：`print_html(template, data)`（P0）、`scanner_focus(target)` / 串口读取（P1）。
+- **本机命令**（Tauri `invoke`，非 HTTP）：`print_html(template, data)`（P0）、`print_escpos(port, data, columns?, baud?)`（P1 D8，ESC/POS 字节流直写串口）、`set_autostart(enabled)`（P1 D6）、扫码枪串口（P1 D9）。
 
 ## 目录落位
 
@@ -114,5 +114,5 @@ CI 落位：`.github/workflows/desktop.yml`（构建 NSIS 包 → 覆盖发布 n
 | ---- | ---- | ---- | ---- |
 | D6 | 单实例锁、开机自启、崩溃后自动重启 | 工作站无人值守运行 | ✅ 单实例（dbus 名锁，二实例让位聚焦实证）；看门狗父进程 `--supervised` 分流：kill -9 子进程 3 秒拉起、60 秒 6 次预算止损实证、TERM 父进程整组退；开机自启配置驱动收敛（`~/.config/autostart` 条目生成/移除实证，引导页开关即点即生效） |
 | D7 | 打印模板版本化：服务端模板接口 + 本地缓存覆盖 | 模板更新不发壳版本 | ✅ 服务端 `GET /api/v1/print/templates`（免登录、白名单两模板、SHA-256 内容摘要版本；`data/printtemplates/` 同名文件覆盖内置，目录覆盖→版本漂移 curl 实证）；壳启动预热 + 每次打印前按 version 增量拉取缓存 `templates/`，打印走「缓存优先、内置兜底」（Xvfb 实机全链路：运行中写配置→点打印自检→日志 `模板缓存已更新至 ce4be162…`→打印临时文件含覆盖标记而非内置内容）；服务端 3 项 / 壳 3 项单测覆盖解析、过滤、缓存优先 |
-| D8 | ESC/POS 直连打印（Rust command，USB/串口） | 免驱小票机场景 | 未做 |
+| D8 | ESC/POS 直连打印（Rust command，USB/串口） | 免驱小票机场景 | ✅ `print_escpos(port, data, columns?, baud?)`：小票数据编码 ESC/POS 字节流直写 serialport 串口（初始化/倍宽店名/明细行/合计加粗/走纸切纸，中文 GBK 直发，全角按 2 列算宽对齐），免驱免打印对话框；引导页串口自检（端口输入 + 即点即发）；socat 伪终端实证：ui 写 `/tmp/escpos-a` → 对端收全 294 字节（ESC@ 起、GBK「合计/店名」在流中、GS V 1 切纸收尾），坏端口红色报错实证；编码器 4 项单测（控制指令/GBK/按列宽补齐/空数据不 panic），cargo 18 项全绿 |
 | D9 | 扫码枪串口模式（serialport 插件位） | HID 仿真不可用时的兜底 | 未做 |
