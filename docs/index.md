@@ -45,6 +45,11 @@ features:
     title: 广告展示端
     details: 候诊区平板 Kiosk：广告与科普轮播、前台叫号 1 秒级上屏、断网续播；素材 / 排期 / 屏 / 叫号在管理端配置。见「设计 · 平板展示」。
   - icon:
+      src: /icons/receipt-yuan.svg
+      alt: 下单
+    title: 顾客选服务
+    details: 前台 iPad 自助点选卡项、留手机号下单，管理端订单管理接单流转。见「设计 · 顾客选服务」。
+  - icon:
       src: /icons/api.svg
       alt: 接口
     title: 接口与文档

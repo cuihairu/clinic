@@ -1,6 +1,6 @@
 # 顾客选服务设计：到店 Kiosk（浏览 / 选卡项 / 下单）
 
-> 状态：**设计稿，未实施**。本文描述规划中的 `kiosk/` 端与配套服务端接口；与候诊区展示屏（[平板展示](/design/tablet)）是两台设备两个工程——展示屏只播不录，本机是顾客自助录入入口。
+> 状态：**已实施（K1–K6）**。`kiosk/` 端（浏览网格 / 下单 / 成功回执 / 空闲清篮）、服务端 kiosk 接口与订单管理均已落地并逐项实证；与候诊区展示屏（[平板展示](/design/tablet)）是两台设备两个工程——展示屏只播不录，本机是顾客自助录入入口。
 
 ## 定位与场景
 
@@ -102,11 +102,11 @@ server/ …/controller/KioskController.java、OrderController.java（真实实�
 
 ## todo 原子项
 
-| # | 事项 | 验收 |
-| ---- | ---- | ---- |
-| K1 | items 补 `enabled / cover / sort` 三字段并透出到 VO；dash 卡项页补编辑 | dash 可上架/下架、传封面、排序 |
-| K2 | server KioskController：`GET /kiosk/items` + `POST /kiosk/orders`（免登录、手机号建档幂等） | curl 浏览只读、下单落库、重复手机号不重复建档 |
-| K3 | dash 订单管理页：分页列表（联顾客/卡项名）+ 状态流转，替换空壳 OrderController | kiosk 下的单在 dash 可见、可接单/完成/取消 |
-| K4 | `kiosk/` 脚手架 + 卡项网格浏览页 | 浏览器打开即见上架卡项大字网格 |
-| K5 | kiosk 购物篮 + 下单 + 成功回执 + 空闲回首页 | 全流程触摸走通，重复手机号二单归同一顾客 |
-| K6 | 端到端验收 + 文档同步（data-model / api / deploy / index） | 设计稿改已实施，docs build 过 |
+| # | 事项 | 验收 | 状态 |
+| ---- | ---- | ---- | ---- |
+| K1 | items 补 `enabled / cover / sort` 三字段并透出到 VO；dash 卡项页补编辑 | dash 可上架/下架、传封面、排序 | ✅ 存量行默认上架、表单三字段浏览器实证 |
+| K2 | server KioskController：`GET /kiosk/items` + `POST /kiosk/orders`（免登录、手机号建档幂等） | curl 浏览只读、下单落库、重复手机号不重复建档 | ✅ 下架项排除、双单合计与同号归同顾客 curl 实证 |
+| K3 | dash 订单管理页：分页列表（联顾客/卡项名）+ 状态流转，替换空壳 OrderController | kiosk 下的单在 dash 可见、可接单/完成/取消 | ✅ 7 项 curl + 浏览器接单流转实证 |
+| K4 | `kiosk/` 脚手架 + 卡项网格浏览页 | 浏览器打开即见上架卡项大字网格 | ✅ 竖屏实证：上架 2 项、下架排除、点选汇总 |
+| K5 | kiosk 购物篮 + 下单 + 成功回执 + 空闲回首页 | 全流程触摸走通，重复手机号二单归同一顾客 | ✅ 手机号校验/回执/10s 自动返回/30s 清篮，二单 customerId 相同 |
+| K6 | 端到端验收 + 文档同步（data-model / api / deploy / index） | 设计稿改已实施，docs build 过 | ✅ 文档四件套同步，docs build 过 |

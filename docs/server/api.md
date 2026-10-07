@@ -92,17 +92,23 @@
 时长按整小时统计，不足 1 小时不显示；同日多次上班卡取最早、下班卡取最晚；未打下班卡但已上班的按当前时间计算。详见[管理端](/web)页面说明。
 :::
 
-## 订单 `/api/v1/order`（预留）
+## 顾客选服务 Kiosk `/api/v1/kiosk`（kiosk.md K2）
 
-以下 5 个接口路径已定义，**实现为占位（返回空对象）**，订单链路尚未接线：
+免登录（前台大屏自助入口，见[顾客选服务设计](/design/kiosk)）；浏览只读 + 单一下单写入口。
 
-| 方法 | 路径 |
-| ---- | ---- |
-| POST | `/api/v1/order/` |
-| PUT | `/api/v1/order/` |
-| GET | `/api/v1/order/{id}` |
-| GET | `/api/v1/order/user/{id}` |
-| DELETE | `/api/v1/order/{id}` |
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| GET | `/api/v1/kiosk/items` | 上架卡项列表（enabled=1，sort+name 升序），只透 id/name/price/cover/description |
+| POST | `/api/v1/kiosk/orders` | 下单：body `{ phone, name?, itemIds[] }`。手机号须 `1\d{10}`；卡项须存在且上架（先全量校验再建档）；按手机号幂等建档（缺称呼默认「到店客人」），逐项落 `status=0` 订单并取卡项现价快照。返回 `{ customerId, customerName, orders[{id,itemId,itemName,price}], totalFee }` |
+
+## 订单 `/api/v1/order`（kiosk.md K3，需登录）
+
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| GET | `/api/v1/order/page` | 分页（current、pageSize、status 可空），联出顾客名/手机号与卡项名 |
+| GET | `/api/v1/order/{id}` | 详情（联顾客与卡项名） |
+| PUT | `/api/v1/order/status` | 状态流转：`0→1`、`1→2`，`0/1→9` 取消；其余组合报错（body 带 id 与 status） |
+| DELETE | `/api/v1/order/{id}` | 删除，仅 `status=9`（已取消）可删 |
 
 ## 广告投屏 `/api/v1/ads`（tablet.md T1/T2）
 

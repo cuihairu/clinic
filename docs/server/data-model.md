@@ -54,6 +54,9 @@
 | name | String | 名称（非空、唯一） |
 | price | Integer | 价格 |
 | description | TEXT | 描述 |
+| enabled | Integer | 1 上架、0 下架（Kiosk 只展示上架项；存量行默认 1） |
+| cover | String | 封面图相对 url（可空，`/media` 托管） |
+| sort | Integer | 展示顺序，小者在前 |
 
 ## reviews / review_staffs / review_customers — 反馈与复盘
 
@@ -63,11 +66,11 @@
 | `review_staffs`（员工日复盘） | `staff_id`、`name`、`cost`（耗费）、`done`、`advice`、`day` | 按员工按日记录 |
 | `review_customers`（顾客回访） | `customer_id`、`name`、`last`（上次时间）、`day`（回访日）、`advice` | `day` 到期后出现在每日报表提醒 |
 
-## orders / recharges — 预留表
+## orders / recharges
 
 | 表 | 字段要点 | 现状 |
 | ---- | ---- | ---- |
-| `orders`（订单） | `user_id`（顾客）、`item_id`（卡项）、`staff_id`、`status`、`price` | 表已定义，接口为占位，业务未接线 |
+| `orders`（订单） | `user_id`（顾客）、`item_id`（卡项）、`staff_id`、`status`、`price` | 已接线：Kiosk 下单落 `status=0` 并快照卡项现价；`status` 语义 `0` 已下单 → `1` 已确认 → `2` 已完成，`9` 已取消（`0/1→9`，仅 `9` 可删），管理端分页与流转见 [api](/server/api) 订单组 |
 | `recharges`（充值） | `user_id`、`money` | 仅有 Repository，无接口 |
 
 ## staffs — 员工（登录主体，诊所运营）
