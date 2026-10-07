@@ -95,7 +95,8 @@ export default defineConfig({
           text: '设计',
           items: [
             { text: '桌面版设计（Tauri 2 薄壳）', link: '/design/desktop' },
-            { text: '平板展示设计（Kiosk）', link: '/design/tablet' }
+            { text: '平板展示设计（Kiosk）', link: '/design/tablet' },
+            { text: '顾客选服务设计（Kiosk）', link: '/design/kiosk' }
           ]
         }
       ],
