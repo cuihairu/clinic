@@ -23,6 +23,8 @@
         border-radius: 10px; background: #fbfbf9; color: #17211b; font-family: inherit;
       }
       input:focus { outline: none; border-color: #2f6d4f; }
+      label.check { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #17211b; margin: 14px 0 2px; cursor: pointer; }
+      label.check input { width: 16px; height: 16px; padding: 0; accent-color: #2f6d4f; }
       button {
         width: 100%; margin-top: 18px; font-size: 16px; font-weight: 600; padding: 12px 0;
         border: none; border-radius: 10px; background: #2f6d4f; color: #fff;
@@ -43,6 +45,7 @@
       <div class="sub">填写管理端 web 地址，本工作站将直接加载该页面（业务与浏览器版一致）。</div>
       <label for="serverUrl">管理端地址（http:// 或 https:// 完整地址）</label>
       <input id="serverUrl" type="url" placeholder="如 http://192.168.1.10/" autocomplete="off" />
+      <label class="check"><input id="autostart" type="checkbox" /> 开机自动启动工作站（无人值守运行）</label>
       <button id="saveBtn" type="button">保存并打开</button>
       <div id="status" class="status"></div>
       <div class="print-row">
@@ -124,6 +127,18 @@
       document.getElementById('printPrescription').addEventListener('click', () => printSample('prescription'))
       document.getElementById('printReceipt').addEventListener('click', () => printSample('receipt'))
 
+      // 开机自启开关：即点即生效（写 config.json + 收敛系统自启项），不依赖「保存并打开」
+      const autostart = document.getElementById('autostart')
+      autostart.addEventListener('change', async () => {
+        try {
+          await invoke('set_autostart', { enabled: autostart.checked })
+          show(autostart.checked ? '已开启开机自启' : '已关闭开机自启', 'ok')
+        } catch (e) {
+          autostart.checked = !autostart.checked
+          show('开机自启设置失败：' + String(e), 'err')
+        }
+      })
+
       ;(async () => {
         try {
           const cfg = await invoke('get_config')
@@ -131,6 +146,7 @@
             input.value = cfg.server_url
             show('已配置地址。正常启动时主窗口会直接打开该地址；本页仅在网络不可达等情况下手动打开。', 'ok')
           }
+          autostart.checked = !!cfg.autostart
           const version = await window.__TAURI__.app.getVersion()
           diag.textContent = `版本 ${version} · 更新通道 ${cfg.update_channel} · 窗口 ${cfg.window_width}×${cfg.window_height}`
         } catch (e) {

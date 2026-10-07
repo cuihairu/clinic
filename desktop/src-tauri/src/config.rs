@@ -17,6 +17,9 @@ pub struct AppConfig {
     /// 更新通道：nightly / stable（D5 updater 用）
     #[serde(default = "default_channel")]
     pub update_channel: String,
+    /// 开机自启（D6 无人值守）：配置为唯一事实来源，启动时收敛到系统自启项
+    #[serde(default)]
+    pub autostart: bool,
 }
 
 fn default_width() -> u32 {
@@ -39,6 +42,7 @@ impl Default for AppConfig {
             window_height: default_height(),
             printer: String::new(),
             update_channel: default_channel(),
+            autostart: false,
         }
     }
 }
@@ -115,6 +119,7 @@ mod tests {
         assert_eq!(cfg.window_width, 1280);
         assert_eq!(cfg.window_height, 800);
         assert_eq!(cfg.update_channel, "nightly");
+        assert!(!cfg.autostart);
         let text = serde_json::to_string(&cfg).unwrap();
         assert_eq!(cfg, serde_json::from_str(&text).unwrap());
     }
