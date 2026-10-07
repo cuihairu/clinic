@@ -16,6 +16,13 @@ export default defineConfig({
   hash: true,
 
   /**
+   * @name esbuild 压缩的 IIFE 帮助函数加前后缀
+   * @description 代码量上来后多个 chunk 的压缩帮助函数会重名，构建期校验报
+   *              "Found conflicts in esbuild helpers"；置 true 让每个 chunk 的帮助函数隔离命名。
+   */
+  esbuildMinifyIIFE: true,
+
+  /**
    * @name 兼容性设置
    * @description 设置 ie11 不一定完美兼容，需要检查自己使用的所有依赖
    * @doc https://umijs.org/docs/api/config#targets
