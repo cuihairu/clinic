@@ -32,6 +32,7 @@ export default defineConfig({
       { text: '小程序端', link: '/app', activeMatch: '/app' },
       { text: '广告展示端', link: '/tablet', activeMatch: '/tablet' },
       { text: '设计', link: '/design/desktop', activeMatch: '/design/' },
+      { text: '推广材料', link: '/marketing/', activeMatch: '/marketing/' },
       { text: '调研', link: '/research/projects', activeMatch: '/research/' }
     ],
     sidebar: {
@@ -68,6 +69,18 @@ export default defineConfig({
           items: [
             { text: '小程序端结构', link: '/app' },
             { text: '换马甲构建指南', link: '/app-white-label' }
+          ]
+        }
+      ],
+      '/marketing/': [
+        {
+          text: '推广材料',
+          items: [
+            { text: '使用说明', link: '/marketing/' },
+            { text: '开业介绍', link: '/marketing/article-opening' },
+            { text: '中医科普软广', link: '/marketing/article-science' },
+            { text: '活动促销', link: '/marketing/article-promo' },
+            { text: '朋友圈短文案', link: '/marketing/moments' }
           ]
         }
       ],
