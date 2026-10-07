@@ -55,6 +55,10 @@ jobs:
       - name: Build (${{ matrix.name }})
         run: pnpm tauri ${{ matrix.args }}
         working-directory: desktop
+        # conf 里已开 createUpdaterArtifacts（updater 签名公钥），构建期即需私钥签名更新包
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
       - name: Upload NSIS installer
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
