@@ -65,7 +65,10 @@ export default defineConfig({
       '/app': [
         {
           text: '小程序端',
-          items: [{ text: '小程序端结构', link: '/app' }]
+          items: [
+            { text: '小程序端结构', link: '/app' },
+            { text: '换马甲构建指南', link: '/app-white-label' }
+          ]
         }
       ],
       '/tablet': [
