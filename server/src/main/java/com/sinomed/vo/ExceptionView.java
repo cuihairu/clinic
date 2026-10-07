@@ -2,12 +2,16 @@ package com.sinomed.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 @Schema(title = "异常信息")
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class ExceptionView implements Serializable {
     @Schema(title = "业务成功与否",description ="业务是否成功" ,example = "false")

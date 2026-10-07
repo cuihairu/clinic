@@ -3,11 +3,15 @@ package com.sinomed.vo;
 import com.sinomed.entity.SignEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Schema(title = "签到信息")
 public class SignView {

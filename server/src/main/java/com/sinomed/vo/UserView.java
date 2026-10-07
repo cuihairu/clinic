@@ -3,10 +3,14 @@ package com.sinomed.vo;
 import com.sinomed.entity.StaffEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Schema(title = "用户信息")
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class UserView {
     @Schema(title = "name",description = "当前用户显示的名字",example = "崔海涛")

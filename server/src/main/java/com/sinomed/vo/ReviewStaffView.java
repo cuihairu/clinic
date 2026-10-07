@@ -4,11 +4,15 @@ import com.sinomed.entity.ReviewStaffEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Schema(title = "员工复盘信息")
 public class ReviewStaffView {

@@ -4,12 +4,16 @@ import com.sinomed.entity.CustomerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
 
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Schema(title = "客人信息")
 public class CustomerView implements Serializable {

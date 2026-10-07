@@ -3,13 +3,17 @@ package com.sinomed.vo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import com.sinomed.entity.TreatEntity;
 import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
 
 @Schema(title = "疗程表信息")
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class TreatView implements Serializable {
     @Schema(title = "id",description ="疗程表id" ,example = "1234567890")

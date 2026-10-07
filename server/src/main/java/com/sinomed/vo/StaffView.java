@@ -4,13 +4,17 @@ import com.sinomed.entity.StaffEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
 
 @Schema(title = "员工信息")
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class StaffView implements Serializable {
     @Schema(title = "员工id",description = "员工id",example = "1234567890")
