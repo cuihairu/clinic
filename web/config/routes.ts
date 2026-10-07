@@ -182,6 +182,11 @@ export default [
         name: 'ads-screens',
         path: '/ads/screens',
         component: './Ads/Screens',
+      },
+      {
+        name: 'ads-calls',
+        path: '/ads/calls',
+        component: './Ads/Calls',
       }
     ],
   },

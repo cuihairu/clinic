@@ -13,6 +13,7 @@ export default {
   'menu.ads.ads-materials': '素材管理',
   'menu.ads.ads-schedules': '排期管理',
   'menu.ads.ads-screens': '屏管理',
+    'menu.ads.ads-calls': '叫号操作',
   'menu.customer': '顾客系统',
   'menu.treat':'诊断系统',
   'menu.admin.sub-page': '二级管理页',

@@ -55,3 +55,4 @@ logs/
 
 ### server 本地落盘
 /data/
+tablet/tsconfig.tsbuildinfo

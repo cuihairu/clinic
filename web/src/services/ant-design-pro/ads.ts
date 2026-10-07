@@ -173,3 +173,33 @@ export function uploadAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('jwt');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
+
+// ---------- 叫号 ----------
+
+export interface QueueCall {
+  id?: number;
+  /** 定向屏 id；为空 = 全部屏 */
+  screenId?: number | null;
+  number?: string;
+  room?: string;
+  /** 脱敏姓名，如 张* */
+  patientMasked?: string;
+  /** 0 待叫、1 已叫 */
+  status?: number;
+  calledAt?: string;
+}
+
+export async function createCall(body: QueueCall, options?: { [key: string]: any }) {
+  return request<QueueCall>('/api/v1/calls', {
+    method: 'POST',
+    data: body,
+    ...(options || {}),
+  });
+}
+
+export async function queryRecentCalls(options?: { [key: string]: any }) {
+  return request<QueueCall[]>('/api/v1/calls/recent', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}

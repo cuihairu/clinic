@@ -12,6 +12,7 @@ export default {
   'menu.ads.ads-materials': 'Materials',
   'menu.ads.ads-schedules': 'Schedules',
   'menu.ads.ads-screens': 'Screens',
+    'menu.ads.ads-calls': 'Queue Calls',
   'menu.dashboard.analysis': 'Analysis',
   'menu.dashboard.monitor': 'Monitor',
   'menu.dashboard.workplace': 'Workplace',
