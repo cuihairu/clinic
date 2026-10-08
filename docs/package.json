@@ -10,5 +10,12 @@
   "devDependencies": {
     "vitepress": "^1.6.4"
   },
-  "engines": { "node": ">=24.0.0" }
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild@0.21.5": "0.25.0"
+    }
+  }
 }
