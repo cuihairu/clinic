@@ -1,54 +1,67 @@
-/* 叫号提示层：盖住轮播，暗底大字，远距离可读优先 */
-.call-overlay {
+/* 叫号条（对齐原型 tablet-screen .call）：石墨半透明横条悬浮轮播之上，
+   金棕「请就诊」label + 号码/脱敏姓名 + 宋体诊室强调；不拦截触摸。 */
+.call-bar {
   position: absolute;
-  inset: 0;
+  left: 5vh;
+  right: 5vh;
+  bottom: 4vh;
+  height: 9vh;
+  min-height: 72px;
   z-index: 10;
+  background: rgba(38, 41, 39, 0.92); /* 石墨 ink 半透明，远距离可读 */
+  border-radius: 18px;
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: #101613;
-  color: #f5f5f0;
-  font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  padding: 0 3.2vh;
+  gap: 2vh;
+  color: #fff;
+  pointer-events: none;
   animation: call-in 0.25s ease-out;
 }
 
 @keyframes call-in {
   from {
     opacity: 0;
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.call-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2vh;
+.call-label {
+  font-size: 2.4vh;
+  background: var(--amber);
+  color: #fff;
+  border-radius: 10px;
+  padding: 1.1vh 2vh;
+  letter-spacing: 0.15em;
+  flex-shrink: 0;
+}
+
+.call-who {
+  font-size: 2.9vh;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .call-room {
-  font-size: min(9vh, 7vw);
-  letter-spacing: 0.12em;
-  color: #b8c4ba;
+  margin-left: auto;
+  font-size: 2.9vh;
+  color: #d8e4dc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.call-number {
-  font-size: min(42vh, 34vw);
-  line-height: 1;
+.call-room b {
+  color: #fff;
+  font-family: var(--serif);
+  font-size: 3.6vh;
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.call-patient {
-  font-size: min(8vh, 6vw);
-  letter-spacing: 0.2em;
-}
-
-.call-hint {
-  margin-top: 2vh;
-  font-size: min(5.5vh, 4vw);
-  color: #8fa393;
-  letter-spacing: 0.15em;
+  margin: 0 0.6vh;
 }

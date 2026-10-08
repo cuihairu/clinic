@@ -60,6 +60,11 @@ export function Carousel({ items, mediaVersion }: { items: PlaylistItem[]; media
           onError={() => setIndex((i) => (i + 1) % items.length)}
         />
       )}
+      <div className="player-pager">
+        {items.map((_, i) => (
+          <i key={i} className={i === index % items.length ? 'on' : ''} />
+        ))}
+      </div>
     </div>
   )
 }

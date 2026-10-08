@@ -5,7 +5,9 @@ import { speakCall } from './speech'
 import './call.css'
 
 /**
- * 全屏叫号提示：盖在轮播之上，停留 holdMs（默认 15 秒）后回调父级换下一条/回轮播。
+ * 叫号条（对齐原型 tablet-screen .call）：底部悬浮横条，轮播继续可见，
+ * 停留 holdMs（默认 15 秒）后回调父级换下一条/回轮播。
+ * 语音播报与提示音不变；横条不拦截触摸（pointer-events:none，全屏手势仍可用）。
  */
 export function CallOverlay({
   call,
@@ -24,13 +26,14 @@ export function CallOverlay({
   }, [call.id])
 
   return (
-    <div className="call-overlay">
-      <div className="call-card">
-        <div className="call-room">{call.room}</div>
-        <div className="call-number">{call.number}</div>
-        {call.patientMasked && <div className="call-patient">{call.patientMasked}</div>}
-        <div className="call-hint">请前往 {call.room} 就诊</div>
-      </div>
+    <div className="call-bar">
+      <span className="call-label">请就诊</span>
+      <span className="call-who">
+        {call.number} 号{call.patientMasked ? ` ${call.patientMasked}` : ''}
+      </span>
+      <span className="call-room">
+        前往<b>{call.room}</b>
+      </span>
     </div>
   )
 }

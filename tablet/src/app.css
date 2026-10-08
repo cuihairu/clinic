@@ -1,3 +1,5 @@
+/* Tablet 展示屏全局：tokens.css（同源）默认石墨基调；深色待机底 = var(--ink)，
+   金棕点缀 var(--amber)。color-scheme dark 保持，字体走 var(--sans)。 */
 :root {
   color-scheme: dark;
 }
@@ -7,7 +9,7 @@ body,
 #root {
   margin: 0;
   height: 100%;
-  background: #111;
+  background: var(--ink);
 }
 
 body {
@@ -15,6 +17,7 @@ body {
   cursor: none; /* Kiosk 观感：无鼠标指针；触摸点击仍有效 */
   -webkit-user-select: none;
   user-select: none;
+  font-family: var(--sans);
 }
 
 .player-offline-badge {
@@ -25,8 +28,7 @@ body {
   border-radius: 4px;
   background: rgba(0, 0, 0, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #ffce54;
+  color: var(--amber);
   font-size: 13px;
   letter-spacing: 0.2em;
-  font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
