@@ -119,6 +119,7 @@ public class DemoSeedRunner implements ApplicationRunner {
                 new ItemSeed("四季膏方调理（季卡）", 1280,
                         "四季膏方调理季度服务，含辨证开方与两次复诊调整。")
         );
+        int sort = 0;
         for (ItemSeed s : seeds) {
             if (itemExists(s.name())) {
                 continue;
@@ -127,6 +128,9 @@ public class DemoSeedRunner implements ApplicationRunner {
             item.setName(s.name());
             item.setPrice(s.price());
             item.setDescription(s.description());
+            // enabled/sort 为 NOT NULL 列（ItemView 默认 enabled=1/sort=0），种子直插实体需显式带上
+            item.setEnabled(1);
+            item.setSort(++sort);
             itemRepository.save(item);
         }
         log.info("种子·卡项：检查完成");
