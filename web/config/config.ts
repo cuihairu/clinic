@@ -160,11 +160,8 @@ export default defineConfig({
       schemaPath: join(__dirname, 'oneapi.json'),
       mock: false,
     },
-    {
-      requestLibPath: "import { request } from '@umijs/max'",
-      schemaPath: 'https://gw.alipayobjects.com/os/antfincdn/CA1dOm%2631B/openapi.json',
-      projectName: 'swagger',
-    },
+    // petstore 示例入口（projectName: 'swagger'，生成 src/services/swagger/*）已移除：
+    // 纯脚手架演示数据，真实业务接口在 src/services/ant-design-pro/ 手写维护
   ],
   mfsu: {
     strategy: 'normal',

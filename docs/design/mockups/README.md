@@ -20,7 +20,7 @@
 | `admin-herbprescription.html` | web | 📐 **规划功能·设计原型** | 中药处方：处方笺/饮片剂量/配伍审方/代煎领取 |
 | `admin-billing.html` | web | 📐 **规划功能·设计原型** | 收费结算：储值/微信/支付宝/现金/卡项抵扣/小票 |
 | `desktop-workstation.html` | desktop | ✅ 已实现功能 | 接诊开单 + 打印/扫码外设状态 |
-| `mobile-home.html` | app | 📐 **规划功能·设计原型** | 小程序首页：预约横幅/卡项余次/会员等级 |
+| `mobile-home.html` | app | ✅ 已实现功能 | 小程序首页：品牌头/预约横幅/今日宜养（宫格实拉）/我的卡项/养生贴士/白标自检页底（预约与卡项余次无接口，界面如实「规划功能」占位） |
 | `kiosk-menu.html` | kiosk | ✅ 已实现功能 | 选服务下单：卡项网格/购物篮/手机号下单/回执 |
 | `tablet-screen.html` | tablet | ✅ 已实现功能 | 广告轮播 + 叫号上屏（脱敏姓名） |
 

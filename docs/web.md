@@ -128,6 +128,7 @@ pnpm dev     # dev 模式：MOCK=none，代理到本机服务端
 ## 前端遗留项（如实说明）
 
 - 站点标题当前为模板值 `Youngs.fun`（`config/config.ts`），未改为项目名；
-- `services` 中保留 OpenAPI 模板生成的 petstore 示例接口与 `/api/rule` 模板接口，未使用；
-- `src/pages/Welcome.tsx`、`Admin.tsx`、`TableList/` 为脚手架残留页面，不在路由中；
+- `config/oneapi.json` 仍为脚手架模板 schema（含 `/api/rule` 等模板端点），驱动 openAPI 插件生成 `src/services/ant-design-pro/api.ts` 与 `typings.d.ts`（其中 `currentUser` 等已手改指向真实后端接口）；
 - `manifest.json` / PWA 名称仍是脚手架默认值。
+
+> 已清理：脚手架残留页面 `src/pages/Welcome.tsx`、`Admin.tsx`、`TableList/`（不在路由，无引用）与 petstore 示例服务 `src/services/swagger/`（`config.ts` openAPI 第二入口一并移除）。
