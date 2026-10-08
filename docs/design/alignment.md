@@ -75,7 +75,7 @@
 - [x] P1-5 卡项管理对齐（本批提交）
 - [x] P1-6 每日报表对齐（本批提交，随批 fix(server)：分页日期过滤改 Date 比较）
 - [x] P1-7 广告屏四页对齐（本批提交，四页合并单页 4 tab + 右栏，旧路由 redirect）
-- [ ] P1-8 外观设置（运行时主题切换）
+- [x] P1-8 外观设置（运行时主题切换；data-theme CSS 变量 + useAntdConfigSetter 注入插件 ConfigProvider + settings.colorPrimary/侧栏 token 三层下发）
 - [ ] P1-9 kiosk 自助机对齐
 - [ ] P1-10 tablet 展示屏对齐
 - [ ] P1-11 app 小程序首页对齐（未实现块如实标注）

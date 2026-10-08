@@ -186,6 +186,12 @@ export default [
     hideInMenu: true,
   },
   {
+    path: '/appearance',
+    icon: 'BgColorsOutlined',
+    name: 'appearance',
+    component: './Appearance/Index',
+  },
+  {
     path: '/review/',
     icon: 'WhatsAppOutlined',
     name: 'review',

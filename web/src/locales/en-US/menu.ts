@@ -11,6 +11,7 @@ export default {
   'menu.order': 'Orders',
   'menu.order.order-query': 'Order Management',
   'menu.ads': 'Ads Display',
+  'menu.appearance': 'Appearance',
   'menu.dashboard.analysis': 'Analysis',
   'menu.dashboard.monitor': 'Monitor',
   'menu.dashboard.workplace': 'Workplace',

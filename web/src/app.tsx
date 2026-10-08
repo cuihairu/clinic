@@ -7,9 +7,29 @@ import { history, Link } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
 import { currentUser as queryCurrentUser } from '@/services/ant-design-pro/api';
+import ThemeProvider from '@/components/ThemeProvider';
+import { antdTokenOverrides, readTheme, restoreTheme, siderTokenOverrides, themeDef } from '@/theme';
 import React from 'react';
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
+
+/** 启动回放已存主题：data-theme 属性 + ProLayout colorPrimary/侧栏 token（外观设置页可即时改） */
+function themedSettings(): Partial<LayoutSettings> {
+  restoreTheme();
+  const key = readTheme();
+  return {
+    ...defaultSettings,
+    // ProLayout 会把 colorPrimary 转成内部 ConfigProvider token，须与主题同步（否则盖回石墨）
+    colorPrimary: themeDef(key).brand,
+    token: {
+      ...defaultSettings.token,
+      sider: {
+        ...defaultSettings.token?.sider,
+        ...siderTokenOverrides(key),
+      },
+    },
+  } as Partial<LayoutSettings>;
+}
 
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
@@ -38,13 +58,29 @@ export async function getInitialState(): Promise<{
     return {
       fetchUserInfo,
       currentUser,
-      settings: defaultSettings as Partial<LayoutSettings>,
+      settings: themedSettings(),
     };
   }
   return {
     fetchUserInfo,
-    settings: defaultSettings as Partial<LayoutSettings>,
+    settings: themedSettings(),
   };
+}
+
+/** 运行时主题 · antd 初始 token：umi antd 插件首次建 Provider 前即回放已存主题（免首帧闪石墨） */
+export function antd(config: Record<string, any>) {
+  return {
+    ...config,
+    theme: {
+      ...config.theme,
+      token: { ...config.theme?.token, ...antdTokenOverrides(readTheme()) },
+    },
+  };
+}
+
+/** 运行时主题 · 切换广播：订阅 applyTheme，把 token 深合并进插件自带的 ConfigProvider */
+export function rootContainer(container: React.ReactNode) {
+  return <ThemeProvider>{container}</ThemeProvider>;
 }
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
