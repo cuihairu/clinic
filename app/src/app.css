@@ -1,0 +1,3 @@
+/* 全局样式：tokens.css 与 docs/design/mockups/tokens.css 同源（品牌变量单一出处）；
+   白标运行时 --brand-color 注入保留（app.tsx，H5），页内金棕强调一律取 var(--amber)。 */
+@import './tokens.css';

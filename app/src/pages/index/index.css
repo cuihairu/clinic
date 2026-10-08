@@ -1,58 +1,278 @@
-/* 品牌自检页：纯色 + 清晰层级 + 留白，不靠渐变 */
-.brand-page {
+/* 顾客首页：对齐原型 mobile-home（390 稿数值，pxtransform 转 rpx）。
+   全部走 tokens.css 变量；规划区块 plan-pill/plan-note 口径同管理端。 */
+.home-page {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 96px 48px 64px;
-  background: #fbfaf7;
+  background: var(--paper);
+  padding-bottom: 40px;
 }
 
+/* 品牌头 */
 .brand-head {
+  padding: 14px 20px 16px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-bottom: 64px;
+  gap: 12px;
 }
 
-.brand-icon {
-  width: 144px;
-  height: 144px;
-  margin-bottom: 32px;
+.seal {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--amber);
+  color: #fff;
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(184, 147, 90, 0.35);
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.brand-name {
-  font-size: 48px;
+.seal-img {
+  width: 100%;
+  height: 100%;
+}
+
+.bt {
+  flex: 1;
+}
+
+.bn {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.bg {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* 预约横幅（样式按原型 .appt；功能=规划，如实标注） */
+.appt {
+  margin: 0 16px;
+  background: linear-gradient(120deg, var(--brand-deep), var(--brand));
+  border-radius: 14px;
+  color: #fff;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.appt .ic {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.appt-bd {
+  flex: 1;
+}
+
+.appt .tt {
+  font-size: 14.5px;
   font-weight: 600;
-  color: var(--brand-color, #c7a674);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.appt .ss {
+  font-size: 12px;
+  opacity: 0.82;
+  margin-top: 3px;
+}
+
+/* 规划标记（口径同管理端「规划功能」pill + note） */
+.plan-pill {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--amber-deep);
+  background: var(--amber-tint);
+  border: 1px solid #e6d5b8;
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+.plan-note {
+  margin: 0 16px;
+  background: var(--card);
+  border: 1px dashed var(--line);
+  border-radius: 13px;
+  padding: 13px 16px;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.retry {
+  color: var(--brand);
+  font-weight: 600;
+  margin-left: 10px;
+}
+
+/* 区块标题（对齐原型 .sec；小程序端宋体走 var(--serif)） */
+.sec {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 20px 10px;
+}
+
+.sec-h3 {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* 项目宫格（对齐原型 .items/.item；flex 双列，小程序端 grid 兼容保守处理） */
+.items {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.item {
+  width: 48.4%;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
   margin-bottom: 12px;
 }
 
-.brand-sub {
-  font-size: 26px;
-  color: #8c8c8c;
+.item .cover {
+  height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
+.item .cover.g1 {
+  background: linear-gradient(135deg, #e9ebe9, #ced4d1);
+}
+
+.item .cover.g2 {
+  background: linear-gradient(135deg, #efe6d4, #e0cba6);
+}
+
+.cover-zi {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.item .cover.g1 .cover-zi {
+  color: var(--brand-deep);
+}
+
+.item .cover.g2 .cover-zi {
+  color: var(--amber-deep);
+}
+
+.cover-img {
+  width: 100%;
+  height: 100%;
+}
+
+.item .bd {
+  padding: 11px 13px 13px;
+}
+
+.item .nm {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.item .ds {
+  font-size: 11.5px;
+  color: var(--faint);
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item .pr {
+  margin-top: 8px;
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--brand-deep);
+}
+
+.pr-u {
+  font-size: 11px;
+  color: var(--faint);
+  font-family: var(--sans);
+  font-weight: 400;
+}
+
+/* 养生贴士（静态编辑内容，样式对齐原型） */
+.tip {
+  margin: 0 16px;
+  background: #f0f1ee;
+  border-radius: 13px;
+  padding: 14px 16px;
+  font-size: 12.5px;
+  color: #4b4f4d;
+  line-height: 1.7;
+}
+
+.tip-b {
+  font-family: var(--serif);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--brand-deep);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.tip-t {
+  display: block;
+}
+
+/* 白标自检（原自检页样式保留，挪至页底缩小呈现） */
 .brand-card {
-  background: #ffffff;
-  border: 1px solid rgba(102, 102, 102, 0.16);
-  border-radius: 16px;
-  padding: 8px 32px;
-  margin-bottom: 40px;
+  margin: 0 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 2px 16px;
 }
 
 .brand-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 28px 0;
+  padding: 13px 0;
 }
 
 .brand-row + .brand-row {
-  border-top: 1px solid rgba(102, 102, 102, 0.1);
+  border-top: 1px solid var(--line);
 }
 
 .brand-label {
-  font-size: 26px;
-  color: #666666;
+  font-size: 13px;
+  color: var(--muted);
 }
 
 .brand-value {
@@ -61,20 +281,21 @@
 }
 
 .brand-swatch {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  margin-right: 16px;
-  border: 1px solid rgba(102, 102, 102, 0.2);
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  margin-right: 8px;
+  border: 1px solid var(--line);
 }
 
 .brand-mono {
-  font-size: 24px;
-  color: #3d3d3d;
+  font-size: 12px;
+  color: var(--ink);
 }
 
 .brand-tip {
-  font-size: 24px;
+  margin: 10px 16px 0;
+  font-size: 11.5px;
   line-height: 1.7;
-  color: #8c8c8c;
+  color: var(--faint);
 }

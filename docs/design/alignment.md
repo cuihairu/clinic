@@ -78,5 +78,5 @@
 - [x] P1-8 外观设置（运行时主题切换；data-theme CSS 变量 + useAntdConfigSetter 注入插件 ConfigProvider + settings.colorPrimary/侧栏 token 三层下发）
 - [x] P1-9 kiosk 自助机对齐（tokens.css 同源拷入 + index.html 挂 data-theme="pine"；hero/三步胶囊/渐变首字卡/两行购物篮对齐 kiosk-menu 原型，散 hex 全收编变量）
 - [x] P1-10 tablet 展示屏对齐（tokens.css 同源拷入；石墨底 --ink、纸色圆角 slide 卡 + 真实素材内嵌、pager 圆点真实进度、叫号全屏覆盖改原型底部横条=金棕 label+号码脱敏+宋体诊室，15s 自动收回）
-- [ ] P1-11 app 小程序首页对齐（未实现块如实标注）
+- [x] P1-11 app 小程序首页对齐（mobile-home 版式：品牌头/预约横幅/今日宜养/我的卡项/养生贴士/白标自检页底；宫格实拉上架项目，预约与卡项余次如实「规划功能」pill+note；tokens.css 同源引入，--brand-color 白标注入保留）
 - [ ] P1-12 desktop 壳引导页对齐
