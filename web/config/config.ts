@@ -83,7 +83,7 @@ export default defineConfig({
    * @name layout 插件
    * @doc https://umijs.org/docs/max/layout-menu
    */
-  title: 'Youngs.fun',
+  title: 'Youngs 医馆',
   layout: {
     locale: true,
     ...defaultSettings,
@@ -113,7 +113,18 @@ export default defineConfig({
    * @description 内置了 babel import 插件
    * @doc https://umijs.org/docs/max/antd#antd
    */
-  antd: {},
+  antd: {
+    configProvider: {
+      theme: {
+        token: {
+          colorPrimary: '#353a37',
+          colorInfo: '#353a37',
+          colorLink: '#353a37',
+          borderRadius: 9,
+        },
+      },
+    },
+  },
   /**
    * @name 网络请求配置
    * @description 它基于 axios 和 ahooks 的 useRequest 提供了一套统一的网络请求和错误处理方案。

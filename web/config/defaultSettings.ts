@@ -1,27 +1,45 @@
 import { ProLayoutProps } from '@ant-design/pro-components';
 
 /**
- * @name
+ * @name 全局默认设置
+ * 品牌口径与 docs/design/mockups/tokens.css 同源：石墨×古金（logo #666666/#C7A674），
+ * 宣纸底、宋体标题；token 里的色值与 tokens.css 变量一一对应。
  */
 const Settings: ProLayoutProps & {
   pwa?: boolean;
   logo?: string;
 } = {
   navTheme: 'light',
-  // 拂晓蓝
-  colorPrimary: '#1890ff',
-  layout: 'mix',
+  // 石墨（logo 灰加深），金棕点缀 #c7a674
+  colorPrimary: '#353a37',
+  layout: 'side',
   contentWidth: 'Fluid',
   fixedHeader: false,
   fixSiderbar: true,
   colorWeak: false,
-  title: 'Youngs.fun',
+  title: 'Youngs 医馆',
   pwa: true,
-  logo: 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
+  logo: '/logo.svg',
   iconfontUrl: '',
   token: {
-    // 参见ts声明，demo 见文档，通过token 修改样式
-    //https://procomponents.ant.design/components/layout#%E9%80%9A%E8%BF%87-token-%E4%BF%AE%E6%94%B9%E6%A0%B7%E5%BC%8F
+    // 与 tokens.css 同源：paper #f7f7f4 / tint #eceeee / ink #262a28 / text #4b4f4d
+    header: {
+      colorBgHeader: '#f7f7f4',
+      heightLayoutHeader: 56,
+    },
+    sider: {
+      widthLayoutSider: 224,
+      colorTextMenu: '#4b4f4d',
+      colorBgMenuItemHover: '#f0f1ef',
+      colorTextMenuHover: '#262a28',
+      colorBgMenuItemSelected: '#eceeee',
+      colorTextMenuSelected: '#262a28',
+      colorTextMenuActive: '#262a28',
+    },
+    pageContainer: {
+      paddingBlockPageContainerContent: 16,
+      paddingInlinePageContainerContent: 28,
+    },
   },
 };
 
