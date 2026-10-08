@@ -39,7 +39,7 @@
 | `/item/spread`、`/item/update` 为占位（组件与提交逻辑未完成） | `routes.ts:142-148` + `Item/Spread/index.tsx` + `Item/Update/index.tsx` | ✅ 确认：两页面均调用 `createItem` 而非 `updateItem`，本质为 Create 页复制品 |
 | `/item/query` 为完整实现 | `Item/Query/index.tsx:1-231` | ✅ 完整：ProTable + 编辑跳转 `/item/create?itemId=` + 删除 + 封面图渲染 |
 | `/ads` 四页均已实现 | `routes.ts:163-187` + `Ads/{Materials,Schedules,Screens,Calls}/index.tsx` | ✅ 四文件均存在 |
-| `/treat/create` 支持 `?customerId=` 与 `?treatId=` 回填 | `Treat/Create/index.tsx` (未读全量，路由存在) | ⚠️ 需人工确认回填逻辑，路由层面无冲突 |
+| `/treat/create` 支持 `?customerId=` 与 `?treatId=` 回填 | `Treat/Create/index.tsx:78-92` | ✅ 一致（复诊 10-09 对码）：两参数均读取，`treatId` 编辑态从单据反查顾客 id |
 
 ### 2.3 服务端实体与数据模型
 | 文档主张 | 代码位置 | 取证结果 |
@@ -56,14 +56,14 @@
 | 文档主张 | 代码位置 | 取证结果 |
 |---|---|---|
 | D7 模板版本化：`GET /api/v1/print/templates` 免登录、SHA-256 版本、目录覆盖 | `SecurityConfig.java:61` + `api.md:110` + `desktop.md:58,120` | ✅ 三处一致 |
-| D8 ESC/POS 直连：`print_escpos` Rust command、GBK 直发、切纸 | `desktop.md:55,121` + `src-tauri/src/commands/print.rs` (推测) | ⚠️ 未读 Rust 侧，文档自洽 |
-| D9 扫码枪串口模式：`scanner_start/stop`、100ms 轮询、广播 `scanner-code` | `desktop.md:56,122` + `src-tauri/src/commands/scanner.rs` (推测) | ⚠️ 未读 Rust 侧，文档自洽 |
+| D8 ESC/POS 直连：`print_escpos` Rust command、GBK 直发、切纸 | `desktop.md:55,121` + `src-tauri/src/escpos.rs` + `main.rs:75` | ✅ 一致（10-09 对码）：`print_escpos` 已注册 invoke_handler；GBK 直发（encoding_rs）、店名倍宽/明细行/合计加粗/走纸切纸/按列宽对齐均与文档吻合 |
+| D9 扫码枪串口模式：`scanner_start/stop`、100ms 轮询、广播 `scanner-code` | `desktop.md:56,122` + `src-tauri/src/scanner.rs` + `main.rs:76-77` | ✅ 一致（10-09 对码）：两命令已注册；读线程 100ms 超时轮询、按行切码、`emit("scanner-code")`（另有 status/error 事件）与文档吻合 |
 
 ### 2.5 小程序端现状
 | 文档主张 | 代码位置 | 取证结果 |
 |---|---|---|
 | 仅工程初始化 + 白标构建，业务页未开发 | `app.md:5-7` + `app/src/pages/index/` 仅有自检页 | ✅ 一致 |
-| `src/app.config.ts` 仅注册 `pages/index/index` | `app.md:20` | ⚠️ 未读配置，文档自洽 |
+| `src/app.config.ts` 仅注册 `pages/index/index` | `app.md:20` | ✅ 一致（10-09 对码）；另 `src/services/api.ts` 请求层与顾客首页已随 P1-11 落地，`app.md` 现状已同步（9e02f72） |
 
 ---
 
@@ -130,6 +130,13 @@
 | **合计** | **12** | **10** | **0** |
 
 ---
+
+## ⑥A 处置记录（2026-10-09 复核）
+
+- §⑤ P0 四项均已在前几轮落地：api.md 鉴权约定已显式枚举 4 组业务免登录端点；web.md 卡项/诊断口径已修正（编辑复用 `/item/create?itemId=`，Spread/Update 占位已注明；`/treat/query` 已入表）；features.md 三行已带设计原型链接；admin-themes.png 已重渲（2×2 等比拼图，2026-10-08 产物）；mockups/README.md 渲染记录已建（mobile-home 状态 10-09 同步为已实现，308961a）。
+- §④ 动作 1-6 全部完成，无待办。
+- 新增可开工项期间落地的产品增量：顾客档案「累计消费」订单聚合接口（`GET /api/v1/order/summary`，7afd646）。
+- 遗留待用户定夺：站点标题 `Youngs.fun` 与 PWA 名称改不改（品牌口径）；CI maven.yml `-DskipTests` 是否接测试。
 
 ## ⑦ 后续建议
 
