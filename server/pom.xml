@@ -136,6 +136,23 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<!-- 测试自包含：application.yml 的 DB_*/SERVER_PORT 无默认值（部署模型=环境注入），
+					     裸 ./mvnw test 在干净环境连不上库。这里统一注入本地 SQLite，
+					     外部如需指定别的测试库仍可用同名环境变量覆盖。 -->
+					<environmentVariables>
+						<DB_DRIVER>org.sqlite.JDBC</DB_DRIVER>
+						<DB_DIALECT>org.hibernate.community.dialect.SQLiteDialect</DB_DIALECT>
+						<DB_URL>jdbc:sqlite:target/test-sinomed.db</DB_URL>
+						<DB_USERNAME>test</DB_USERNAME>
+						<DB_PASSWORD>test</DB_PASSWORD>
+						<SERVER_PORT>0</SERVER_PORT>
+					</environmentVariables>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
