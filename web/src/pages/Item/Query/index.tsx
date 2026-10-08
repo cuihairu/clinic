@@ -1,23 +1,10 @@
-import { EllipsisOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { ProTable, TableDropdown } from '@ant-design/pro-components';
-import {Button, Dropdown, Image, message, Tag} from 'antd';
+import { PageContainer, ProTable } from '@ant-design/pro-components';
+import { Button, message, Popconfirm, Switch } from 'antd';
 import { useRef } from 'react';
-import { queryItemByPage,deleteItem } from '@/services/ant-design-pro/item';
+import { queryItemByPage, deleteItem, updateItem } from '@/services/ant-design-pro/item';
 import { history } from '@umijs/max';
-
-
-export const waitTimePromise = async (time: number = 100) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, time);
-  });
-};
-
-export const waitTime = async (time: number = 100) => {
-  await waitTimePromise(time);
-};
+import './index.less';
 
 type Item = {
   id?: number;
@@ -32,200 +19,136 @@ type Item = {
   updateTime?: string;
 };
 
-const columns: ProColumns<Item>[] = [
-  {
-    dataIndex: 'index',
-    valueType: 'indexBorder',
-    width: 48,
-  },
-  {
-    dataIndex: 'id',
-    hideInSearch: true,
-    hideInTable: true,
-  },
-  {
-    title: '名字',
-    dataIndex: 'name',
-    copyable: true,
-    ellipsis: true,
-    tip: '卡项名字',
-    width: "12%",
-    formItemProps: {
-      rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
-      ],
-    },
-  },
-  {
-    title: '简介',
-    dataIndex: 'description',
-    copyable: true,
-    ellipsis: true,
-    hideInSearch: true,
-    width: "54%",
-    tip: '介绍说明',
-    formItemProps: {
-      rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
-      ],
-    },
-  },{
-    title: '价格',
-    dataIndex: 'price',
-    ellipsis: true,
-    width: "14%",
-    formItemProps: {
-      rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
-      ],
-    },
-  },
-  {
-    title: '封面',
-    dataIndex: 'cover',
-    hideInSearch: true,
-    width: "8%",
-    render: (_, record) =>
-      record.cover ? <Image src={record.cover} width={48} height={48} style={{objectFit: 'cover'}}/> : '-',
-  },
-  {
-    title: '上架',
-    dataIndex: 'enabled',
-    hideInSearch: true,
-    width: "8%",
-    render: (_, record) =>
-      record.enabled === 0 ? <Tag>下架</Tag> : <Tag color="green">上架</Tag>,
-  },
-  {
-    title: '排序',
-    dataIndex: 'sort',
-    hideInSearch: true,
-    width: "8%",
-  },
-  {
-    title: '操作',
-    valueType: 'option',
-    key: 'option',
-    render: (text, record, _, action) => [
-      <a
-        key="update"
-        onClick={() => {
-          if (record.id) {
-            history.push(`/item/create?itemId=${record.id}`);
-          }else{
-            message.error('记录id不存,该数据可不可以编辑');
-          }
-        }}
-      >
-        更新
-      </a>,
-      <a
-        key="delete"
-        onClick={() => {
-          if (record.id) {
-            deleteItem(record.id).then(res => {
-              if (res.id){
-                message.success('删除成功');
-                action?.reload();
-              }else{
-                message.warning('没有找到该卡项');
-              }
-            });
-          }else{
-            message.warning('记录id不存,无法删除,请刷新再试');
-          }
-        }}
-      >
-        删除
-      </a>,
-      <TableDropdown
-        key="actionGroup"
-        onSelect={() => action?.reload()}
-        menus={[
-        ]}
-      />,
-    ],
-  },
-];
+/** 首字封面渐变轮换（g1 石墨 / g2 金棕 / g3 黛蓝 / g4 藤紫，同原型四色循环） */
+const COVER_GRADS = ['g1', 'g2', 'g3', 'g4'];
 
 export default () => {
   const actionRef = useRef<ActionType>();
-  return (
-    <ProTable<Item>
-      columns={columns}
-      actionRef={actionRef}
-      cardBordered
-      request={async (params = {}, sort, filter) => {
-        console.log(sort, filter);
-        const msg = await queryItemByPage(params);
-        return {
-          data: msg.data,
-          success: true,
-          total: msg.total,
-        }
-      }}
-      editable={{
-        type: 'multiple',
-      }}
-      columnsState={{
-        persistenceKey: 'pro-table-singe-demos-Item',
-        persistenceType: 'localStorage',
-        onChange(value) {
-          console.log('value: ', value);
-        },
-      }}
-      rowKey="id"
-      search={{
-        labelWidth: 'auto',
-      }}
-      options={{
-        setting: {
-          listsHeight: 400,
-        },
-      }}
-      form={{
-        // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
-        syncToUrl: (values, type) => {
-          if (type === 'get') {
-            return {
-              ...values,
-            };
-          }
-          return values;
-        },
-      }}
-      pagination={{
-        pageSize: 10,
-        onChange: (page) => console.log(page),
-      }}
-      dateFormatter="string"
-      headerTitle="已经查询到的卡项信息:"
-      toolBarRender={() => [
-        <Dropdown
-          key="menu"
-          menu={{
-            items: [
-              {
-                label: '1st item',
-                key: '1',
-              },
-            ],
+
+  const toggleEnabled = async (record: Item, next: boolean) => {
+    const res = await updateItem({ ...record, enabled: next ? 1 : 0 });
+    if (res?.id) {
+      message.success(next ? '已上架，顾客可在自助机看到' : '已下架，自助机不再展示');
+      actionRef.current?.reload();
+    }
+  };
+
+  const columns: ProColumns<Item>[] = [
+    {
+      title: '卡项',
+      dataIndex: 'name',
+      width: '42%',
+      render: (_, record, index) => (
+        <div className="it">
+          {record.cover ? (
+            <img className="cv img" src={record.cover} alt="" />
+          ) : (
+            <div className={`cv ${COVER_GRADS[index! % 4]}`}>{(record.name || '卡').slice(0, 1)}</div>
+          )}
+          <div>
+            <div className="nm">{record.name || '-'}</div>
+            <div className="ds">{record.description || '—'}</div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: '价格',
+      dataIndex: 'price',
+      width: 110,
+      render: (_, record) =>
+        record.price == null ? '-' : <span className="price">¥{record.price}</span>,
+    },
+    {
+      title: '自助机上架',
+      dataIndex: 'enabled',
+      width: 150,
+      render: (_, record) => (
+        <span className={`tg${record.enabled === 0 ? ' off' : ''}`}>
+          <Switch
+            size="small"
+            checked={record.enabled !== 0}
+            onChange={(checked) => toggleEnabled(record, checked)}
+          />
+          <span>{record.enabled === 0 ? '已下架' : '上架中'}</span>
+        </span>
+      ),
+    },
+    {
+      title: '排序',
+      dataIndex: 'sort',
+      width: 80,
+      render: (_, record) => <span className="sort">{record.sort ?? 0}</span>,
+    },
+    {
+      title: '操作',
+      valueType: 'option',
+      key: 'option',
+      width: 130,
+      render: (_, record, __, action) => [
+        <a
+          key="update"
+          onClick={() => {
+            if (record.id) {
+              history.push(`/item/create?itemId=${record.id}`);
+            } else {
+              message.error('记录id不存,该数据可不可以编辑');
+            }
           }}
         >
-          <Button>
-            <EllipsisOutlined />
-          </Button>
-        </Dropdown>,
-      ]}
-    />
+          编辑
+        </a>,
+        <Popconfirm key="delete" title="删除这张卡项？" onConfirm={async () => {
+            if (record.id) {
+              deleteItem(record.id).then((res) => {
+                if (res.id) {
+                  message.success('删除成功');
+                  action?.reload();
+                } else {
+                  message.warning('没有找到该卡项');
+                }
+              });
+            } else {
+              message.warning('记录id不存,无法删除,请刷新再试');
+            }
+          }}>
+          <a className="del">删除</a>
+        </Popconfirm>,
+      ],
+    },
+  ];
+
+  return (
+    <PageContainer
+      title="卡项管理"
+      content={
+        <span className="it-tip">
+          <b>上架中</b>的卡项会出现在门店自助机浏览页，顾客可自行勾选下单；
+          <b>排序</b>小者在前，封面为空时自助机以名称首字生成封面。
+        </span>
+      }
+    >
+      <ProTable<Item>
+        columns={columns}
+        actionRef={actionRef}
+        search={false}
+        options={false}
+        rowKey="id"
+        request={async (params = {}) => {
+          const msg = await queryItemByPage({
+            current: params.current,
+            pageSize: params.pageSize,
+          });
+          return { data: msg.data, success: true, total: msg.total };
+        }}
+        pagination={{ pageSize: 20, showTotal: (total) => `共 ${total} 条 · 每页 20 条` }}
+        dateFormatter="string"
+        toolBarRender={() => [
+          <Button key="create" type="primary" onClick={() => history.push('/item/create')}>
+            新建卡项
+          </Button>,
+        ]}
+      />
+    </PageContainer>
   );
 };
