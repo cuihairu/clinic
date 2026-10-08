@@ -1,19 +1,26 @@
-
-import React from 'react';
-import { useRef } from 'react';
-import {createTreat, fetchTreatById} from '@/services/ant-design-pro/treat';
-import {fetchCustomerById} from "@/services/ant-design-pro/customer";
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  createTreat,
+  fetchTreatById,
+  queryTreatByPage,
+  fuzzyQueryTreatByPage,
+} from '@/services/ant-design-pro/treat';
+import { fetchCustomerById } from '@/services/ant-design-pro/customer';
+import {
+  PageContainer,
   ProForm,
   ProFormSelect,
   ProFormText,
   ProFormDatePicker,
   ProFormTextArea,
-  ProCard
-} from '@ant-design/pro-components'
+  ProCard,
+} from '@ant-design/pro-components';
 import type { ProFormInstance } from '@ant-design/pro-components';
-import {message} from "antd";
-import { useSearchParams,history } from '@umijs/max';
+import { Button, message } from 'antd';
+import { useSearchParams, history } from '@umijs/max';
+import moment from 'moment';
+import ScannerInput from '@/components/ScannerInput';
+import './index.less';
 
 type Treat = {
   customerId?: number;
@@ -50,184 +57,396 @@ type Treat = {
   fiveRateLeft?: string;
   fiveRateRight?: string;
   fiveAuxLeft?: string;
-  fiveAuxRight?:string;
-  acupointLeft?:string;
-  acupointRight?:string;
-  diagnose?:string;
+  fiveAuxRight?: string;
+  acupointLeft?: string;
+  acupointRight?: string;
+  diagnose?: string;
   plan?: string;
   diet?: string;
   conditioning?: string;
-  review?: string;};
+  review?: string;
+};
+
+type TreatRow = { id?: number; createTime?: string; diagnose?: string; desc?: string; plan?: string };
+
+/** 会员等级展示口径：1 普通 / 2 银卡 / 3 金卡（与顾客档案页一致） */
+const LEVEL_TEXT: Record<number, string> = { 1: '普通会员', 2: '银卡会员', 3: '金卡会员' };
+const levelText = (level?: number) => LEVEL_TEXT[level ?? 0] ?? (level ? `会员 L${level}` : '普通会员');
+const maskPhone = (p?: string) => (p && p.length === 11 ? `${p.slice(0, 3)}****${p.slice(7)}` : p || '—');
 
 const Create: React.FC = () => {
-  const [searchParams ] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const formRef = useRef<ProFormInstance>();
-  const customerId = searchParams.get("customerId");
-  const treatId = searchParams.get("treatId");
-  console.log(searchParams.get("customerId"));
-  return (<ProForm<Treat>
-    grid
-    formRef={formRef}
-    layout={'vertical'}
-    request={async (d)=>{
-      console.log(d)
-      if (treatId){
-       const ret = await fetchTreatById(treatId) || {};
-        if (ret?.customerId){
-          const v = await fetchCustomerById(ret?.customerId);
-          ret.name = v?.name;
-          ret.gender = v?.gender;
-          ret.age = v?.age;
-        }
-        return Promise.resolve<Treat>(ret);
+  const customerId = searchParams.get('customerId');
+  const treatId = searchParams.get('treatId');
+  const [customer, setCustomer] = useState<API.Customer>();
+  const [treats, setTreats] = useState<TreatRow[]>([]);
+  const [treatTotal, setTreatTotal] = useState(0);
+  const [todayTotal, setTodayTotal] = useState<number>();
+
+  // 顾客头卡数据：customerId 直取；编辑态（treatId）从单据反查；定位扫码经 onLocated 改写 customerId 后重跑
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      let cid = customerId;
+      if (!cid && treatId) {
+        const t = await fetchTreatById(treatId);
+        cid = t?.customerId != null ? String(t.customerId) : '';
       }
-      if (customerId && !isNaN(parseInt(customerId))){
-        const v = await fetchCustomerById(customerId);
-        return Promise.resolve<Treat>({
-          customerId: parseInt(customerId),
+      if (!cid || cancelled) return;
+      const v = await fetchCustomerById(cid);
+      if (cancelled) return;
+      setCustomer(v);
+      const res = await queryTreatByPage({ customerId: Number(cid), pageSize: 3, current: 1 });
+      if (cancelled) return;
+      setTreats(res?.data || []);
+      setTreatTotal(res?.total || 0);
+      // 新建态才回填患者行；编辑态字段以单据为准（request 分支已带出）
+      if (!treatId) {
+        formRef.current?.setFieldsValue({
+          customerId: Number(cid),
           name: v?.name,
-          gender:v?.gender,
-          age:v?.age,
+          gender: v?.gender,
+          age: v?.age,
         });
       }
-      message.error("没有发现顾客ID");
-      return Promise.resolve<Treat>({});
-    }}
-    onFinish={async (values) => {
-      const result = await createTreat(values);
-      console.log(result)
-      if (result.id) {
-        formRef.current?.setFieldsValue({
-          id:result.id
-        })
-        message.success("创建成功")
-      }
-      return true;
-    }
-    }
-  >
-    <ProFormText name={"id"} hidden={true}/>
-    <ProFormText name={"customerId"} hidden={true}/>
-    {/*第一行*/}
-    <ProFormText colProps={{ md: 12, xl: 6 }} name="name" label="名字" placeholder="输入名字"/>
-    <ProFormSelect colProps={{ md: 12, xl:3}} name="gender" label="性别" placeholder="男" valueEnum={{0:'女',1:'男'}} options={[{value:0,label:"女"},{value:1,label:"男"}]}/>
-    <ProFormDatePicker colProps={{ md: 12, xl: 6 }} name="birthday" label="出生年月" placeholder="2000-01-01"/>
-    <ProFormText colProps={{ md: 12, xl: 3 }} name="age" label="年龄" placeholder="20"/>
-    <ProFormDatePicker colProps={{ md: 12, xl: 6 }} name="firstTime" label="初诊日期" placeholder="2000-01-01"/>
-    {/*第二行*/}
-    <ProFormTextArea colProps={{ md: 12, xl: 24 }} name="desc" label="主诉" placeholder="" />
-    {/*第三行*/}
-    <ProFormTextArea colProps={{ md: 12, xl: 24 }} name="inquiry" label="问诊" placeholder="" />
-    {/*第四行*/}
-    <ProFormTextArea colProps={{ md: 12, xl: 24 }} name="observation" label="望诊" placeholder="" />
-    {/*第五行*/}
-    <ProFormTextArea colProps={{ md: 12, xl: 24 }} name="palpation" label="触诊" placeholder="" />
-    {/*第六行 脉象*/}
-    <ProFormText colProps={{ md: 12, xl: 4 }} name="pulse" label="脉象" placeholder="脉象" />
-    <ProFormText colProps={{ md: 12, xl: 10 }} name="pulseLeft" label="左手脉象" placeholder="" />
-    <ProFormText colProps={{ md: 12, xl: 10 }} name="pulseRight" label="右手脉象" placeholder="" />
-    {/*第七行*/}
-    <ProFormTextArea colProps={{ md: 12, xl: 24 }} name="pulseInfo" label="脉象信息" placeholder="" />
-    {/*第八行*/}
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [customerId, treatId]);
 
-    <ProCard title={"五行脉用法"} ghost headerBordered split={"vertical"}>
-      <ProCard title={"左手"} ghost headerBordered split={"horizontal"} layout="center">
-        <ProCard title="子 _生_" ghost split={"vertical"}>
-          <ProCard ghost>
-            <ProFormText name="fiveBenZiLeft" label="本子" placeholder="" />
-          </ProCard>
-          <ProCard ghost>
-            <ProFormText name="fiveZiBenLeft" label="子本" placeholder="" />
-          </ProCard>
-        </ProCard>
-        <ProCard title="克 _克_" ghost split={"vertical"}>
-          <ProCard ghost>
-            <ProFormText name="fiveBenKeLeft" label="本子" placeholder="" />
-          </ProCard>
-          <ProCard ghost>
-            <ProFormText name="fiveKeBenLeft" label="子本" placeholder="" />
-          </ProCard>
-        </ProCard>
-        <ProCard ghost split={"vertical"}>
-          <ProCard ghost>
-            <ProFormText name="fiveNanJinLeft" label="难经" placeholder="" />
-          </ProCard>
-          <ProCard ghost>
-            <ProFormText name="fiveNanJinBigLeft" label="大" placeholder="" />
-          </ProCard>
-          <ProCard ghost>
-            <ProFormText name="fiveNanJinSmallLeft" label="小" placeholder="" />
-          </ProCard>
-        </ProCard>
-        <ProCard ghost>
-          <ProFormText name="fiveRateLeft" label="缓急" placeholder="" />
-        </ProCard>
-        <ProCard ghost>
-          <ProFormText name="fiveAuxLeft" label="辅助" placeholder="" />
-        </ProCard>
-      </ProCard>
-      <ProCard title={"右手"} ghost headerBordered split={"horizontal"} layout="center">
-        <ProCard title="子 _生_" ghost split={"vertical"}>
-          <ProCard ghost>
-            <ProFormText name="fiveBenZiRight" label="本子" placeholder="" />
-          </ProCard>
-          <ProCard ghost>
-            <ProFormText name="fiveZiBenRight" label="子本" placeholder="" />
-          </ProCard>
-        </ProCard>
-        <ProCard title="克 _克_" ghost split={"vertical"}>
-          <ProCard ghost>
-            <ProFormText name="fiveBenKeRight" label="本子" placeholder="" />
-          </ProCard>
-          <ProCard ghost>
-            <ProFormText name="fiveKeBenRight" label="子本" placeholder="" />
-          </ProCard>
-        </ProCard>
-        <ProCard  ghost split={"vertical"}>
-          <ProCard ghost>
-            <ProFormText name="fiveNanJinRight" label="难经" placeholder="" />
-          </ProCard>
-          <ProCard ghost>
-            <ProFormText name="fiveNanJinBigRight" label="大" placeholder="" />
-          </ProCard>
-          <ProCard ghost>
-            <ProFormText name="fiveNanJinSmallRight" label="小" placeholder="" />
-          </ProCard>
-        </ProCard>
-        <ProCard ghost>
-          <ProFormText name="fiveRateRight" label="缓急" placeholder="" />
-        </ProCard>
-        <ProCard ghost>
-          <ProFormText name="fiveAuxRight" label="辅助" placeholder="" />
-        </ProCard>
-      </ProCard>
-    </ProCard>
-    <ProCard title={"取穴"} bordered={false} ghost  layout="center" >
-      <ProCard title="反射点法" bordered={false} split={"vertical"} ghost layout="center">
-        <ProCard ghost>
-          <ProFormText name="acupointLeft" label="取穴-反应点 左" placeholder="" />
-        </ProCard>
-        <ProCard ghost>
-          <ProFormText name="acupointRight" label="取穴-反应点 右" placeholder="" />
-        </ProCard>
-      </ProCard>
-    </ProCard>
-    <ProCard  bordered={false} ghost layout="center">
-      <ProFormTextArea name="diagnose" label="诊断" placeholder="" />
-    </ProCard>
-    <ProCard  bordered={false} ghost layout="center">
-      <ProFormTextArea name="plan" label="方案" placeholder="" />
-    </ProCard>
-    <ProCard  bordered={false} ghost layout="center">
-      <ProFormTextArea name="diet" label="饮食" placeholder="" />
-    </ProCard>
-    <ProCard  bordered={false} ghost layout="center">
-      <ProFormTextArea name="conditioning" label="调理过程" placeholder="" />
-    </ProCard>
-    <ProCard bordered={false} ghost layout="center">
-      <ProFormTextArea name="review" label="回访" placeholder="" />
-    </ProCard>
-  </ProForm>);
+  // 今日工作站·今日接诊单数：/treat/fuzzy 不传顾客条件即全店按时间段查（接口全参数可空）
+  useEffect(() => {
+    let cancelled = false;
+    fuzzyQueryTreatByPage({
+      current: 1,
+      pageSize: 1,
+      startTime: moment().format('YYYY-MM-DD'),
+      endTime: moment().add(1, 'day').format('YYYY-MM-DD'),
+    }).then((res) => {
+      if (!cancelled) setTodayTotal(res?.total ?? 0);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // 扫码定位：就地换顾客（toast 由 ScannerInput 发），改写地址栏让头卡 effect 重跑
+  const onLocated = useCallback((c: API.Customer) => {
+    if (!c.id) return;
+    history.replace(`/treat/create?customerId=${c.id}`);
+  }, []);
+
+  const lastVisit = treats.map((t) => t.createTime).filter(Boolean).sort().pop();
+  const lastVisitText = lastVisit
+    ? moment().diff(moment(lastVisit), 'days') === 0
+      ? '今天到店'
+      : `最近到店 ${moment().diff(moment(lastVisit), 'days')} 天前`
+    : '暂无到店记录';
+
+  return (
+    <PageContainer
+      title={customer?.name ? `${customer.name} · 创建接诊单` : '创建接诊单'}
+      className="tc-page"
+    >
+      <ProForm<Treat>
+        formRef={formRef}
+        layout={'vertical'}
+        submitter={false}
+        request={async () => {
+          if (treatId) {
+            const ret = (await fetchTreatById(treatId)) || {};
+            if (ret?.customerId) {
+              const v = await fetchCustomerById(ret?.customerId);
+              ret.name = v?.name;
+              ret.gender = v?.gender;
+              ret.age = v?.age;
+            }
+            return Promise.resolve<Treat>(ret);
+          }
+          if (customerId && !isNaN(parseInt(customerId))) {
+            // 患者行由头卡 effect 回填，这里只落 customerId
+            return Promise.resolve<Treat>({ customerId: parseInt(customerId) });
+          }
+          message.error('没有发现顾客ID，可从顾客档案「发起接诊」进入或扫码定位');
+          return Promise.resolve<Treat>({});
+        }}
+        onFinish={async (values) => {
+          const result = await createTreat(values);
+          if (result.id) {
+            formRef.current?.setFieldsValue({ id: result.id });
+            message.success('创建成功');
+          }
+          return true;
+        }}
+      >
+        <ProFormText name="id" hidden={true} />
+        <ProFormText name="customerId" hidden={true} />
+
+        <div className="tc-wrap">
+          <div className="tc-main">
+            <div className="tc-scan">
+              <ScannerInput onLocated={onLocated} />
+            </div>
+
+            {customer ? (
+              <div className="tc-strip">
+                <div className="avatar">{(customer.name || '客').slice(0, 1)}</div>
+                <div className="cs">
+                  <div className="nm">
+                    {customer.name || '—'}
+                    <span className="tier">{levelText(customer.level)}</span>
+                  </div>
+                  <div className="mt">
+                    {maskPhone(customer.phone)} · 到店 {treatTotal} 次 · {lastVisitText}
+                  </div>
+                </div>
+                <div className="cs-bal">
+                  持卡卡项余次
+                  <span className="hold">规划功能 · 无卡项持有实体</span>
+                </div>
+              </div>
+            ) : null}
+
+            <section className="tc-panel">
+              <h3>患者信息</h3>
+              <div className="tc-row cols-3">
+                <ProFormText name="name" label="名字" placeholder="输入名字" />
+                <ProFormSelect
+                  name="gender"
+                  label="性别"
+                  placeholder="男"
+                  options={[
+                    { value: 0, label: '女' },
+                    { value: 1, label: '男' },
+                  ]}
+                />
+                <ProFormText name="age" label="年龄" placeholder="20" />
+              </div>
+              <div className="tc-row cols-3">
+                <ProFormDatePicker name="birthday" label="出生年月" placeholder="2000-01-01" />
+                <ProFormDatePicker name="firstTime" label="初诊日期" placeholder="2000-01-01" />
+              </div>
+            </section>
+
+            <section className="tc-panel">
+              <h3>四诊</h3>
+              <div className="tc-row cols-2">
+                <ProFormTextArea name="desc" label="主诉" placeholder="患者自述的主要不适" />
+                <ProFormTextArea name="inquiry" label="问诊" placeholder="问诊所见" />
+                <ProFormTextArea name="observation" label="望诊" placeholder="望诊所见" />
+                <ProFormTextArea name="palpation" label="切诊" placeholder="切诊所见" />
+              </div>
+            </section>
+
+            <section className="tc-panel">
+              <h3>脉象</h3>
+              <div className="tc-row cols-3">
+                <ProFormText name="pulse" label="脉象" placeholder="总述" />
+                <ProFormText name="pulseLeft" label="左手脉象" placeholder="寸关尺" />
+                <ProFormText name="pulseRight" label="右手脉象" placeholder="寸关尺" />
+              </div>
+              <ProFormTextArea name="pulseInfo" label="脉象信息" placeholder="脉象补充说明" />
+            </section>
+
+            <section className="tc-panel">
+              <h3>五行脉用法</h3>
+              <ProCard ghost headerBordered split="vertical">
+                <ProCard title="左手" ghost headerBordered split="horizontal" layout="center">
+                  <ProCard title="子 _生_" ghost split="vertical">
+                    <ProCard ghost>
+                      <ProFormText name="fiveBenZiLeft" label="本子" placeholder="" />
+                    </ProCard>
+                    <ProCard ghost>
+                      <ProFormText name="fiveZiBenLeft" label="子本" placeholder="" />
+                    </ProCard>
+                  </ProCard>
+                  <ProCard title="克 _克_" ghost split="vertical">
+                    <ProCard ghost>
+                      <ProFormText name="fiveBenKeLeft" label="本子" placeholder="" />
+                    </ProCard>
+                    <ProCard ghost>
+                      <ProFormText name="fiveKeBenLeft" label="子本" placeholder="" />
+                    </ProCard>
+                  </ProCard>
+                  <ProCard ghost split="vertical">
+                    <ProCard ghost>
+                      <ProFormText name="fiveNanJinLeft" label="难经" placeholder="" />
+                    </ProCard>
+                    <ProCard ghost>
+                      <ProFormText name="fiveNanJinBigLeft" label="大" placeholder="" />
+                    </ProCard>
+                    <ProCard ghost>
+                      <ProFormText name="fiveNanJinSmallLeft" label="小" placeholder="" />
+                    </ProCard>
+                  </ProCard>
+                  <ProCard ghost>
+                    <ProFormText name="fiveRateLeft" label="缓急" placeholder="" />
+                  </ProCard>
+                  <ProCard ghost>
+                    <ProFormText name="fiveAuxLeft" label="辅助" placeholder="" />
+                  </ProCard>
+                </ProCard>
+                <ProCard title="右手" ghost headerBordered split="horizontal" layout="center">
+                  <ProCard title="子 _生_" ghost split="vertical">
+                    <ProCard ghost>
+                      <ProFormText name="fiveBenZiRight" label="本子" placeholder="" />
+                    </ProCard>
+                    <ProCard ghost>
+                      <ProFormText name="fiveZiBenRight" label="子本" placeholder="" />
+                    </ProCard>
+                  </ProCard>
+                  <ProCard title="克 _克_" ghost split="vertical">
+                    <ProCard ghost>
+                      <ProFormText name="fiveBenKeRight" label="本子" placeholder="" />
+                    </ProCard>
+                    <ProCard ghost>
+                      <ProFormText name="fiveKeBenRight" label="子本" placeholder="" />
+                    </ProCard>
+                  </ProCard>
+                  <ProCard ghost split="vertical">
+                    <ProCard ghost>
+                      <ProFormText name="fiveNanJinRight" label="难经" placeholder="" />
+                    </ProCard>
+                    <ProCard ghost>
+                      <ProFormText name="fiveNanJinBigRight" label="大" placeholder="" />
+                    </ProCard>
+                    <ProCard ghost>
+                      <ProFormText name="fiveNanJinSmallRight" label="小" placeholder="" />
+                    </ProCard>
+                  </ProCard>
+                  <ProCard ghost>
+                    <ProFormText name="fiveRateRight" label="缓急" placeholder="" />
+                  </ProCard>
+                  <ProCard ghost>
+                    <ProFormText name="fiveAuxRight" label="辅助" placeholder="" />
+                  </ProCard>
+                </ProCard>
+              </ProCard>
+            </section>
+
+            <section className="tc-panel">
+              <h3>取穴</h3>
+              <div className="tc-row cols-2">
+                <ProFormText name="acupointLeft" label="取穴-反应点 左" placeholder="" />
+                <ProFormText name="acupointRight" label="取穴-反应点 右" placeholder="" />
+              </div>
+            </section>
+
+            <section className="tc-panel">
+              <h3>诊断与调理方案</h3>
+              <div className="tc-row cols-2">
+                <ProFormTextArea name="diagnose" label="诊断" placeholder="证型与疗程" />
+                <ProFormTextArea name="plan" label="调理方案" placeholder="治法与取穴思路" />
+              </div>
+              <ProFormTextArea name="conditioning" label="调理过程" placeholder="" />
+              <div className="tc-row cols-2">
+                <ProFormTextArea name="diet" label="饮食" placeholder="宜忌" />
+                <ProFormTextArea name="review" label="回访" placeholder="回访安排" />
+              </div>
+            </section>
+
+            <section className="tc-panel tc-bill">
+              <h3>
+                接诊单 · {moment().format('YYYY-MM-DD')}
+                <span className="plan-pill">规划功能</span>
+              </h3>
+              <table className="tc-table">
+                <thead>
+                  <tr>
+                    <th>项目</th>
+                    <th className="mid">次数</th>
+                    <th className="num">单价</th>
+                    <th className="num">小计</th>
+                  </tr>
+                </thead>
+              </table>
+              <div className="add-row">从卡项列表添加项目</div>
+              <div className="plan-note">
+                接诊单开单、卡项抵扣与应收合计属规划域（接诊流暂无订单创建接口），界面按原型
+                docs/design/mockups/desktop-workstation 预留单据表结构，接口接入后在此渲染项目行与合计。
+              </div>
+            </section>
+          </div>
+
+          <aside className="tc-side">
+            <div className="tc-total">
+              <div className="tk">应收合计</div>
+              <div className="tv hold">规划功能</div>
+              <div className="td2">接诊流暂无订单/收款接口，按项目现价合计待接口接入后在此显示</div>
+            </div>
+            <Button className="tc-pay" type="primary" size="large" block onClick={() => formRef.current?.submit()}>
+              保存接诊单
+            </Button>
+            <Button className="tc-pay ghost" size="large" block onClick={() => window.print()}>
+              打印处方笺
+            </Button>
+
+            <section className="tc-panel">
+              <h3>
+                近三次诊疗
+                {treatTotal > 3 && customerId ? (
+                  <a onClick={() => history.push(`/treat/history?customerId=${customerId}`)}>
+                    查看全部 {treatTotal} 次
+                  </a>
+                ) : null}
+              </h3>
+              {treats.length === 0 ? (
+                <div className="tc-empty">该顾客暂无历史接诊，本单将是第一次</div>
+              ) : (
+                <div className="hx">
+                  {treats.map((t) => (
+                    <div className="h" key={t.id}>
+                      <div className="d">
+                        <b>{moment(t.createTime).format('M-DD')}</b>
+                        {customer?.name || ''}
+                      </div>
+                      <div className="t">{t.diagnose || '接诊记录'}</div>
+                      <div className="n">{t.desc || t.plan || '—'}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="tc-panel">
+              <h3>今日工作站</h3>
+              <div className="td2">
+                今日接诊{' '}
+                <b className="n">{todayTotal ?? '—'}</b> 单
+                <br />
+                打印小票 <b className="n hold">规划</b> · 扫码定位 <b className="n hold">规划</b>
+              </div>
+            </section>
+
+            <section className="tc-panel">
+              <h3>外设状态</h3>
+              <div className="dev">
+                <i className="st dim" />
+                <span className="nm">80mm 小票机（USB 串口）</span>
+                <span className="tag dim">桌面工作站</span>
+              </div>
+              <div className="dev">
+                <i className="st" />
+                <span className="nm">扫码枪（页顶扫码条）</span>
+                <span className="tag">已就绪</span>
+              </div>
+              <div className="dev">
+                <i className="st dim" />
+                <span className="nm">A5 处方笺打印机</span>
+                <span className="tag dim">系统打印</span>
+              </div>
+              <div className="plan-note">
+                外设物理状态由桌面壳上报（serialport 串口监听），浏览器端按当前可用能力如实标注；
+                小票打印待桌面壳外设链路接入。
+              </div>
+            </section>
+          </aside>
+        </div>
+      </ProForm>
+    </PageContainer>
+  );
 };
 
 export default Create;

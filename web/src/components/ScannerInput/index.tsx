@@ -13,7 +13,7 @@ import { fetchCustomerById, fetchCustomerByPhone } from '@/services/ant-design-p
  * 壳内串口模式（desktop.md D9）：桌面工作站配置了串口扫码枪时由壳读码并广播
  * scanner-code 事件，这里订阅后走同一套定位流程；浏览器无 __TAURI__ 自动退化。
  */
-export default function ScannerInput() {
+export default function ScannerInput({ onLocated }: { onLocated?: (customer: API.Customer) => void } = {}) {
   const inputRef = useRef<InputRef>(null);
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
@@ -47,6 +47,11 @@ export default function ScannerInput() {
         return;
       }
       message.success(`已定位顾客：${customer.name || `id ${customer.id}`}`);
+      // 传了 onLocated（接诊开单等页内定位场景）则就地回调，不跳顾客页；否则默认进顾客详情
+      if (onLocated) {
+        onLocated(customer);
+        return;
+      }
       history.push(`/customer/update?customerId=${customer.id}`);
     } catch (e) {
       message.error('未找到对应顾客，请确认顾客码或先建档');
