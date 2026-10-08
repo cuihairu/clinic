@@ -14,7 +14,7 @@
 
 ## 批次进度
 
-- [ ] 批1 critical（29 条）：app vm2→3.12.x、proxy-addr→2.0.8、websocket-driver→0.7.5、form-data 2.3.3→2.5.6 & 4.0.5→4.0.6；web form-data 同、immer 8.0.4→9.0.21（overrides）、underscore 1.7.0→1.13.x（overrides）；swiper critical 1 条 blocked（Taro 钉死）
+- [x] 批1 critical（29 条）→ commit 见 git log：lockfile up vm2@3.12.2/proxy-addr@2.0.8/websocket-driver@0.7.5/form-data@2.5.6+4.0.6（app+web）、underscore→1.13.7（web 范围内）；overrides 补钉 form-data@2.3.3→2.5.6（app+web，request@2.88.2 精确钉死）+ immer@8→9.0.21（web，dva-immer ^8 范围外）；swiper critical 1 条 blocked（见登记表）。全端绿：server 4/4、web/kiosk/tablet/app build 过、cargo check 过
 - [ ] 批2 high（74 条）
 - [ ] 批3 medium（74 条）
 - [ ] 批4 low（11 条）
