@@ -19,7 +19,7 @@
 - [x] 批3 medium（74 条）：app up http-proxy-middleware→2.0.10/@humanfs/node→0.16.8/colord→2.9.4/qs→6.16.0 + web up @babel/runtime→7.29.10/qs；overrides app{got@8.3.2/9.6.0→11.8.5, esbuild@0.19.12/0.14.54→0.25.0, uuid@8.3.2/3.4.0→11.1.1, qs@6.5.5/6.14.2→6.16.0, decode-uri-component→0.5.0, postcss-selector-parser@6.1.4→7.1.6, webpack-dev-server@4.11.1→5.2.6（实测撤销，见登记）} web{log4js@1.1.1→6.4.0, esbuild@0.18.20/0.21.4→0.25.0, uuid@3.4.0→11.1.1, decode-uri-component→0.5.0, postcss-selector-parser@6→7.1.6, react-router@6.3.0→6.30.6, @babel/runtime@7.23.6→7.29.10} docs{esbuild@0.21.5→0.25.0}；webpack-dev-server override 实测破坏 Taro dev:h5（wds5 options schema 不兼容 Taro 3.6.40 编程式集成，dev server 起不来）已撤销→blocked 登记，dev:h5 冒烟复测 6s 返回 200。全端绿（七端含 docs VitePress build）。audit 余量：app crit3/high8/med13/low0、web crit0/high4/med4/low1、docs med2/high1——剩余=blocked 清单
 - [x] 批4 low（11 条）：无可动项——app low 已被前三批顺带清零（body-parser→1.20.6、postcss-selector-parser、@babel/core→7.29.6、@babel/runtime→7.29.10 均已到位）；web 唯一 low=elliptic 6.6.1 NO-PATCH（已登记）
 - [x] 批5 rust：glib 0.18.5 唯一告警——`cargo update -p glib --precise 0.20.0` 实测被依赖图拒绝（tauri 2.12.1 → gtk ^0.18 → glib ^0.18，0.x 语义跨 minor 即 breaking），blocked 登记；Cargo.lock 零变更
-- [ ] 终验：dependabot open 计数复核，blocked 清单与面板剩余一致
+- [x] 终验（2026-10-08）：dependabot open **188 → 36**（-81%：critical 29→3、high 74→12、medium 74→20、low 11→1），面板剩余 36 条按包聚合 17 项与 upstream-blocked 登记表逐一吻合、零遗漏——swiper/decompress/braces/git-clone/html-minifier/node-forge/http-cache-semantics/webpack-dev-middleware/postcss/mockjs/extract-zip/elliptic/request/sprintf-js/webpack-dev-server/react-router(7.x 线)/vite(vitepress 钉)/glib。全部为 NO-PATCH 或上游依赖树钉死，解除路径=工具链大版本升级（Taro/umi/vitepress/tauri），按轮次口径不动
 
 ## upstream-blocked 登记
 
