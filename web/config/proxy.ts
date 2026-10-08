@@ -21,6 +21,11 @@ export default {
       changeOrigin: true,
 
     },
+    // localhost:8000/media/** -> 广告素材静态托管，与 /api 同源同服务端（见 server WebMvcConfig）
+    '/media/': {
+      target: process.env.DEV_SERVER_BASE || 'http://127.0.0.1:2347',
+      changeOrigin: true,
+    },
   },
 
   /**

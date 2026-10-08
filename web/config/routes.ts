@@ -160,31 +160,30 @@ export default [
     ],
   },
   {
-    path: '/ads/',
+    path: '/ads',
     icon: 'PlayCircleOutlined',
     name: 'ads',
-    routes:[
-      {
-        name: 'ads-materials',
-        path: '/ads/materials',
-        component: './Ads/Materials',
-      },
-      {
-        name: 'ads-schedules',
-        path: '/ads/schedules',
-        component: './Ads/Schedules',
-      },
-      {
-        name: 'ads-screens',
-        path: '/ads/screens',
-        component: './Ads/Screens',
-      },
-      {
-        name: 'ads-calls',
-        path: '/ads/calls',
-        component: './Ads/Calls',
-      }
-    ],
+    component: './Ads/Index',
+  },
+  {
+    path: '/ads/materials',
+    redirect: '/ads?tab=materials',
+    hideInMenu: true,
+  },
+  {
+    path: '/ads/schedules',
+    redirect: '/ads?tab=schedules',
+    hideInMenu: true,
+  },
+  {
+    path: '/ads/screens',
+    redirect: '/ads?tab=screens',
+    hideInMenu: true,
+  },
+  {
+    path: '/ads/calls',
+    redirect: '/ads?tab=calls',
+    hideInMenu: true,
   },
   {
     path: '/review/',
