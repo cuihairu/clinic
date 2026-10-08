@@ -4,42 +4,57 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sinomed 工作站 · 首次配置</title>
+    <link rel="stylesheet" href="tokens.css" />
     <style>
+      /* 引导页对齐 tokens（desktop.md / alignment P1-12）：石墨基调、宣纸底、宋体标题、
+         金棕点缀；外设自检状态行统一圆点 pill。语义错误色 #b3402f 保留。 */
       * { box-sizing: border-box; }
       body {
         margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
-        background: #f6f5f1; color: #17211b;
-        font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        background: var(--paper); color: var(--ink);
+        font-family: var(--sans);
       }
       .card {
-        width: min(520px, 92vw); background: #fff; border-radius: 16px;
-        box-shadow: 0 4px 24px rgba(20, 24, 22, 0.12); padding: 32px;
+        width: min(520px, 92vw); background: var(--card); border-radius: 16px;
+        border: 1px solid var(--line);
+        box-shadow: 0 4px 24px rgba(38, 41, 39, 0.1); padding: 32px;
       }
-      h1 { font-size: 22px; margin: 0 0 6px; }
-      .sub { font-size: 14px; color: #6b7a71; margin-bottom: 22px; }
-      label { display: block; font-size: 14px; color: #6b7a71; margin-bottom: 6px; }
+      h1 { font-family: var(--serif); font-size: 22px; margin: 0 0 6px; color: var(--ink); letter-spacing: 1px; }
+      .sub { font-size: 14px; color: var(--muted); margin-bottom: 22px; }
+      h3.sec-title { font-family: var(--serif); font-size: 15px; color: var(--ink); margin: 24px 0 4px; }
+      label { display: block; font-size: 14px; color: var(--muted); margin-bottom: 6px; }
       input {
-        width: 100%; font-size: 16px; padding: 11px 12px; border: 2px solid #cfd8d2;
-        border-radius: 10px; background: #fbfbf9; color: #17211b; font-family: inherit;
+        width: 100%; font-size: 16px; padding: 11px 12px; border: 2px solid var(--line);
+        border-radius: 10px; background: var(--paper); color: var(--ink); font-family: inherit;
       }
-      input:focus { outline: none; border-color: #2f6d4f; }
-      label.check { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #17211b; margin: 14px 0 2px; cursor: pointer; }
-      label.check input { width: 16px; height: 16px; padding: 0; accent-color: #2f6d4f; }
+      input:focus { outline: none; border-color: var(--brand); }
+      label.check { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink); margin: 14px 0 2px; cursor: pointer; }
+      label.check input { width: 16px; height: 16px; padding: 0; accent-color: var(--brand); }
       button {
         width: 100%; margin-top: 18px; font-size: 16px; font-weight: 600; padding: 12px 0;
-        border: none; border-radius: 10px; background: #2f6d4f; color: #fff;
+        border: none; border-radius: 10px; background: var(--brand); color: #fff;
         cursor: pointer; font-family: inherit;
       }
       button:disabled { opacity: 0.6; }
-      .status { margin-top: 14px; font-size: 14px; min-height: 1.4em; }
+      button.ghost { background: var(--brand-tint); color: var(--brand-deep); }
+      .status {
+        margin-top: 12px; font-size: 14px; min-height: 1.4em; color: var(--muted);
+        display: flex; align-items: center; gap: 8px;
+      }
+      /* 外设/保存状态行统一圆点：中性待机、ok 墨绿(brand)、err 错误红 */
+      .status::before {
+        content: ''; width: 7px; height: 7px; border-radius: 50%;
+        background: var(--faint); flex-shrink: 0;
+      }
+      .status.ok::before { background: var(--brand); }
+      .status.err::before { background: #b3402f; }
       .status.err { color: #b3402f; }
-      .status.ok { color: #2f6d4f; }
-      .diag { margin-top: 18px; padding-top: 14px; border-top: 1px solid #e7ebe8; font-size: 12px; color: #6b7a71; line-height: 1.7; }
-      .print-row { display: flex; gap: 10px; margin-top: 16px; }
-      .print-row button { margin-top: 0; font-size: 14px; padding: 10px 0; background: #eef1ee; color: #17211b; }
-      .print-row input { flex: 1; font-size: 14px; padding: 9px 12px; border: 2px solid #cfd8d2; border-radius: 10px; background: #fbfbf9; min-width: 0; }
-      .print-row input:focus { outline: none; border-color: #2f6d4f; }
-      .print-row button { width: auto; padding: 10px 14px; }
+      .status.ok { color: var(--brand-deep); }
+      .diag { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); line-height: 1.7; }
+      .print-row { display: flex; gap: 10px; margin-top: 10px; }
+      .print-row input { flex: 1; font-size: 14px; padding: 9px 12px; border: 2px solid var(--line); border-radius: 10px; background: var(--paper); min-width: 0; }
+      .print-row input:focus { outline: none; border-color: var(--brand); }
+      .print-row button { width: auto; margin-top: 0; font-size: 14px; padding: 10px 14px; white-space: nowrap; }
     </style>
   </head>
   <body>
@@ -51,17 +66,19 @@
       <label class="check"><input id="autostart" type="checkbox" /> 开机自动启动工作站（无人值守运行）</label>
       <button id="saveBtn" type="button">保存并打开</button>
       <div id="status" class="status"></div>
+      <h3 class="sec-title">打印自检</h3>
       <div class="print-row">
-        <button id="printPrescription" type="button">打印自检 · A5 处方笺</button>
-        <button id="printReceipt" type="button">打印自检 · 80mm 小票</button>
+        <button id="printPrescription" class="ghost" type="button">A5 处方笺</button>
+        <button id="printReceipt" class="ghost" type="button">80mm 小票</button>
       </div>
+      <h3 class="sec-title">外设自检</h3>
       <div class="print-row">
         <input id="escposPort" placeholder="小票机串口（如 /dev/ttyUSB0 或 COM3）" autocomplete="off" />
-        <button id="printEscpos" type="button" style="white-space:nowrap;">ESC/POS 直连</button>
+        <button id="printEscpos" class="ghost" type="button">ESC/POS 直连</button>
       </div>
       <div class="print-row">
         <input id="scannerPort" placeholder="扫码枪串口（HID 仿真不可用时的兜底，D9）" autocomplete="off" />
-        <button id="scannerTest" type="button" style="white-space:nowrap;">监听测试</button>
+        <button id="scannerTest" class="ghost" type="button">监听测试</button>
       </div>
       <div id="printStatus" class="status"></div>
       <div id="diag" class="diag"></div>

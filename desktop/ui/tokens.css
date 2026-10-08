@@ -1,0 +1,45 @@
+/* Sinomed 产品原型共享 tokens：五端一致的品牌语言，主题色可切换
+   金棕点缀取自 logo（#C7A674 原色），全主题通用；主交互色四套主题：
+   graphite 石墨（默认，logo 灰 #666666 加深）/ pine 松烟绿 / cinnabar 朱砂 / indigo 黛蓝
+   页面根元素加 data-theme="pine|cinnabar|indigo" 即整页换主题，不写则用默认石墨 */
+:root {
+  --paper: #f7f7f4;
+  --card: #ffffff;
+  --ink: #262927;
+  --muted: #6b706d;
+  --faint: #979c99;
+  --line: #e5e7e4;
+  --amber: #c7a674;
+  --amber-deep: #8a6a35;
+  --amber-tint: #f4eee1;
+  --serif: "Noto Serif CJK SC", "Noto Serif SC", "Songti SC", serif;
+  --sans: "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+
+  /* 默认主题：石墨 × 古金 */
+  --brand: #353a37;
+  --brand-deep: #262a28;
+  --brand-tint: #eceeee;
+}
+[data-theme="pine"] {
+  --brand: #2f6d4f;
+  --brand-deep: #234f39;
+  --brand-tint: #e7efe9;
+}
+[data-theme="cinnabar"] {
+  --brand: #9e4a3d;
+  --brand-deep: #7c382e;
+  --brand-tint: #f6eae7;
+}
+[data-theme="indigo"] {
+  --brand: #3f5b76;
+  --brand-deep: #2f465c;
+  --brand-tint: #e8edf2;
+}
+* { box-sizing: border-box; margin: 0; }
+body {
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+.serif { font-family: var(--serif); }
