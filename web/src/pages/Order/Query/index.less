@@ -1,0 +1,126 @@
+// 订单管理 —— 对齐 docs/design/mockups/admin-orders.html（石墨×古金 tokens）
+@import '@/tokens.css';
+
+/* 状态 tab（原型胶囊 tab + 计数） */
+.od-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+
+  .tab {
+    font-size: 13px;
+    padding: 6px 15px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--muted);
+    cursor: pointer;
+
+    b {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    &.on {
+      background: var(--brand-tint);
+      border-color: #d2d5d3;
+      color: var(--brand-deep);
+      font-weight: 600;
+    }
+  }
+}
+
+/* 单号 + 来源 pill（自助机/前台） */
+.oid {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.src {
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1.5px 7px;
+  margin-left: 8px;
+
+  &.kiosk {
+    color: var(--brand-deep);
+    background: var(--brand-tint);
+    border-color: #d2d5d3;
+  }
+}
+
+/* 顾客列：姓名 + 脱敏手机 */
+.who {
+  .nm {
+    font-weight: 600;
+  }
+  .tel {
+    font-size: 11.5px;
+    color: var(--faint);
+    margin-top: 2px;
+  }
+}
+
+/* 合计（宋体数字） */
+.money {
+  font-family: var(--serif);
+  font-size: 15.5px;
+  font-weight: 700;
+}
+
+/* 状态 pill（原型四态：待接待/接待中/已完成/已取消） */
+.st {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 11px;
+  border-radius: 999px;
+
+  &.wait {
+    color: #a3542e;
+    background: #f7ede4;
+  }
+  &.serving {
+    color: #8a6a1f;
+    background: #f5edd6;
+  }
+  &.done {
+    color: var(--brand-deep);
+    background: var(--brand-tint);
+  }
+  &.cancel {
+    color: var(--faint);
+    background: var(--paper);
+    border: 1px solid var(--line);
+  }
+}
+
+/* 操作钮：实心接单/完成 + 弱化取消/删除 */
+.op-go {
+  color: #fff !important;
+  background: var(--brand);
+  border-radius: 8px;
+  padding: 4px 13px;
+  font-weight: 600;
+
+  &.amber {
+    background: var(--amber);
+  }
+}
+.op-stop {
+  color: var(--faint) !important;
+  margin-left: 10px;
+}
+
+/* 已取消整行弱化 */
+.od-cancel td {
+  color: var(--faint) !important;
+
+  .oid,
+  .nm,
+  .money {
+    color: var(--faint);
+  }
+}
