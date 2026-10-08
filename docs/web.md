@@ -63,7 +63,6 @@ pnpm dev     # dev 模式：MOCK=none，代理到本机服务端
 | ---- | ---- | ---- |
 | `/item/create` | 创建卡项 | 名称 / 价格 / 描述，支持 `?itemId=` 回填（编辑复用此页） |
 | `/item/query` | 卡项查询 | 分页检索与删除，**编辑操作跳转 `/item/create?itemId=` 回填** |
-| `/item/spread`、`/item/update` | 卡项展示 / 更新 | 占位页面（组件与提交逻辑未完成，编辑已由 Query 页跳转 Create 页实现） |
 
 ### 反馈系统（/review）——复盘与回访
 
@@ -131,4 +130,4 @@ pnpm dev     # dev 模式：MOCK=none，代理到本机服务端
 - `config/oneapi.json` 仍为脚手架模板 schema（含 `/api/rule` 等模板端点），驱动 openAPI 插件生成 `src/services/ant-design-pro/api.ts` 与 `typings.d.ts`（其中 `currentUser` 等已手改指向真实后端接口）；
 - `manifest.json` / PWA 名称仍是脚手架默认值。
 
-> 已清理：脚手架残留页面 `src/pages/Welcome.tsx`、`Admin.tsx`、`TableList/`（不在路由，无引用）与 petstore 示例服务 `src/services/swagger/`（`config.ts` openAPI 第二入口一并移除）。
+> 已清理：脚手架残留页面 `src/pages/Welcome.tsx`、`Admin.tsx`、`TableList/`（不在路由，无引用）；petstore 示例服务 `src/services/swagger/`（`config.ts` openAPI 第二入口一并移除）；卡项占位页 `/item/spread`、`/item/update`（表单实为 `createItem` 建新卡项的误用隐患，已连同路由移除，编辑统一走 `/item/create?itemId=`，`updateItem` 服务函数保留备用）。

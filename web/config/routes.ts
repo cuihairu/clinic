@@ -138,14 +138,6 @@ export default [
         path: '/item/query',
         component: './Item/Query',
       },
-      {
-        path: '/item/spread',
-        component: './Item/Spread',
-      },
-      {
-        path: '/item/update',
-        component: './Item/Update',
-      },
     ],
   },
   {
