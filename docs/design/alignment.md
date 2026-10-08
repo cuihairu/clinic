@@ -69,14 +69,14 @@
 ## 进度
 
 - [x] P0-1 web 全局壳主题对齐（bd72bae）
-- [x] P0-2 顾客档案对齐（本批提交）
-- [x] P0-3 接诊开单（桌面工作站主屏）对齐（本批提交，desktop 壳随页面同享）
-- [x] P1-4 订单管理对齐（本批提交）
-- [x] P1-5 卡项管理对齐（本批提交）
-- [x] P1-6 每日报表对齐（本批提交，随批 fix(server)：分页日期过滤改 Date 比较）
-- [x] P1-7 广告屏四页对齐（本批提交，四页合并单页 4 tab + 右栏，旧路由 redirect）
-- [x] P1-8 外观设置（运行时主题切换；data-theme CSS 变量 + useAntdConfigSetter 注入插件 ConfigProvider + settings.colorPrimary/侧栏 token 三层下发）
-- [x] P1-9 kiosk 自助机对齐（tokens.css 同源拷入 + index.html 挂 data-theme="pine"；hero/三步胶囊/渐变首字卡/两行购物篮对齐 kiosk-menu 原型，散 hex 全收编变量）
-- [x] P1-10 tablet 展示屏对齐（tokens.css 同源拷入；石墨底 --ink、纸色圆角 slide 卡 + 真实素材内嵌、pager 圆点真实进度、叫号全屏覆盖改原型底部横条=金棕 label+号码脱敏+宋体诊室，15s 自动收回）
-- [x] P1-11 app 小程序首页对齐（mobile-home 版式：品牌头/预约横幅/今日宜养/我的卡项/养生贴士/白标自检页底；宫格实拉上架项目，预约与卡项余次如实「规划功能」pill+note；tokens.css 同源引入，--brand-color 白标注入保留）
-- [x] P1-12 desktop 壳引导页对齐
+- [x] P0-2 顾客档案对齐（fc84cfa）
+- [x] P0-3 接诊开单（桌面工作站主屏）对齐（42e567b，desktop 壳随页面同享）
+- [x] P1-4 订单管理对齐（f42e0ee）
+- [x] P1-5 卡项管理对齐（8d4b77f）
+- [x] P1-6 每日报表对齐（1c72d5b，随批 fix(server)：分页日期过滤改 Date 比较 b8dc2a8）
+- [x] P1-7 广告屏四页对齐（bcb6b1c，四页合并单页 4 tab + 右栏，旧路由 redirect）
+- [x] P1-8 外观设置（8591447；运行时主题切换：data-theme CSS 变量 + useAntdConfigSetter 注入插件 ConfigProvider + settings.colorPrimary/侧栏 token 三层下发）
+- [x] P1-9 kiosk 自助机对齐（eccf091；tokens.css 同源拷入 + index.html 挂 data-theme="pine"；hero/三步胶囊/渐变首字卡/两行购物篮对齐 kiosk-menu 原型，散 hex 全收编变量）
+- [x] P1-10 tablet 展示屏对齐（2caa81f；tokens.css 同源拷入；石墨底 --ink、纸色圆角 slide 卡 + 真实素材内嵌、pager 圆点真实进度、叫号全屏覆盖改原型底部横条=金棕 label+号码脱敏+宋体诊室，15s 自动收回）
+- [x] P1-11 app 小程序首页对齐（9566fdb；mobile-home 版式：品牌头/预约横幅/今日宜养/我的卡项/养生贴士/白标自检页底；宫格实拉上架项目，预约与卡项余次如实「规划功能」pill+note；tokens.css 同源引入，--brand-color 白标注入保留）
+- [x] P1-12 desktop 壳引导页对齐（5e656b7；五端散色残留 grep 复核零命中，--brand-color 白标注入机制保留）
