@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>管理后台 · 收费结算（规划）</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { width: 1440px; height: 900px; overflow: hidden; display: flex; }
+  .side { width: 224px; background: var(--card); border-right: 1px solid var(--line); padding: 20px 14px; flex-shrink: 0; }
+  .logo { display: flex; align-items: center; gap: 10px; padding: 4px 10px 20px; }
+  .logo-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--brand); color: #fff;
+    font-family: var(--serif); font-size: 19px; display: grid; place-items: center; }
+  .logo-name { font-family: var(--serif); font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
+  .logo-sub { font-size: 11px; color: var(--faint); margin-top: 1px; }
+  .nav-group { font-size: 11px; color: var(--faint); padding: 14px 10px 6px; letter-spacing: 2px; }
+  .nav { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 9px;
+    font-size: 14px; color: #4b4f4d; margin-bottom: 2px; }
+  .nav .ico { width: 9px; height: 9px; border: 1.8px solid #9aa49d; border-radius: 50%; }
+  .nav.active { background: var(--brand-tint); color: var(--brand-deep); font-weight: 600; }
+  .nav.active .ico { border-color: var(--brand); background: var(--brand); }
+  .main { flex: 1; padding: 22px 28px; overflow: hidden; }
+  .crumb { font-size: 12.5px; color: var(--faint); margin-bottom: 12px; }
+  .crumb b { color: var(--ink); font-weight: 500; }
+  .plan-tag { font-size: 11px; font-weight: 600; color: var(--amber-deep); background: var(--amber-tint);
+    border: 1px solid #e6d5b8; padding: 3px 10px; border-radius: 999px; margin-left: 12px; vertical-align: 4px; }
+  .cols { display: grid; grid-template-columns: 1fr 380px; gap: 14px; align-items: start; }
+  .lcol { display: flex; flex-direction: column; gap: 14px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px 24px; }
+  .panel h3 { font-size: 14.5px; }
+  .panel h3 .hint { font-size: 11.5px; color: var(--faint); font-weight: 400; margin-left: 10px; }
+  .head-card { display: flex; align-items: center; gap: 14px; padding-bottom: 17px; border-bottom: 1px solid var(--line); }
+  .avatar { width: 46px; height: 46px; border-radius: 50%; background: var(--brand-tint); color: var(--brand-deep);
+    font-family: var(--serif); font-size: 20px; display: grid; place-items: center; }
+  .who .nm { font-family: var(--serif); font-size: 18px; font-weight: 700; }
+  .who .nm span { font-family: var(--sans); font-size: 11px; font-weight: 600; color: var(--amber-deep);
+    background: var(--amber-tint); border: 1px solid #e6d5b8; padding: 2px 9px; border-radius: 999px; margin-left: 9px; vertical-align: 2px; }
+  .who .mt { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .balance { margin-left: auto; text-align: right; }
+  .balance .k { font-size: 11.5px; color: var(--muted); }
+  .balance .v { font-family: var(--serif); font-size: 22px; font-weight: 700; color: var(--amber-deep); }
+  table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+  th { font-size: 11.5px; color: var(--faint); font-weight: 500; text-align: left; padding: 12px 6px;
+    border-bottom: 1px solid var(--line); }
+  td { font-size: 13.5px; padding: 15px 6px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: none; }
+  td .item-nm { font-weight: 600; }
+  td .item-ds { font-size: 11.5px; color: var(--faint); margin-top: 2px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td .free { color: var(--faint); }
+  .memo { margin-top: 16px; background: var(--amber-tint); border-radius: 10px; padding: 14px 16px;
+    font-size: 12.5px; color: var(--amber-deep); line-height: 1.6; }
+  .memo b { font-weight: 600; margin-right: 12px; }
+  .queue { margin-top: 0; }
+  .queue h3 { font-size: 14px; margin-bottom: 4px; }
+  .queue h3 .hint { font-size: 11.5px; color: var(--faint); font-weight: 400; margin-left: 10px; }
+  .q-row { display: flex; align-items: center; gap: 12px; padding: 13px 2px; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+  .q-row:last-child { border-bottom: none; }
+  .q-row .oid { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .q-row .src { font-size: 11px; color: var(--muted); background: var(--paper); border: 1px solid var(--line);
+    border-radius: 6px; padding: 1.5px 7px; }
+  .q-row .amt { margin-left: auto; font-family: var(--serif); font-weight: 700; font-size: 14px; }
+  .q-row .st { font-size: 11px; font-weight: 600; color: var(--brand-deep); background: var(--brand-tint);
+    border-radius: 999px; padding: 2px 9px; }
+  /* 右列支付 */
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+  .due { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .due .k { font-size: 12.5px; color: var(--muted); }
+  .due .v { font-family: var(--serif); font-size: 36px; font-weight: 700; margin-top: 4px; }
+  .due .s { font-size: 12px; color: var(--faint); margin-top: 6px; line-height: 1.7; }
+  .pays { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .pay { border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+  .pay.on { border-color: var(--brand); background: var(--brand-tint); }
+  .pay .pi { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
+    font-family: var(--serif); font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .pay .pn { font-size: 13px; font-weight: 600; }
+  .pay .ps { font-size: 11px; color: var(--faint); margin-top: 1px; }
+  .pay .ck { margin-left: auto; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #c6cac7; }
+  .pay.on .ck { border-color: var(--brand); background: var(--brand); position: relative; }
+  .pay.on .ck::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: #fff; }
+  .btn { margin-top: 14px; text-align: center; font-size: 15px; font-weight: 600; border-radius: 11px; padding: 13px; }
+  .btn.primary { background: var(--brand); color: #fff; }
+  .btn.ghost { background: var(--card); border: 1px solid var(--line); color: var(--ink); margin-top: 9px; font-weight: 500; font-size: 13.5px; }
+  .receipt { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 15px 18px; }
+  .receipt .rt { font-size: 11.5px; color: var(--faint); letter-spacing: 1px; margin-bottom: 8px; }
+  .receipt .rr { display: flex; font-size: 12px; color: var(--muted); padding: 5px 0; }
+  .receipt .rr span:last-child { margin-left: auto; color: var(--ink); font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+  <aside class="side">
+    <div class="logo">
+      <div class="logo-mark">养</div>
+      <div><div class="logo-name">Youngs 医馆</div><div class="logo-sub">Sinomed 管理后台</div></div>
+    </div>
+    <div class="nav-group">门店</div>
+    <div class="nav"><i class="ico"></i>工作台</div>
+    <div class="nav"><i class="ico"></i>顾客</div>
+    <div class="nav"><i class="ico"></i>员工</div>
+    <div class="nav"><i class="ico"></i>接诊</div>
+    <div class="nav"><i class="ico"></i>处方</div>
+    <div class="nav"><i class="ico"></i>卡项</div>
+    <div class="nav"><i class="ico"></i>订单</div>
+    <div class="nav active"><i class="ico"></i>收费</div>
+    <div class="nav"><i class="ico"></i>复盘回访</div>
+  </aside>
+  <main class="main">
+    <div class="crumb">收费 / <b>结算台</b></div>
+    <div class="cols">
+      <div class="lcol">
+      <section class="panel">
+        <div class="head-card">
+          <div class="avatar">王</div>
+          <div class="who">
+            <div class="nm">王女士<span>金卡会员</span></div>
+            <div class="mt">137****3333 · 接诊单 2026-10-08 · 诊号 08</div>
+          </div>
+          <div class="balance">
+            <div class="k">储值卡余额</div>
+            <div class="v">¥1,200.00</div>
+          </div>
+        </div>
+        <table>
+          <tr><th>项目</th><th style="text-align:center">数量</th><th class="num">小计</th></tr>
+          <tr>
+            <td><div class="item-nm">中药饮片 8 味 × 7 剂（含代煎）</div><div class="item-ds">处方 Rx-20261008-012 · 王中医师</div></td>
+            <td style="text-align:center">1 帖</td>
+            <td class="num">¥280.00</td>
+          </tr>
+          <tr>
+            <td><div class="item-nm">腹部推拿</div><div class="item-ds">沈中医师 · 30 分钟</div></td>
+            <td style="text-align:center">2</td>
+            <td class="num">¥360.00</td>
+          </tr>
+          <tr>
+            <td><div class="item-nm">艾灸调理</div><div class="item-ds">10 次艾灸卡抵扣（余 6 → 5 次）</div></td>
+            <td style="text-align:center">1</td>
+            <td class="num free">¥0.00</td>
+          </tr>
+        </table>
+        <div class="memo"><b>整单备注</b>代煎 7 袋，前两袋先试饮；下次复诊带近期睡眠记录。</div>
+      </section>
+      <section class="panel queue">
+        <h3>待结算队列<span class="hint">自助机 / 前台单据，点击切换结算</span></h3>
+        <div class="q-row"><span class="oid">20261008-006</span><span class="src">自助机</span>李女士 · 艾灸调理 ×1、腹部推拿 ×1<span class="amt">¥280</span><span class="st">待接待</span></div>
+        <div class="q-row"><span class="oid">20261008-005</span><span class="src">自助机</span>周先生 · 肩颈推拿 ×1<span class="amt">¥160</span><span class="st">接待中</span></div>
+      </section>
+      </div>
+      <div class="stack">
+        <section class="due">
+          <div class="k">应收合计</div>
+          <div class="v">¥640.00</div>
+          <div class="s">卡项抵扣 ¥100 已减；本单拟用储值支付，支付后余额 ¥560.00</div>
+          <div class="pays">
+            <div class="pay on"><span class="pi" style="background:var(--brand)">储</span><div><div class="pn">储值卡</div><div class="ps">余额 ¥1,200.00</div></div><span class="ck"></span></div>
+            <div class="pay"><span class="pi" style="background:#5f9e6e">微</span><div><div class="pn">微信</div><div class="ps">扫码支付</div></div><span class="ck"></span></div>
+            <div class="pay"><span class="pi" style="background:#5b7fa6">支</span><div><div class="pn">支付宝</div><div class="ps">扫码支付</div></div><span class="ck"></span></div>
+            <div class="pay"><span class="pi" style="background:#9a8f7a">现</span><div><div class="pn">现金</div><div class="ps">收银找零</div></div><span class="ck"></span></div>
+          </div>
+          <div class="btn primary">收款并打印小票</div>
+          <div class="btn ghost">充值后支付</div>
+        </section>
+        <section class="receipt">
+          <div class="rt">小票预览 · 80mm</div>
+          <div class="rr"><span>Youngs 中医养生</span></div>
+          <div class="rr"><span>结算单号</span><span>P20261008-031</span></div>
+          <div class="rr"><span>合计</span><span>¥640.00</span></div>
+          <div class="rr"><span>储值支付</span><span>¥640.00</span></div>
+          <div class="rr"><span>余次提醒</span><span>艾灸卡余 5 次</span></div>
+        </section>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>管理后台 · 卡项管理</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { width: 1440px; height: 900px; overflow: hidden; display: flex; }
+  .side { width: 224px; background: var(--card); border-right: 1px solid var(--line); padding: 20px 14px; flex-shrink: 0; }
+  .logo { display: flex; align-items: center; gap: 10px; padding: 4px 10px 20px; }
+  .logo-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--brand); color: #fff;
+    font-family: var(--serif); font-size: 19px; display: grid; place-items: center; }
+  .logo-name { font-family: var(--serif); font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
+  .logo-sub { font-size: 11px; color: var(--faint); margin-top: 1px; }
+  .nav-group { font-size: 11px; color: var(--faint); padding: 14px 10px 6px; letter-spacing: 2px; }
+  .nav { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 9px;
+    font-size: 14px; color: #4b4f4d; margin-bottom: 2px; }
+  .nav .ico { width: 9px; height: 9px; border: 1.8px solid #9aa49d; border-radius: 50%; }
+  .nav.active { background: var(--brand-tint); color: var(--brand-deep); font-weight: 600; }
+  .nav.active .ico { border-color: var(--brand); background: var(--brand); }
+  .main { flex: 1; padding: 22px 28px; overflow: hidden; }
+  .crumb { font-size: 12.5px; color: var(--faint); margin-bottom: 12px; }
+  .crumb b { color: var(--ink); font-weight: 500; }
+  .title-row { display: flex; align-items: center; }
+  .title-row h1 { font-family: var(--serif); font-size: 22px; font-weight: 700; }
+  .title-row .btn { margin-left: auto; font-size: 13.5px; padding: 9px 18px; border-radius: 9px;
+    border: 1px solid var(--brand); background: var(--brand); color: #fff; font-weight: 600; }
+  .tip { margin-top: 12px; background: var(--brand-tint); border-radius: 10px; padding: 10px 15px;
+    font-size: 12.5px; color: var(--brand-deep); }
+  .tip b { font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin-top: 14px; background: var(--card);
+    border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  th { font-size: 11.5px; color: var(--faint); font-weight: 500; text-align: left; padding: 12px 16px;
+    border-bottom: 1px solid var(--line); background: #fbfcfb; }
+  td { font-size: 13.5px; padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  .it { display: flex; align-items: center; gap: 12px; }
+  .cv { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center;
+    font-family: var(--serif); font-size: 19px; font-weight: 700; flex-shrink: 0; }
+  .cv.g1 { background: linear-gradient(135deg, #e9ebe9, #ced4d1); color: var(--brand-deep); }
+  .cv.g2 { background: linear-gradient(135deg, #efe6d4, #e0cba6); color: var(--amber-deep); }
+  .cv.g3 { background: linear-gradient(135deg, #e3e8f0, #c3cede); color: #4a5c74; }
+  .cv.g4 { background: linear-gradient(135deg, #e9e2f0, #cec3de); color: #5d4a74; }
+  .it .nm { font-weight: 600; }
+  .it .ds { font-size: 11.5px; color: var(--faint); margin-top: 2px; }
+  td.price { font-family: var(--serif); font-size: 16px; font-weight: 700; }
+  /* 上架开关 */
+  .tg { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; }
+  .tg .sw { width: 34px; height: 19px; border-radius: 999px; background: var(--brand); position: relative; }
+  .tg .sw::after { content: ""; position: absolute; right: 2.5px; top: 2.5px; width: 14px; height: 14px;
+    border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .tg.off .sw { background: #cfd6d1; }
+  .tg.off .sw::after { right: auto; left: 2.5px; }
+  .tg.off span { color: var(--faint); }
+  td.sort { font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--muted); }
+  td.op { font-size: 12.5px; color: var(--brand); }
+  td.op span { margin-right: 12px; }
+  td.op .del { color: var(--faint); }
+  .pager { display: flex; align-items: center; gap: 7px; margin-top: 14px; font-size: 12.5px; color: var(--faint); }
+  .pg { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+    display: grid; place-items: center; font-size: 12px; color: var(--muted); }
+  .pg.on { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: 600; }
+  .pager .pg:first-of-type { margin-left: 10px; }
+</style>
+</head>
+<body>
+  <aside class="side">
+    <div class="logo">
+      <div class="logo-mark">养</div>
+      <div><div class="logo-name">Youngs 医馆</div><div class="logo-sub">Sinomed 管理后台</div></div>
+    </div>
+    <div class="nav-group">门店</div>
+    <div class="nav"><i class="ico"></i>工作台</div>
+    <div class="nav"><i class="ico"></i>顾客</div>
+    <div class="nav"><i class="ico"></i>员工</div>
+    <div class="nav"><i class="ico"></i>接诊</div>
+    <div class="nav active"><i class="ico"></i>卡项</div>
+    <div class="nav"><i class="ico"></i>订单</div>
+    <div class="nav"><i class="ico"></i>广告屏</div>
+    <div class="nav"><i class="ico"></i>复盘回访</div>
+  </aside>
+  <main class="main">
+    <div class="crumb">卡项 / <b>卡项查询</b></div>
+    <div class="title-row">
+      <h1>卡项管理</h1>
+      <button class="btn">新建卡项</button>
+    </div>
+    <div class="tip"><b>上架中</b>的卡项会出现在门店自助机浏览页，顾客可自行勾选下单；<b>排序</b>小者在前，封面为空时自助机以名称首字生成封面。</div>
+    <table>
+      <tr>
+        <th>卡项</th><th style="width:110px">价格</th><th style="width:150px">自助机上架</th>
+        <th style="width:80px">排序</th><th style="width:130px">操作</th>
+      </tr>
+      <tr>
+        <td><div class="it"><div class="cv g1">灸</div><div><div class="nm">艾灸调理</div><div class="ds">温经散寒 · 40 分钟 · 主打项目</div></div></div></td>
+        <td class="price">¥100</td>
+        <td><span class="tg"><span class="sw"></span><span>上架中</span></span></td>
+        <td class="sort">1</td>
+        <td class="op"><span>编辑</span><span class="del">删除</span></td>
+      </tr>
+      <tr>
+        <td><div class="it"><div class="cv g2">推</div><div><div class="nm">腹部推拿</div><div class="ds">健脾和胃 · 30 分钟 · 常与艾灸配合</div></div></div></td>
+        <td class="price">¥180</td>
+        <td><span class="tg"><span class="sw"></span><span>上架中</span></span></td>
+        <td class="sort">2</td>
+        <td class="op"><span>编辑</span><span class="del">删除</span></td>
+      </tr>
+      <tr>
+        <td><div class="it"><div class="cv g3">肩</div><div><div class="nm">肩颈推拿</div><div class="ds">松解僵紧 · 30 分钟 · 久坐人群</div></div></div></td>
+        <td class="price">¥160</td>
+        <td><span class="tg"><span class="sw"></span><span>上架中</span></span></td>
+        <td class="sort">3</td>
+        <td class="op"><span>编辑</span><span class="del">删除</span></td>
+      </tr>
+      <tr>
+        <td><div class="it"><div class="cv g4">浴</div><div><div class="nm">足浴熏蒸</div><div class="ds">引火归元 · 30 分钟 · 适合首次体验</div></div></div></td>
+        <td class="price">¥120</td>
+        <td><span class="tg"><span class="sw"></span><span>上架中</span></span></td>
+        <td class="sort">4</td>
+        <td class="op"><span>编辑</span><span class="del">删除</span></td>
+      </tr>
+      <tr>
+        <td><div class="it"><div class="cv g1">三</div><div><div class="nm">三伏灸疗程卡</div><div class="ds">10 次疗程 · 购卡赠腹部推拿一次</div></div></div></td>
+        <td class="price">¥880</td>
+        <td><span class="tg off"><span class="sw"></span><span>已下架</span></span></td>
+        <td class="sort">5</td>
+        <td class="op"><span>编辑</span><span class="del">删除</span></td>
+      </tr>
+      <tr>
+        <td><div class="it"><div class="cv g2">经</div><div><div class="nm">经络疏通（刮痧）</div><div class="ds">活血透邪 · 30 分钟 · 秋季应时</div></div></div></td>
+        <td class="price">¥150</td>
+        <td><span class="tg"><span class="sw"></span><span>上架中</span></span></td>
+        <td class="sort">6</td>
+        <td class="op"><span>编辑</span><span class="del">删除</span></td>
+      </tr>
+      <tr>
+        <td><div class="it"><div class="cv g4">质</div><div><div class="nm">体质辨识评估</div><div class="ds">九种体质问卷 · 20 分钟 · 含调理建议</div></div></div></td>
+        <td class="price">¥68</td>
+        <td><span class="tg"><span class="sw"></span><span>上架中</span></span></td>
+        <td class="sort">7</td>
+        <td class="op"><span>编辑</span><span class="del">删除</span></td>
+      </tr>
+    </table>
+    <div class="pager">共 7 条 · 每页 20 条<span class="pg on">1</span></div>
+  </main>
+</body>
+</html>

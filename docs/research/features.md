@@ -8,13 +8,13 @@
 
 | 功能点 | 参考来源项目 | Sinomed 现状 | 说明 |
 | ---- | ---- | ---- | ---- |
-| 预约挂号 | openhis-clinic(预约登记)、ZainZhao/HIS、TANGKUO/HIS(挂号工作站)、hisystem(挂号收费) | 未实现 | 源码中无挂号/预约实体与接口;现有「顾客建档 + 到店就诊」流程 |
+| 预约挂号 | openhis-clinic(预约登记)、ZainZhao/HIS、TANGKUO/HIS(挂号工作站)、hisystem(挂号收费) | 未实现 | 源码中无挂号/预约实体与接口;现有「顾客建档 + 到店就诊」流程。**设计原型：[预约排班](/screenshots/admin-booking.png)** |
 | 电子病历 | Yukang(主诉/现病史/四诊/辨证/医嘱)、openhis(EMR 模块)、his_mvp | 部分 | `treats` 诊疗单承载主诉、问诊、望诊、触诊、脉象、五行、取穴、诊断、方案、饮食、调理、回访;无独立病史(过敏史/既往史)结构 |
 | 处方(西药/成药) | Yukang(中西成药处方)、openhis-clinic(收费发药) | 未实现 | 无药品目录与处方模型 |
-| 中药处方 | Yukang(中药/贴敷/外治)、herb-ms-ssm(药材-处方-计价)、his_mvp(中药方剂)、chinese_medicine_store_cos(病症处方) | 部分 | `treats.plan`(调理方案)以文本承载,无饮片/剂量/剂数结构 |
+| 中药处方 | Yukang(中药/贴敷/外治)、herb-ms-ssm(药材-处方-计价)、his_mvp(中药方剂)、chinese_medicine_store_cos(病症处方) | 部分 | `treats.plan`(调理方案)以文本承载,无饮片/剂量/剂数结构。**设计原型：[中药处方笺](/screenshots/admin-herbprescription.png)** |
 | 药房与发药 | ZainZhao/HIS、TANGKUO/HIS(药房工作站)、openhis-clinic、hisystem(药房取药) | 未实现 | - |
 | 中药饮片库存 | chinese_medicine_store_cos(药材档案/采购/库房预警)、his_mvp(出入库/盘点)、Yukang(批次/效期) | 未实现 | - |
-| 收费结算 | Yukang(现金/微信/支付宝/银行卡/医保)、OpenHIS(划价收费)、openhis-clinic | 未实现 | 订单模块接口为占位;`recharges` 表仅有 Repository 无接口 |
+| 收费结算 | Yukang(现金/微信/支付宝/银行卡/医保)、OpenHIS(划价收费)、openhis-clinic | 未实现 | 订单模块接口为占位;`recharges` 表仅有 Repository 无接口。**设计原型：[收费结算台](/screenshots/admin-billing.png)** |
 | 患者会员 | TANGKUO/HIS(患者管理)、Yukang(连锁分店)、chinese_medicine_store_cos(会员购买/订单) | 部分 | `customers.level` 会员等级字段存在;无充值/储值流程(`recharges` 未接线) |
 | 排班 | 调研项目中未见明确实现的排班模块 | 未实现 | 现有 `signs` 考勤是员工上下班打卡,非排班 |
 | 报表统计 | Yukang(经营统计/处方量趋势)、OpenHIS(图表统计)、openhis-clinic(报表查询) | 部分 | 已有每日报表(总结/复盘/回访)与按月考勤统计;无经营/收费类报表 |

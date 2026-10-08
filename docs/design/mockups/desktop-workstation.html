@@ -28,7 +28,7 @@
   .logo-name { font-family: var(--serif); font-size: 15.5px; font-weight: 700; }
   .logo-sub { font-size: 10.5px; color: var(--faint); }
   .nav { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px;
-    font-size: 13.5px; color: #47524b; margin-bottom: 2px; }
+    font-size: 13.5px; color: #4b4f4d; margin-bottom: 2px; }
   .nav .ico { width: 8px; height: 8px; border: 1.7px solid #9aa49d; border-radius: 50%; }
   .nav.active { background: var(--brand-tint); color: var(--brand-deep); font-weight: 600; }
   .nav.active .ico { border-color: var(--brand); background: var(--brand); }
@@ -36,11 +36,11 @@
   .main { flex: 1; padding: 20px 24px; display: flex; flex-direction: column; overflow: hidden; }
   .scan-row { display: flex; align-items: center; gap: 12px; }
   .scan-box { flex: 1; background: var(--card); border: 1.6px solid var(--brand); border-radius: 11px;
-    padding: 11px 15px; display: flex; align-items: center; gap: 11px; box-shadow: 0 0 0 3px rgba(47,109,79,0.08); }
+    padding: 11px 15px; display: flex; align-items: center; gap: 11px; box-shadow: 0 0 0 3px rgba(38,42,40,0.09); }
   .scan-ic { width: 15px; height: 15px; border: 2.5px solid var(--brand); border-radius: 50%; flex-shrink: 0; }
   .scan-box .hint { font-size: 13px; color: var(--faint); }
   .toast { background: var(--brand); color: #fff; font-size: 13px; padding: 9px 15px; border-radius: 9px;
-    box-shadow: 0 4px 14px rgba(35,79,57,0.3); }
+    box-shadow: 0 4px 14px rgba(30,33,31,0.3); }
   .customer-strip { margin-top: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 11px;
     padding: 13px 16px; display: flex; align-items: center; gap: 12px; }
   .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--brand-tint); color: var(--brand-deep);
@@ -68,6 +68,13 @@
     place-items: center; font-style: normal; color: var(--muted); font-size: 13px; }
   .add-row { margin-top: 14px; border: 1.5px dashed #c8d1cb; border-radius: 9px; padding: 10px;
     text-align: center; font-size: 12.5px; color: var(--faint); }
+  /* 近三次诊疗 */
+  .hx { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+  .hx .h { background: var(--paper); border-radius: 9px; padding: 11px 13px; }
+  .hx .d { font-size: 11px; color: var(--faint); }
+  .hx .d b { font-family: var(--serif); font-size: 14.5px; color: var(--ink); margin-right: 7px; }
+  .hx .t { font-size: 13px; font-weight: 600; margin-top: 3px; }
+  .hx .n { font-size: 11.5px; color: var(--faint); margin-top: 3px; line-height: 1.55; }
   /* 右侧结算栏 */
   .pay { width: 264px; flex-shrink: 0; margin-left: 14px; display: flex; flex-direction: column; }
   .total-card { background: var(--card); border: 1px solid var(--line); border-radius: 11px; padding: 18px; }
@@ -147,6 +154,14 @@
             </tr>
           </table>
           <div class="add-row">从卡项列表添加项目</div>
+        </div>
+        <div class="bill" style="margin-top:12px">
+          <h4 style="display:flex; justify-content:space-between; align-items:baseline"><span>近三次诊疗</span><span style="color:var(--brand); font-size:12px; font-weight:500">查看全部 8 次</span></h4>
+          <div class="hx">
+            <div class="h"><div class="d"><b>3-15</b>王中医师</div><div class="t">艾灸调理 · 第 4 疗程</div><div class="n">脾胃虚寒，温中健脾；取中脘、足三里，各 15 分钟。</div></div>
+            <div class="h"><div class="d"><b>3-02</b>沈中医师</div><div class="t">腹部推拿 · 复诊</div><div class="n">手法温和，配合艾灸疗程；睡眠较前改善。</div></div>
+            <div class="h"><div class="d"><b>2-14</b>王中医师</div><div class="t">肩颈推拿</div><div class="n">肩颈僵紧，建议每周一次；已购肩颈放松 5 次卡。</div></div>
+          </div>
         </div>
       </main>
       <aside class="pay">

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>管理后台 · 预约排班（规划）</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { width: 1440px; height: 900px; overflow: hidden; display: flex; }
+  .side { width: 224px; background: var(--card); border-right: 1px solid var(--line); padding: 20px 14px; flex-shrink: 0; }
+  .logo { display: flex; align-items: center; gap: 10px; padding: 4px 10px 20px; }
+  .logo-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--brand); color: #fff;
+    font-family: var(--serif); font-size: 19px; display: grid; place-items: center; }
+  .logo-name { font-family: var(--serif); font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
+  .logo-sub { font-size: 11px; color: var(--faint); margin-top: 1px; }
+  .nav-group { font-size: 11px; color: var(--faint); padding: 14px 10px 6px; letter-spacing: 2px; }
+  .nav { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 9px;
+    font-size: 14px; color: #4b4f4d; margin-bottom: 2px; }
+  .nav .ico { width: 9px; height: 9px; border: 1.8px solid #9aa49d; border-radius: 50%; }
+  .nav.active { background: var(--brand-tint); color: var(--brand-deep); font-weight: 600; }
+  .nav.active .ico { border-color: var(--brand); background: var(--brand); }
+  .main { flex: 1; padding: 22px 28px; overflow: hidden; }
+  .crumb { font-size: 12.5px; color: var(--faint); margin-bottom: 12px; }
+  .crumb b { color: var(--ink); font-weight: 500; }
+  .plan-tag { font-size: 11px; font-weight: 600; color: var(--amber-deep); background: var(--amber-tint);
+    border: 1px solid #e6d5b8; padding: 3px 10px; border-radius: 999px; margin-left: 12px; vertical-align: 4px; }
+  .title-row { display: flex; align-items: center; }
+  .title-row h1 { font-family: var(--serif); font-size: 22px; font-weight: 700; }
+  .title-row .dnav { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+  .title-row .d { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+    display: grid; place-items: center; }
+  .cols { display: grid; grid-template-columns: 1fr 330px; gap: 14px; margin-top: 16px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .panel h3 { font-size: 14px; }
+  .panel h3 .hint { font-size: 11.5px; color: var(--faint); font-weight: 400; margin-left: 10px; }
+  /* 排班网格 */
+  .grid { display: grid; grid-template-columns: 64px 1fr 1fr; gap: 8px; margin-top: 13px; }
+  .grid .hd { font-size: 12px; font-weight: 600; color: var(--brand-deep); background: var(--brand-tint);
+    border-radius: 8px; padding: 8px 0; text-align: center; }
+  .grid .tm { font-size: 12px; color: var(--faint); display: grid; place-items: center;
+    font-variant-numeric: tabular-nums; }
+  .slot { min-height: 64px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper);
+    display: flex; align-items: center; padding: 6px 10px; gap: 8px; }
+  .slot .bk { flex: 1; font-size: 12px; line-height: 1.45; }
+  .slot .bk .n { font-weight: 600; }
+  .slot .bk .s { color: var(--faint); }
+  .slot .bk .st { font-size: 10.5px; font-weight: 600; border-radius: 5px; padding: 1px 6px; }
+  .st-in { color: var(--brand-deep); background: var(--brand-tint); }
+  .st-wait { color: #8a6a35; background: #f4eee1; }
+  .st-pass { color: var(--faint); background: #eceeee; }
+  .slot.empty { border-style: dashed; justify-content: center; color: #b3b8b5; font-size: 11.5px; }
+  /* 右列 */
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+  .stat4 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat4 .s { background: var(--paper); border-radius: 10px; padding: 11px 13px; }
+  .stat4 .k { font-size: 11.5px; color: var(--muted); }
+  .stat4 .v { font-family: var(--serif); font-size: 21px; font-weight: 700; margin-top: 3px; }
+  .stat4 .v.gd { color: var(--amber-deep); }
+  .rv { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+  .rv:last-child { border-bottom: none; padding-bottom: 2px; }
+  .rv .tm { width: 44px; font-variant-numeric: tabular-nums; color: var(--muted); }
+  .rv .n { font-weight: 600; }
+  .rv .it { color: var(--faint); }
+  .rv .pill { margin-left: auto; font-size: 10.5px; font-weight: 600; border-radius: 5px; padding: 1.5px 7px; }
+</style>
+</head>
+<body>
+  <aside class="side">
+    <div class="logo">
+      <div class="logo-mark">养</div>
+      <div><div class="logo-name">Youngs 医馆</div><div class="logo-sub">Sinomed 管理后台</div></div>
+    </div>
+    <div class="nav-group">门店</div>
+    <div class="nav"><i class="ico"></i>工作台</div>
+    <div class="nav"><i class="ico"></i>顾客</div>
+    <div class="nav"><i class="ico"></i>员工</div>
+    <div class="nav active"><i class="ico"></i>预约</div>
+    <div class="nav"><i class="ico"></i>接诊</div>
+    <div class="nav"><i class="ico"></i>卡项</div>
+    <div class="nav"><i class="ico"></i>订单</div>
+    <div class="nav"><i class="ico"></i>复盘回访</div>
+  </aside>
+  <main class="main">
+    <div class="crumb">预约 / <b>预约看板</b></div>
+    <div class="title-row">
+      <h1>预约排班<span class="plan-tag">规划功能 · 设计原型</span></h1>
+      <div class="dnav"><span class="d">‹</span> 2026-10-08 <span class="d">›</span></div>
+    </div>
+    <div class="cols">
+      <section class="panel">
+        <h3>今日时段<span class="hint">王中医师 / 沈中医师 · 每时段限约 1 位</span></h3>
+        <div class="grid">
+          <span></span><span class="hd">王中医师</span><span class="hd">沈中医师</span>
+          <span class="tm">09:00</span>
+          <div class="slot"><div class="bk"><div class="n">陈伯 <span class="st st-in">已到店</span></div><div class="s">艾灸调理 · 第 2 疗程</div></div></div>
+          <div class="slot"><div class="bk"><div class="n">周先生 <span class="st st-wait">待到店</span></div><div class="s">腹部推拿 · 复诊</div></div></div>
+          <span class="tm">10:00</span>
+          <div class="slot"><div class="bk"><div class="n">王女士 <span class="st st-in">已到店</span></div><div class="s">艾灸调理 · 第 4 疗程</div></div></div>
+          <div class="slot"><div class="bk"><div class="n">李女士 <span class="st st-wait">待到店</span></div><div class="s">腹部推拿 · 首诊</div></div></div>
+          <span class="tm">11:00</span>
+          <div class="slot"><div class="bk"><div class="n">吴女士 <span class="st st-pass">过号</span></div><div class="s">肩颈推拿</div></div></div>
+          <div class="slot empty">可预约</div>
+          <span class="tm">14:00</span>
+          <div class="slot"><div class="bk"><div class="n">郑先生 <span class="st st-wait">待到店</span></div><div class="s">艾灸调理 · 新客</div></div></div>
+          <div class="slot"><div class="bk"><div class="n">孙女士 <span class="st st-wait">待到店</span></div><div class="s">腹部推拿 · 复诊</div></div></div>
+          <span class="tm">15:00</span>
+          <div class="slot empty">可预约</div>
+          <div class="slot"><div class="bk"><div class="n">何伯 <span class="st st-wait">待到店</span></div><div class="s">艾灸调理 · 第 1 疗程</div></div></div>
+          <span class="tm">16:00</span>
+          <div class="slot"><div class="bk"><div class="n">钱女士 <span class="st st-wait">待到店</span></div><div class="s">肩颈推拿 · 复诊</div></div></div>
+          <div class="slot empty">可预约</div>
+          <span class="tm">17:00</span>
+          <div class="slot empty">可预约</div>
+          <div class="slot"><div class="bk"><div class="n">冯女士 <span class="st st-wait">待到店</span></div><div class="s">腹部推拿 · 首诊</div></div></div>
+          <span class="tm">18:00</span>
+          <div class="slot empty">可预约</div>
+          <div class="slot empty">可预约</div>
+        </div>
+      </section>
+      <div class="stack">
+        <section class="panel">
+          <h3>今日预约</h3>
+          <div class="stat4">
+            <div class="s"><div class="k">预约总数</div><div class="v">10</div></div>
+            <div class="s"><div class="k">已到店</div><div class="v">2</div></div>
+            <div class="s"><div class="k">待到店</div><div class="v gd">7</div></div>
+            <div class="s"><div class="k">过号</div><div class="v">1</div></div>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>待到店<span class="hint">到店后一键转接诊</span></h3>
+          <div class="rv"><span class="tm">09:00</span><span class="n">周先生</span><span class="it">腹部推拿</span><span class="pill st-wait">沈中医师</span></div>
+          <div class="rv"><span class="tm">10:00</span><span class="n">李女士</span><span class="it">腹部推拿</span><span class="pill st-wait">沈中医师</span></div>
+          <div class="rv"><span class="tm">14:00</span><span class="n">郑先生</span><span class="it">艾灸调理</span><span class="pill st-wait">王中医师</span></div>
+          <div class="rv"><span class="tm">14:00</span><span class="n">孙女士</span><span class="it">腹部推拿</span><span class="pill st-wait">沈中医师</span></div>
+          <div class="rv"><span class="tm">15:00</span><span class="n">何伯</span><span class="it">艾灸调理</span><span class="pill st-wait">沈中医师</span></div>
+          <div class="rv"><span class="tm">16:00</span><span class="n">钱女士</span><span class="it">肩颈推拿</span><span class="pill st-wait">王中医师</span></div>
+          <div class="rv"><span class="tm">17:00</span><span class="n">冯女士</span><span class="it">腹部推拿</span><span class="pill st-wait">沈中医师</span></div>
+        </section>
+        <section class="panel">
+          <h3>小程序联动<span class="hint">规划</span></h3>
+          <div style="font-size:12.5px; color:var(--muted); line-height:1.75">顾客可在小程序自助约时段、改期与取消；到店扫码打卡自动转「已到店」并进入接诊队列。</div>
+        </section>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

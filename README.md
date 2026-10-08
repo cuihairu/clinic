@@ -19,11 +19,17 @@
 
 ## 产品预览
 
-一套界面语言贯穿五个设备端：墨绿主色、宣纸底、金棕点缀、宋体标题。以下为各端界面原型（设计稿，数据全为虚构演示），源文件在 [`docs/design/mockups/`](docs/design/mockups/)。
+一套界面语言贯穿五个设备端：石墨×古金主题（取自品牌 logo 的灰与金）、宣纸底、宋体标题，另有松烟绿 / 朱砂 / 黛蓝三套可切换主题色。以下为各端界面原型（设计稿，数据全为虚构演示），源文件在 [`docs/design/mockups/`](docs/design/mockups/)。
 
-**管理后台**（web · 顾客档案）
+**管理后台**（web · 顾客档案 / 接诊诊疗单）
 
 <p align="center"><img src="docs/public/screenshots/admin-customer.png" width="880" alt="管理后台 · 顾客档案（界面原型）" /></p>
+
+<p align="center"><img src="docs/public/screenshots/admin-diagnosis.png" width="880" alt="管理后台 · 接诊诊疗单：四诊、脉象、取穴、五行生克（界面原型）" /></p>
+
+**主题切换**（管理后台 · 外观设置，四套主题色即点即换）
+
+<p align="center"><img src="docs/public/screenshots/admin-themes.png" width="880" alt="管理后台 · 四套主题色切换：石墨×古金（默认，取自 logo）/ 松烟绿 / 朱砂 / 黛蓝" /></p>
 
 **桌面工作站**（desktop · 接诊开单 + 小票机 / 扫码枪外设状态）
 
@@ -40,6 +46,24 @@
 **候诊区展示屏**（tablet · 广告轮播 + 叫号）
 
 <p align="center"><img src="docs/public/screenshots/tablet-screen.png" width="880" alt="候诊区展示屏 · 广告轮播与叫号（界面原型）" /></p>
+
+管理后台还有每日报表、卡项、订单、广告屏、外观设置等页面原型，见 [`docs/design/mockups/`](docs/design/mockups/) 与[文档站](https://cuihairu.github.io/sinomed/)。
+
+## 未来功能规划（设计原型）
+
+以下功能尚未开发，先出高保真原型定交互与视觉，标注「规划功能 · 设计原型」：
+
+**预约排班**（时段网格 · 待到店转接诊 · 小程序自助约期）
+
+<p align="center"><img src="docs/public/screenshots/admin-booking.png" width="880" alt="预约排班 · 时段网格与待到店列表（规划功能设计原型）" /></p>
+
+**中药处方**（处方笺 · 饮片剂量与特殊煎法 · 配伍禁忌审方 · 代煎）
+
+<p align="center"><img src="docs/public/screenshots/admin-herbprescription.png" width="880" alt="中药处方笺 · 饮片配伍审方与代煎（规划功能设计原型）" /></p>
+
+**收费结算**（储值卡 / 微信 / 支付宝 / 现金 · 卡项抵扣 · 小票打印）
+
+<p align="center"><img src="docs/public/screenshots/admin-billing.png" width="880" alt="收费结算台 · 储值卡支付与卡项抵扣（规划功能设计原型）" /></p>
 
 ## 目录结构
 

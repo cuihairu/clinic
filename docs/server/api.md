@@ -4,7 +4,16 @@
 
 ## 鉴权约定
 
-- **放行路径**：`/api/v1/user/login` 以及接口文档相关路径（`/doc.html`、`/swagger-ui/**` 等）。其余接口一律需要 `Authorization: Bearer <JWT>`，未认证返回 401。
+- **放行路径**：
+  - 登录与文档：`/api/v1/user/login`、`/doc.html`、`/swagger-ui/**`、`/v3/api-docs/**`、`/swagger-resources/**`、`/webjars/**`
+  - **业务免登录端点（内网设备约定，见对应设计文档）**：
+    - `/api/v1/kiosk/**` — 顾客自助机浏览与下单（只读 + 单一写入口，见 [kiosk.md](/design/kiosk)）
+    - `/api/v1/ads/playlist` — 平板拉取排期（只读 + 屏 code 校验，见 [tablet.md](/design/tablet)）
+    - `/api/v1/calls/latest` — 平板轮询叫号（只读 + 屏 code 校验，见 [tablet.md](/design/tablet)）
+    - `/api/v1/print/templates` — 打印模板下发（空白版式无业务数据，见 [desktop.md](/design/desktop) D7）
+    - `/media/**` — 广告媒体静态资源（Nginx 托管）
+  - `/actuator/**` — 运维监控
+- 其余接口一律需要 `Authorization: Bearer <JWT>`，未认证返回 401。
 - 注意 `POST /api/v1/user/register`（注册）不在放行列表内——首次使用需先有账号。
 - 登录响应头 `Authorization` 返回 access token、`Refresh` 返回 refresh token（均自带 `Bearer ` 前缀）；access 有效期 1 天，refresh 7 天。刷新接口尚未实现，续期需重新登录。
 

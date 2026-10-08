@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>管理后台 · 订单管理</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { width: 1440px; height: 900px; overflow: hidden; display: flex; }
+  .side { width: 224px; background: var(--card); border-right: 1px solid var(--line); padding: 20px 14px; flex-shrink: 0; }
+  .logo { display: flex; align-items: center; gap: 10px; padding: 4px 10px 20px; }
+  .logo-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--brand); color: #fff;
+    font-family: var(--serif); font-size: 19px; display: grid; place-items: center; }
+  .logo-name { font-family: var(--serif); font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
+  .logo-sub { font-size: 11px; color: var(--faint); margin-top: 1px; }
+  .nav-group { font-size: 11px; color: var(--faint); padding: 14px 10px 6px; letter-spacing: 2px; }
+  .nav { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 9px;
+    font-size: 14px; color: #4b4f4d; margin-bottom: 2px; }
+  .nav .ico { width: 9px; height: 9px; border: 1.8px solid #9aa49d; border-radius: 50%; }
+  .nav.active { background: var(--brand-tint); color: var(--brand-deep); font-weight: 600; }
+  .nav.active .ico { border-color: var(--brand); background: var(--brand); }
+  .main { flex: 1; padding: 22px 28px; overflow: hidden; }
+  .crumb { font-size: 12.5px; color: var(--faint); margin-bottom: 12px; }
+  .crumb b { color: var(--ink); font-weight: 500; }
+  .title-row { display: flex; align-items: center; }
+  .title-row h1 { font-family: var(--serif); font-size: 22px; font-weight: 700; }
+  .title-row .note { margin-left: 14px; font-size: 12.5px; color: var(--faint); }
+  .tabs { display: flex; gap: 8px; margin-top: 14px; }
+  .tab { font-size: 13px; padding: 7px 15px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--card); color: var(--muted); }
+  .tab b { font-weight: 600; }
+  .tab.on { background: var(--brand-tint); border-color: #d2d5d3; color: var(--brand-deep); font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin-top: 14px; background: var(--card);
+    border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  th { font-size: 11.5px; color: var(--faint); font-weight: 500; text-align: left; padding: 12px 16px;
+    border-bottom: 1px solid var(--line); background: #fbfcfb; }
+  td { font-size: 13px; padding: 13px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  td .oid { font-weight: 600; font-variant-numeric: tabular-nums; }
+  td .src { font-size: 11px; color: var(--muted); background: var(--paper); border: 1px solid var(--line);
+    border-radius: 6px; padding: 1.5px 7px; margin-left: 8px; }
+  td .src.kiosk { color: var(--brand-deep); background: var(--brand-tint); border-color: #d2d5d3; }
+  td .who { font-weight: 600; }
+  td .tel { font-size: 11.5px; color: var(--faint); margin-top: 2px; }
+  td .items { line-height: 1.55; }
+  td.money { font-family: var(--serif); font-size: 15.5px; font-weight: 700; }
+  .st { font-size: 11.5px; font-weight: 600; padding: 3px 11px; border-radius: 999px; }
+  .st.wait { color: #a3542e; background: #f7ede4; }
+  .st.serving { color: #8a6a1f; background: #f5edd6; }
+  .st.done { color: var(--brand-deep); background: var(--brand-tint); }
+  .st.cancel { color: var(--faint); background: var(--paper); border: 1px solid var(--line); }
+  td.op { font-size: 12.5px; white-space: nowrap; }
+  td.op .go { color: #fff; background: var(--brand); border-radius: 8px; padding: 5px 13px; font-weight: 600; }
+  td.op .go.amber { background: var(--amber); }
+  td.op .stop { color: var(--faint); margin-left: 10px; }
+  tr.cancel td { color: var(--faint); }
+  tr.cancel td .oid, tr.cancel td .who { color: var(--faint); }
+  .pager { display: flex; align-items: center; gap: 7px; margin-top: 14px; font-size: 12.5px; color: var(--faint); }
+  .pg { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+    display: grid; place-items: center; font-size: 12px; color: var(--muted); }
+  .pg.on { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: 600; }
+  .pager .pg:first-of-type { margin-left: 10px; }
+</style>
+</head>
+<body>
+  <aside class="side">
+    <div class="logo">
+      <div class="logo-mark">养</div>
+      <div><div class="logo-name">Youngs 医馆</div><div class="logo-sub">Sinomed 管理后台</div></div>
+    </div>
+    <div class="nav-group">门店</div>
+    <div class="nav"><i class="ico"></i>工作台</div>
+    <div class="nav"><i class="ico"></i>顾客</div>
+    <div class="nav"><i class="ico"></i>员工</div>
+    <div class="nav"><i class="ico"></i>接诊</div>
+    <div class="nav"><i class="ico"></i>卡项</div>
+    <div class="nav active"><i class="ico"></i>订单</div>
+    <div class="nav"><i class="ico"></i>广告屏</div>
+    <div class="nav"><i class="ico"></i>复盘回访</div>
+  </aside>
+  <main class="main">
+    <div class="crumb">订单 / <b>订单查询</b></div>
+    <div class="title-row">
+      <h1>订单管理</h1>
+      <span class="note">自助机下单后自动进入「待接待」，前台接单后顾客到店；不做在线支付，到店结算。</span>
+    </div>
+    <div class="tabs">
+      <span class="tab on">全部 <b>12</b></span>
+      <span class="tab">待接待 <b>1</b></span>
+      <span class="tab">接待中 <b>1</b></span>
+      <span class="tab">已完成 <b>8</b></span>
+      <span class="tab">已取消 <b>2</b></span>
+    </div>
+    <table>
+      <tr>
+        <th style="width:210px">单号</th><th style="width:170px">顾客</th><th>项目</th>
+        <th style="width:90px">合计</th><th style="width:96px">状态</th><th style="width:150px">操作</th>
+      </tr>
+      <tr>
+        <td><span class="oid">20261008-006</span><span class="src kiosk">自助机</span></td>
+        <td><div class="who">李女士</div><div class="tel">139****5768</div></td>
+        <td class="items">艾灸调理 ×1、腹部推拿 ×1</td>
+        <td class="money">¥280</td>
+        <td><span class="st wait">待接待</span></td>
+        <td class="op"><span class="go">接单</span><span class="stop">取消</span></td>
+      </tr>
+      <tr>
+        <td><span class="oid">20261008-005</span><span class="src kiosk">自助机</span></td>
+        <td><div class="who">周先生</div><div class="tel">137****0090</div></td>
+        <td class="items">肩颈推拿 ×1</td>
+        <td class="money">¥160</td>
+        <td><span class="st serving">接待中</span></td>
+        <td class="op"><span class="go amber">完成</span><span class="stop">取消</span></td>
+      </tr>
+      <tr>
+        <td><span class="oid">20261008-004</span><span class="src">前台</span></td>
+        <td><div class="who">王女士</div><div class="tel">137****3333</div></td>
+        <td class="items">足浴熏蒸 ×1、艾灸调理 ×1</td>
+        <td class="money">¥220</td>
+        <td><span class="st done">已完成</span></td>
+        <td class="op"><span class="stop">查看</span></td>
+      </tr>
+      <tr>
+        <td><span class="oid">20261008-003</span><span class="src">前台</span></td>
+        <td><div class="who">吴女士</div><div class="tel">135****4417</div></td>
+        <td class="items">腹部推拿 ×2</td>
+        <td class="money">¥360</td>
+        <td><span class="st done">已完成</span></td>
+        <td class="op"><span class="stop">查看</span></td>
+      </tr>
+      <tr class="cancel">
+        <td><span class="oid">20261008-002</span><span class="src kiosk">自助机</span></td>
+        <td><div class="who">郑先生</div><div class="tel">150****3325</div></td>
+        <td class="items">足浴熏蒸 ×1</td>
+        <td class="money">¥120</td>
+        <td><span class="st cancel">已取消</span></td>
+        <td class="op"><span class="stop">查看</span></td>
+      </tr>
+      <tr>
+        <td><span class="oid">20261008-001</span><span class="src">前台</span></td>
+        <td><div class="who">陈伯</div><div class="tel">138****2211</div></td>
+        <td class="items">艾灸调理 ×2</td>
+        <td class="money">¥200</td>
+        <td><span class="st done">已完成</span></td>
+        <td class="op"><span class="stop">查看</span></td>
+      </tr>
+      <tr>
+        <td><span class="oid">20261007-012</span><span class="src kiosk">自助机</span></td>
+        <td><div class="who">冯女士</div><div class="tel">136****8843</div></td>
+        <td class="items">肩颈推拿 ×1、足浴熏蒸 ×1</td>
+        <td class="money">¥280</td>
+        <td><span class="st done">已完成</span></td>
+        <td class="op"><span class="stop">查看</span></td>
+      </tr>
+      <tr>
+        <td><span class="oid">20261007-011</span><span class="src">前台</span></td>
+        <td><div class="who">孙女士</div><div class="tel">188****5502</div></td>
+        <td class="items">腹部推拿 ×1、艾灸调理 ×1</td>
+        <td class="money">¥280</td>
+        <td><span class="st done">已完成</span></td>
+        <td class="op"><span class="stop">查看</span></td>
+      </tr>
+    </table>
+    <div class="pager">共 12 条 · 每页 20 条<span class="pg on">1</span><span class="pg">2</span></div>
+  </main>
+</body>
+</html>

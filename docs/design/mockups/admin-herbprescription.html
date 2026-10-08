@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>管理后台 · 中药处方（规划）</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { width: 1440px; height: 900px; overflow: hidden; display: flex; }
+  .side { width: 224px; background: var(--card); border-right: 1px solid var(--line); padding: 20px 14px; flex-shrink: 0; }
+  .logo { display: flex; align-items: center; gap: 10px; padding: 4px 10px 20px; }
+  .logo-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--brand); color: #fff;
+    font-family: var(--serif); font-size: 19px; display: grid; place-items: center; }
+  .logo-name { font-family: var(--serif); font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
+  .logo-sub { font-size: 11px; color: var(--faint); margin-top: 1px; }
+  .nav-group { font-size: 11px; color: var(--faint); padding: 14px 10px 6px; letter-spacing: 2px; }
+  .nav { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 9px;
+    font-size: 14px; color: #4b4f4d; margin-bottom: 2px; }
+  .nav .ico { width: 9px; height: 9px; border: 1.8px solid #9aa49d; border-radius: 50%; }
+  .nav.active { background: var(--brand-tint); color: var(--brand-deep); font-weight: 600; }
+  .nav.active .ico { border-color: var(--brand); background: var(--brand); }
+  .main { flex: 1; padding: 22px 28px; overflow: hidden; }
+  .crumb { font-size: 12.5px; color: var(--faint); margin-bottom: 12px; }
+  .crumb b { color: var(--ink); font-weight: 500; }
+  .plan-tag { font-size: 11px; font-weight: 600; color: var(--amber-deep); background: var(--amber-tint);
+    border: 1px solid #e6d5b8; padding: 3px 10px; border-radius: 999px; margin-left: 12px; vertical-align: 4px; }
+  .cols { display: grid; grid-template-columns: 1fr 330px; gap: 14px; margin-top: 2px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 22px; }
+  /* 头部 */
+  .rx-head { display: flex; align-items: center; gap: 22px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .rx-title { font-family: var(--serif); font-size: 26px; font-weight: 700; letter-spacing: 6px; }
+  .rx-meta { font-size: 12.5px; color: var(--muted); line-height: 1.9; }
+  .rx-meta b { color: var(--ink); font-weight: 600; }
+  .rx-no { margin-left: auto; text-align: right; font-size: 11.5px; color: var(--faint); }
+  .rx-no b { display: block; font-size: 15px; color: var(--ink); font-family: var(--serif); letter-spacing: 1px; }
+  /* 辨证摘要 */
+  .dx-strip { margin: 13px 0; background: var(--brand-tint); border-radius: 10px; padding: 10px 15px;
+    font-size: 12.5px; color: var(--brand-deep); }
+  .dx-strip b { font-weight: 600; }
+  /* Rp 表 */
+  .rp { width: 100%; border-collapse: collapse; margin-top: 4px; }
+  .rp th { font-size: 11.5px; color: var(--faint); font-weight: 500; text-align: left; padding: 8px 8px;
+    border-bottom: 1px solid var(--line); }
+  .rp td { font-size: 13.5px; padding: 12.5px 8px; border-bottom: 1px solid var(--line); }
+  .rp tr:last-child td { border-bottom: none; }
+  .rp .herb { font-family: var(--serif); font-weight: 700; font-size: 15px; }
+  .rp .dose { font-variant-numeric: tabular-nums; }
+  .rp .note { font-size: 11px; color: var(--amber-deep); background: var(--amber-tint);
+    border-radius: 5px; padding: 1.5px 7px; margin-left: 8px; }
+  .rp .del-row { color: var(--faint); font-size: 12px; }
+  .add-herb { margin-top: 12px; border: 1.5px dashed #cdd1ce; border-radius: 9px; padding: 9px;
+    text-align: center; font-size: 12.5px; color: var(--faint); }
+  /* 用法 */
+  .usage { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+  .usage .u { background: var(--paper); border-radius: 9px; padding: 13px 15px; }
+  .usage .k { font-size: 11px; color: var(--faint); }
+  .usage .v { font-size: 13px; font-weight: 600; margin-top: 3px; }
+  .sign-row { display: flex; gap: 28px; margin-top: 16px; padding-top: 13px; border-top: 1px dashed #d8dbd8;
+    font-size: 12px; color: var(--faint); }
+  .sign-row b { color: var(--ink); font-family: var(--serif); font-size: 13.5px; margin-left: 7px; }
+  /* 右列 */
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+  .check { display: flex; align-items: center; gap: 9px; font-size: 12.5px; padding: 6px 0; }
+  .check .ic { width: 17px; height: 17px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 10px; color: #fff; flex-shrink: 0; }
+  .check.ok .ic { background: var(--brand); }
+  .check.warn .ic { background: var(--amber); }
+  .check .t b { font-weight: 600; }
+  .check .t span { color: var(--faint); display: block; font-size: 11px; margin-top: 1px; }
+  .fee { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .fee .row { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); padding: 4px 0; }
+  .fee .total { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line);
+    margin-top: 8px; padding-top: 10px; }
+  .fee .total .k { font-size: 13px; font-weight: 600; }
+  .fee .total .v { font-family: var(--serif); font-size: 26px; font-weight: 700; }
+  .btn { margin-top: 12px; text-align: center; font-size: 14px; font-weight: 600; border-radius: 9px; padding: 12px; }
+  .btn.primary { background: var(--brand); color: #fff; }
+  .btn.ghost { background: var(--card); border: 1px solid var(--line); color: var(--ink); margin-top: 9px; font-weight: 500; }
+</style>
+</head>
+<body>
+  <aside class="side">
+    <div class="logo">
+      <div class="logo-mark">养</div>
+      <div><div class="logo-name">Youngs 医馆</div><div class="logo-sub">Sinomed 管理后台</div></div>
+    </div>
+    <div class="nav-group">门店</div>
+    <div class="nav"><i class="ico"></i>工作台</div>
+    <div class="nav"><i class="ico"></i>顾客</div>
+    <div class="nav"><i class="ico"></i>员工</div>
+    <div class="nav"><i class="ico"></i>接诊</div>
+    <div class="nav active"><i class="ico"></i>处方</div>
+    <div class="nav"><i class="ico"></i>卡项</div>
+    <div class="nav"><i class="ico"></i>订单</div>
+    <div class="nav"><i class="ico"></i>复盘回访</div>
+  </aside>
+  <main class="main">
+    <div class="crumb">处方 / <b>中药处方笺</b></div>
+    <div class="cols">
+      <section class="panel">
+        <div class="rx-head">
+          <div class="rx-title">处方笺</div>
+          <div class="rx-meta">
+            顾客 <b>王女士</b> · 女 · 38 岁 · 137****3333<br>
+            医师 <b>王中医师</b> · 2026-10-08 · 诊号 <b>08</b>
+          </div>
+          <div class="rx-no">处方编号<b>Rx-20261008-012</b></div>
+        </div>
+        <div class="dx-strip">辨证 <b>脾胃虚寒证</b>（接诊单 2026-03-15 第 4 疗程）· 治法 <b>温中健脾，散寒止痛</b>，与艾灸调理同用。</div>
+        <table class="rp">
+          <tr><th style="width:46px"></th><th>饮片</th><th style="width:110px">剂量</th><th style="width:200px">炮制 / 煎法</th><th style="width:70px"></th></tr>
+          <tr><td class="serif" style="color:var(--faint)">1</td><td class="herb">党参</td><td class="dose">10 g</td><td>切段生用</td><td class="del-row">删除</td></tr>
+          <tr><td class="serif" style="color:var(--faint)">2</td><td class="herb">炒白术</td><td class="dose">10 g</td><td>麸炒</td><td class="del-row">删除</td></tr>
+          <tr><td class="serif" style="color:var(--faint)">3</td><td class="herb">干姜</td><td class="dose">6 g</td><td>切片</td><td class="del-row">删除</td></tr>
+          <tr><td class="serif" style="color:var(--faint)">4</td><td class="herb">制附子<span class="note">先煎 30 分钟</span></td><td class="dose">6 g</td><td> 制，先煎久煮</td><td class="del-row">删除</td></tr>
+          <tr><td class="serif" style="color:var(--faint)">5</td><td class="herb">茯苓</td><td class="dose">15 g</td><td>块状生用</td><td class="del-row">删除</td></tr>
+          <tr><td class="serif" style="color:var(--faint)">6</td><td class="herb">砂仁<span class="note">后下</span></td><td class="dose">6 g</td><td>临出锅前 5 分钟下</td><td class="del-row">删除</td></tr>
+          <tr><td class="serif" style="color:var(--faint)">7</td><td class="herb">陈皮</td><td class="dose">6 g</td><td>切丝生用</td><td class="del-row">删除</td></tr>
+          <tr><td class="serif" style="color:var(--faint)">8</td><td class="herb">炙甘草</td><td class="dose">6 g</td><td>蜜炙</td><td class="del-row">删除</td></tr>
+        </table>
+        <div class="add-herb">从饮片目录添加（支持拼音首字母检索，如 zz / fs / gcao）</div>
+        <div class="usage">
+          <div class="u"><div class="k">剂数</div><div class="v">7 剂</div></div>
+          <div class="u"><div class="k">煎法</div><div class="v">水煎服，日一剂</div></div>
+          <div class="u"><div class="k">服法</div><div class="v">分早晚温服</div></div>
+        </div>
+        <div class="sign-row">
+          <span>医师签名 <b>王中医师</b></span>
+          <span>药师审核 <b>顾馆长</b></span>
+          <span>调配 / 复核 <b>苏技师</b></span>
+        </div>
+      </section>
+      <div class="stack">
+        <section class="panel">
+          <h3 style="font-size:14px; margin-bottom:8px">配伍审方</h3>
+          <div class="check ok"><span class="ic">✓</span><span class="t"><b>十八反 / 十九畏</b>：未发现配伍禁忌<span>附子与半夏、瓜蒌类无同用</span></span></div>
+          <div class="check ok"><span class="ic">✓</span><span class="t"><b>剂量上限</b>：均在药典常规区间<span>附子 3–15 g，现 6 g</span></span></div>
+          <div class="check warn"><span class="ic">!</span><span class="t"><b>特殊煎法</b>：2 味需标注<span>先煎 / 后下已录入，随笺打印</span></span></div>
+          <div class="check ok"><span class="ic">✓</span><span class="t"><b>过敏史</b>：档案无药物过敏记录</span></div>
+        </section>
+        <section class="panel">
+          <h3 style="font-size:14px; margin-bottom:8px">代煎与领取</h3>
+          <div class="check ok"><span class="ic">✓</span><span class="t"><b>代煎 7 袋</b>：每日一袋，真空包装<span>今日 17:00 前可取，加急 2 小时</span></span></div>
+          <div class="check"><span class="ic" style="background:#c9cdca"></span><span class="t" style="color:var(--faint)"><b style="color:var(--ink)">自取</b>：前台领取（当前选择）<span>亦可选同城配送，运费 ¥6.00</span></span></div>
+        </section>
+        <section class="fee">
+          <div class="row"><span>饮片 8 味 × 7 剂</span><span>¥259.00</span></div>
+          <div class="row"><span>代煎服务（7 袋）</span><span>¥21.00</span></div>
+          <div class="total"><span class="k">应收</span><span class="v">¥280.00</span></div>
+          <div class="btn primary">存方并收费</div>
+          <div class="btn ghost">存入我的方剂库</div>
+          <div class="btn ghost">打印处方笺</div>
+        </section>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

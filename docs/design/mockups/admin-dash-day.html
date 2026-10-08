@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>管理后台 · 每日报表</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { width: 1440px; height: 900px; overflow: hidden; display: flex; }
+  .side { width: 224px; background: var(--card); border-right: 1px solid var(--line); padding: 20px 14px; flex-shrink: 0; }
+  .logo { display: flex; align-items: center; gap: 10px; padding: 4px 10px 20px; }
+  .logo-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--brand); color: #fff;
+    font-family: var(--serif); font-size: 19px; display: grid; place-items: center; }
+  .logo-name { font-family: var(--serif); font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
+  .logo-sub { font-size: 11px; color: var(--faint); margin-top: 1px; }
+  .nav-group { font-size: 11px; color: var(--faint); padding: 14px 10px 6px; letter-spacing: 2px; }
+  .nav { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 9px;
+    font-size: 14px; color: #4b4f4d; margin-bottom: 2px; }
+  .nav .ico { width: 9px; height: 9px; border: 1.8px solid #9aa49d; border-radius: 50%; }
+  .nav.active { background: var(--brand-tint); color: var(--brand-deep); font-weight: 600; }
+  .nav.active .ico { border-color: var(--brand); background: var(--brand); }
+  .main { flex: 1; padding: 22px 28px; overflow: hidden; }
+  .crumb { font-size: 12.5px; color: var(--faint); margin-bottom: 12px; }
+  .crumb b { color: var(--ink); font-weight: 500; }
+  .title-row { display: flex; align-items: center; gap: 16px; }
+  .title-row h1 { font-family: var(--serif); font-size: 22px; font-weight: 700; }
+  .dnav { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+  .dnav .d { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+    display: grid; place-items: center; color: var(--muted); }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 14px 0; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+  .stat .k { font-size: 12px; color: var(--muted); }
+  .stat .v { font-family: var(--serif); font-size: 23px; font-weight: 700; margin-top: 4px; }
+  .stat .v small { font-size: 12px; color: var(--faint); font-family: var(--sans); font-weight: 400; margin-left: 3px; }
+  .stat .v.amber { color: var(--amber-deep); }
+  .cols { display: grid; grid-template-columns: 1fr 372px; gap: 14px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 17px 20px; }
+  .panel h3 { font-size: 14.5px; margin-bottom: 4px; display: flex; align-items: baseline; justify-content: space-between; }
+  .panel h3 .hint { font-size: 11.5px; color: var(--faint); font-weight: 400; }
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  th { font-size: 11.5px; color: var(--faint); font-weight: 500; text-align: left; padding: 9px 8px;
+    border-bottom: 1px solid var(--line); }
+  td { font-size: 13px; padding: 15px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td .who { font-weight: 600; }
+  td .role { font-size: 11px; color: var(--faint); margin-top: 2px; }
+  .pill { font-size: 11px; font-weight: 600; padding: 2.5px 10px; border-radius: 999px; }
+  .pill.ok { color: var(--brand-deep); background: var(--brand-tint); }
+  .pill.todo { color: #a3542e; background: #f7ede4; }
+  .fill { font-size: 12.5px; color: var(--brand); }
+  /* 回访列表 */
+  .rv { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+  .rv:last-child { border-bottom: none; padding-bottom: 3px; }
+  .rv .av { width: 34px; height: 34px; border-radius: 50%; background: var(--brand-tint); color: var(--brand-deep);
+    font-family: var(--serif); font-size: 15px; display: grid; place-items: center; flex-shrink: 0; }
+  .rv .nm { font-size: 13.5px; font-weight: 600; }
+  .rv .nm span { font-size: 11px; color: var(--faint); font-weight: 400; margin-left: 7px; }
+  .rv .why { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .rv .act { margin-left: auto; flex-shrink: 0; font-size: 12px; color: var(--brand); border: 1px solid #d2d5d3;
+    border-radius: 8px; padding: 5px 12px; }
+  .rv.dim .nm, .rv.dim .why { color: var(--faint); }
+  .rv.dim .act { color: var(--faint); border-color: var(--line); }
+  /* 今日总结 */
+  .sum li { list-style: none; font-size: 12.5px; padding: 6px 0 6px 15px; position: relative; line-height: 1.6; }
+  .sum li::before { content: ""; position: absolute; left: 1px; top: 13px; width: 6px; height: 6px; border-radius: 50%; }
+  .sum li.good::before { background: var(--brand); }
+  .sum li.fix::before { background: var(--amber); }
+  .sum .sg { font-size: 11.5px; color: var(--faint); letter-spacing: 1px; margin: 9px 0 2px; }
+  .bars { display: flex; gap: 11px; align-items: flex-end; height: 112px; padding: 6px 4px 0; }
+  .bar { flex: 1; height: 100%; display: flex; flex-direction: column; }
+  .bar i { display: block; margin-top: auto; border-radius: 7px 7px 3px 3px; background: var(--brand-tint); }
+  .bar.on i { background: var(--brand); }
+  .bar span { display: block; text-align: center; font-size: 10.5px; color: var(--faint); line-height: 1.5;
+    padding-top: 7px; border-top: 1px solid var(--line); margin-top: 6px; }
+  .bar span b { font-family: var(--serif); font-size: 13px; color: var(--ink); }
+</style>
+</head>
+<body>
+  <aside class="side">
+    <div class="logo">
+      <div class="logo-mark">养</div>
+      <div><div class="logo-name">Youngs 医馆</div><div class="logo-sub">Sinomed 管理后台</div></div>
+    </div>
+    <div class="nav-group">门店</div>
+    <div class="nav active"><i class="ico"></i>工作台</div>
+    <div class="nav"><i class="ico"></i>顾客</div>
+    <div class="nav"><i class="ico"></i>员工</div>
+    <div class="nav"><i class="ico"></i>接诊</div>
+    <div class="nav"><i class="ico"></i>卡项</div>
+    <div class="nav"><i class="ico"></i>订单</div>
+    <div class="nav"><i class="ico"></i>广告屏</div>
+    <div class="nav"><i class="ico"></i>复盘回访</div>
+  </aside>
+  <main class="main">
+    <div class="crumb">工作台 / <b>每日报表</b></div>
+    <div class="title-row">
+      <h1>今日报表 · 10 月 8 日</h1>
+      <div class="dnav"><span class="d">‹</span> 前一天 <span class="d">›</span></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">员工在岗</div><div class="v">5 <small>人</small></div></div>
+      <div class="stat"><div class="k">今日接诊</div><div class="v">8 <small>单</small></div></div>
+      <div class="stat"><div class="k">新客建档</div><div class="v">2 <small>位</small></div></div>
+      <div class="stat"><div class="k">回访到期</div><div class="v amber">3 <small>位</small></div></div>
+    </div>
+    <div class="cols">
+      <section class="panel">
+        <h3>员工总结<span class="hint">各员工当天工作日复盘，未填可提醒</span></h3>
+        <table>
+          <tr><th style="width:130px">员工</th><th>今日小结</th><th style="width:84px">状态</th><th style="width:52px"></th></tr>
+          <tr>
+            <td><div class="who">王中医师</div><div class="role">中医师</div></td>
+            <td>艾灸 4 例、肩颈推拿 1 例；三伏灸疗程卡预售后续跟进 2 位。</td>
+            <td><span class="pill ok">已提交</span></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><div class="who">沈中医师</div><div class="role">中医师</div></td>
+            <td>腹部推拿 6 例，其中复诊 2 例；提示一位顾客睡眠改善明显。</td>
+            <td><span class="pill ok">已提交</span></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><div class="who">苏技师</div><div class="role">技师</div></td>
+            <td>足浴熏蒸 3 例，首次体验 2 位均已建档并约下次时间。</td>
+            <td><span class="pill ok">已提交</span></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><div class="who">顾馆长</div><div class="role">馆长</div></td>
+            <td>巡店两轮、当日对账；自助机纸张与小票机纸卷已补。</td>
+            <td><span class="pill ok">已提交</span></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><div class="who">何技师</div><div class="role">技师</div></td>
+            <td style="color:var(--faint)">今日尚未填写总结</td>
+            <td><span class="pill todo">未填写</span></td>
+            <td><span class="fill">提醒</span></td>
+          </tr>
+        </table>
+      </section>
+      <div class="stack">
+        <section class="panel">
+          <h3>今日回访<span class="hint">到期待办</span></h3>
+          <div class="rv">
+            <div class="av">陈</div>
+            <div><div class="nm">陈伯 <span>138****2211</span></div><div class="why">艾灸第 2 疗程结束后 7 天，问睡眠与饮食</div></div>
+            <span class="act">去回访</span>
+          </div>
+          <div class="rv">
+            <div class="av">吴</div>
+            <div><div class="nm">吴女士 <span>135****4417</span></div><div class="why">首次体验后回访感受，酌情推荐疗程卡</div></div>
+            <span class="act">去回访</span>
+          </div>
+          <div class="rv dim">
+            <div class="av">郑</div>
+            <div><div class="nm">郑先生 <span>150****3325</span></div><div class="why">肩颈放松卡余 1 次，提醒近期约起</div></div>
+            <span class="act">明日到期</span>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>今日总结<span class="hint">按天沉淀，只保留一份</span></h3>
+          <div class="sum">
+            <div class="sg">做得好</div>
+            <li class="good">自助机接单 3 笔零投诉，前台只需按铃接待；</li>
+            <li class="good">三伏灸预售话术演练完成，预约登记 4 位。</li>
+            <div class="sg">待改进</div>
+            <li class="fix">午间高峰前台排队约 10 分钟，建议错峰排班。</li>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>近 7 日接诊<span class="hint">每日接诊单量</span></h3>
+          <div class="bars">
+            <div class="bar"><i style="height:46%"></i><span>10-02<br><b>6</b></span></div>
+            <div class="bar"><i style="height:70%"></i><span>10-03<br><b>9</b></span></div>
+            <div class="bar"><i style="height:30%"></i><span>10-04<br><b>4</b></span></div>
+            <div class="bar"><i style="height:54%"></i><span>10-05<br><b>7</b></span></div>
+            <div class="bar"><i style="height:38%"></i><span>10-06<br><b>5</b></span></div>
+            <div class="bar"><i style="height:78%"></i><span>10-07<br><b>10</b></span></div>
+            <div class="bar on"><i style="height:62%"></i><span>10-08<br><b>8</b></span></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

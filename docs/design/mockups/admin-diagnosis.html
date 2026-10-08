@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>管理后台 · 接诊诊疗单</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { width: 1440px; height: 900px; overflow: hidden; display: flex; }
+  .side { width: 224px; background: var(--card); border-right: 1px solid var(--line); padding: 20px 14px; flex-shrink: 0; }
+  .logo { display: flex; align-items: center; gap: 10px; padding: 4px 10px 20px; }
+  .logo-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--brand); color: #fff;
+    font-family: var(--serif); font-size: 19px; display: grid; place-items: center; }
+  .logo-name { font-family: var(--serif); font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
+  .logo-sub { font-size: 11px; color: var(--faint); margin-top: 1px; }
+  .nav-group { font-size: 11px; color: var(--faint); padding: 14px 10px 6px; letter-spacing: 2px; }
+  .nav { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 9px;
+    font-size: 14px; color: #4b4f4d; margin-bottom: 2px; }
+  .nav .ico { width: 9px; height: 9px; border: 1.8px solid #9aa49d; border-radius: 50%; }
+  .nav.active { background: var(--brand-tint); color: var(--brand-deep); font-weight: 600; }
+  .nav.active .ico { border-color: var(--brand); background: var(--brand); }
+  .main { flex: 1; padding: 22px 28px; overflow: hidden; }
+  .crumb { font-size: 12.5px; color: var(--faint); margin-bottom: 12px; }
+  .crumb b { color: var(--ink); font-weight: 500; }
+  .head-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 22px;
+    display: flex; align-items: center; gap: 14px; }
+  .avatar { width: 46px; height: 46px; border-radius: 50%; background: var(--brand-tint); color: var(--brand-deep);
+    font-family: var(--serif); font-size: 20px; display: grid; place-items: center; }
+  .hc .nm { font-family: var(--serif); font-size: 18px; font-weight: 700; }
+  .hc .nm span { font-family: var(--sans); font-size: 11px; font-weight: 600; color: var(--amber-deep);
+    background: var(--amber-tint); border: 1px solid #e6d5b8; padding: 2px 9px; border-radius: 999px;
+    margin-left: 9px; vertical-align: 2px; }
+  .hc .mt { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .hc .dt { margin-left: auto; text-align: right; }
+  .hc .dt .d1 { font-size: 13px; font-weight: 600; }
+  .hc .dt .d2 { font-size: 11.5px; color: var(--faint); margin-top: 3px; }
+  .btn { font-size: 13px; padding: 9px 16px; border-radius: 9px; border: 1px solid var(--line);
+    background: var(--card); color: var(--ink); margin-left: 10px; }
+  .btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: 600; }
+  .cols { display: grid; grid-template-columns: 1fr 384px; gap: 14px; margin-top: 14px; }
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; }
+  .panel h3 { font-size: 14px; margin-bottom: 12px; }
+  .panel h3 .hint { font-size: 11.5px; color: var(--faint); font-weight: 400; margin-left: 10px; }
+  /* 四诊 2×2 */
+  .four { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 22px; }
+  .f .k { font-size: 11.5px; color: var(--brand-deep); background: var(--brand-tint); display: inline-block;
+    padding: 2px 9px; border-radius: 6px; letter-spacing: 2px; }
+  .f .v { font-size: 13px; color: var(--ink); margin-top: 7px; line-height: 1.65; }
+  /* 脉象 */
+  .pulse { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .hand { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .hand .hn { font-size: 12.5px; font-weight: 600; color: var(--brand-deep); margin-bottom: 9px; }
+  .cun { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; gap: 6px; }
+  .cun .cp { background: var(--paper); border-radius: 8px; padding: 8px 4px; }
+  .cun .cp .p { font-size: 10.5px; color: var(--faint); letter-spacing: 1px; }
+  .cun .cp .r { font-family: var(--serif); font-size: 15px; font-weight: 700; margin-top: 3px; }
+  /* 取穴 */
+  .acu { display: flex; gap: 14px; }
+  .acu .as { flex: 1; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .acu .as .sn { font-size: 12.5px; color: var(--faint); margin-bottom: 8px; }
+  .acu .pts { display: flex; flex-wrap: wrap; gap: 7px; }
+  .acu .pt { font-size: 13px; font-weight: 600; color: var(--brand-deep); background: var(--brand-tint);
+    border-radius: 8px; padding: 5px 12px; }
+  .moxa { margin-top: 11px; font-size: 12px; color: var(--muted); }
+  /* 右列：诊断 / 五行 / 方案 */
+  .dx .big { font-family: var(--serif); font-size: 26px; font-weight: 700; color: var(--ink); }
+  .dx .big span { font-size: 11px; font-family: var(--sans); font-weight: 600; color: var(--brand-deep);
+    background: var(--brand-tint); border-radius: 6px; padding: 3px 9px; vertical-align: 6px; margin-left: 10px; }
+  .dx .why { font-size: 12.5px; color: var(--muted); margin-top: 9px; line-height: 1.7; }
+  /* 五行图（火上·水下·木左·金右·土居中） */
+  .wuxing { position: relative; height: 168px; margin: 2px 0 10px; }
+  .wx { position: absolute; width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center;
+    font-family: var(--serif); font-size: 17px; font-weight: 700; }
+  .wx i { font-style: normal; display: block; font-family: var(--sans); font-size: 9.5px; color: var(--faint);
+    font-weight: 400; text-align: center; margin-top: 1px; }
+  .wx.c { width: 62px; height: 62px; background: var(--brand); color: #fff; left: 50%; top: 58px; transform: translateX(-50%);
+    box-shadow: 0 6px 16px rgba(30,33,31,0.3); z-index: 1; }
+  .wx.c i { color: rgba(255,255,255,0.75); }
+  .wx.n { background: var(--paper); border: 1.5px solid var(--line); color: var(--muted); }
+  .wx.fire { left: 50%; top: 6px; transform: translateX(-50%); }
+  .wx.wood { left: 22px; top: 64px; }
+  .wx.metal { right: 22px; top: 64px; }
+  .wx.water { left: 50%; bottom: 6px; transform: translateX(-50%); }
+  .wline { position: absolute; background: #d8e0da; }
+  .wl-h { left: 74px; right: 74px; top: 87px; height: 1.5px; }
+  .wl-v { top: 34px; bottom: 34px; left: 50%; width: 1.5px; transform: translateX(-50%); }
+  .ratio { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .ratio .r { background: var(--paper); border-radius: 9px; padding: 8px 6px; text-align: center; }
+  .ratio .r .k { font-size: 10.5px; color: var(--faint); }
+  .ratio .r .v { font-family: var(--serif); font-size: 15px; font-weight: 700; margin-top: 2px; }
+  .plan li { list-style: none; font-size: 12.5px; color: var(--ink); padding: 7px 0 7px 16px; position: relative;
+    border-bottom: 1px solid var(--line); line-height: 1.6; }
+  .plan li:last-child { border-bottom: none; }
+  .plan li::before { content: ""; position: absolute; left: 2px; top: 14px; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--brand); }
+  .plan li b { font-weight: 600; }
+  .plan .warn { color: var(--amber-deep); }
+</style>
+</head>
+<body>
+  <aside class="side">
+    <div class="logo">
+      <div class="logo-mark">养</div>
+      <div><div class="logo-name">Youngs 医馆</div><div class="logo-sub">Sinomed 管理后台</div></div>
+    </div>
+    <div class="nav-group">门店</div>
+    <div class="nav"><i class="ico"></i>工作台</div>
+    <div class="nav"><i class="ico"></i>顾客</div>
+    <div class="nav"><i class="ico"></i>员工</div>
+    <div class="nav active"><i class="ico"></i>接诊</div>
+    <div class="nav"><i class="ico"></i>卡项</div>
+    <div class="nav"><i class="ico"></i>订单</div>
+    <div class="nav"><i class="ico"></i>广告屏</div>
+    <div class="nav"><i class="ico"></i>复盘回访</div>
+  </aside>
+  <main class="main">
+    <div class="crumb">接诊 / 创建诊断 / <b>王女士 · 第 4 疗程</b></div>
+    <div class="head-card">
+      <div class="avatar">王</div>
+      <div class="hc">
+        <div class="nm">王女士<span>金卡会员</span></div>
+        <div class="mt">137****3333 · 女 · 38 岁 · 诊疗记录 8 次</div>
+      </div>
+      <div class="dt">
+        <div class="d1">2026-03-15</div>
+        <div class="d2">复诊，回填上次诊疗单</div>
+      </div>
+      <button class="btn">调阅历史</button>
+      <button class="btn">打印处方笺</button>
+      <button class="btn primary">保存诊疗单</button>
+    </div>
+    <div class="cols">
+      <div class="stack">
+        <section class="panel">
+          <h3>四诊<span class="hint">望闻问切，按条目记录</span></h3>
+          <div class="four">
+            <div class="f"><span class="k">主 诉</span><div class="v">胃脘冷痛、畏寒肢冷，遇温稍缓，进食生冷后加重。</div></div>
+            <div class="f"><span class="k">问 诊</span><div class="v">纳差便溏，夜眠浅易醒；平素怕冷，月经量偏少。</div></div>
+            <div class="f"><span class="k">望 诊</span><div class="v">面色少华，唇色偏淡；舌淡红、边有齿痕，苔薄白。</div></div>
+            <div class="f"><span class="k">切 诊</span><div class="v">腹软，中脘部喜温喜按；四肢末端欠温。</div></div>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>脉象<span class="hint">左右手寸关尺分部记录</span></h3>
+          <div class="pulse">
+            <div class="hand">
+              <div class="hn">左手</div>
+              <div class="cun">
+                <div class="cp"><div class="p">寸</div><div class="r">弦</div></div>
+                <div class="cp"><div class="p">关</div><div class="r">沉迟</div></div>
+                <div class="cp"><div class="p">尺</div><div class="r">弱</div></div>
+              </div>
+            </div>
+            <div class="hand">
+              <div class="hn">右手</div>
+              <div class="cun">
+                <div class="cp"><div class="p">寸</div><div class="r">浮</div></div>
+                <div class="cp"><div class="p">关</div><div class="r">沉细</div></div>
+                <div class="cp"><div class="p">尺</div><div class="r">沉</div></div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>取穴</h3>
+          <div class="acu">
+            <div class="as">
+              <div class="sn">左侧</div>
+              <div class="pts"><span class="pt">中脘</span><span class="pt">足三里</span></div>
+            </div>
+            <div class="as">
+              <div class="sn">右侧</div>
+              <div class="pts"><span class="pt">关元</span><span class="pt">脾俞</span></div>
+            </div>
+          </div>
+          <div class="moxa">灸法：艾条悬灸，每穴 15 分钟，以皮肤温热泛红为度。</div>
+        </section>
+      </div>
+      <div class="stack">
+        <section class="panel dx">
+          <h3>诊断</h3>
+          <div class="big">脾胃虚寒证<span>第 4 疗程</span></div>
+          <div class="why">中阳不足，运化失司；治以温中健脾、散寒止痛，配合腹部推拿助运。</div>
+        </section>
+        <section class="panel">
+          <h3>五行生克<span class="hint">火不生土 · 木乘土</span></h3>
+          <div class="wuxing">
+            <div class="wline wl-h"></div>
+            <div class="wline wl-v"></div>
+            <div class="wx n fire">火<i>心</i></div>
+            <div class="wx n wood">木<i>肝</i></div>
+            <div class="wx c">土<i>脾</i></div>
+            <div class="wx n metal">金<i>肺</i></div>
+            <div class="wx n water">水<i>肾</i></div>
+          </div>
+          <div class="ratio">
+            <div class="r"><div class="k">本</div><div class="v">0.92</div></div>
+            <div class="r"><div class="k">克</div><div class="v">1.18</div></div>
+            <div class="r"><div class="k">难经</div><div class="v">1.05</div></div>
+            <div class="r"><div class="k">比率</div><div class="v">0.87</div></div>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>调理方案</h3>
+          <ul class="plan">
+            <li><b>艾灸调理</b> · 第 4 疗程，使用 10 次艾灸卡抵扣（余 6 次）</li>
+            <li><b>腹部推拿</b> · 配合温中，30 分钟</li>
+            <li class="warn"><b>饮食宜忌</b> · 宜山药小米粥温养，忌生冷瓜果与冷饮</li>
+            <li><b>回访</b> · 疗程结束后 7 天回访睡眠与饮食</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

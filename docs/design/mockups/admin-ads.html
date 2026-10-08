@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>管理后台 · 广告屏管理</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { width: 1440px; height: 900px; overflow: hidden; display: flex; }
+  .side { width: 224px; background: var(--card); border-right: 1px solid var(--line); padding: 20px 14px; flex-shrink: 0; }
+  .logo { display: flex; align-items: center; gap: 10px; padding: 4px 10px 20px; }
+  .logo-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--brand); color: #fff;
+    font-family: var(--serif); font-size: 19px; display: grid; place-items: center; }
+  .logo-name { font-family: var(--serif); font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
+  .logo-sub { font-size: 11px; color: var(--faint); margin-top: 1px; }
+  .nav-group { font-size: 11px; color: var(--faint); padding: 14px 10px 6px; letter-spacing: 2px; }
+  .nav { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 9px;
+    font-size: 14px; color: #4b4f4d; margin-bottom: 2px; }
+  .nav .ico { width: 9px; height: 9px; border: 1.8px solid #9aa49d; border-radius: 50%; }
+  .nav.active { background: var(--brand-tint); color: var(--brand-deep); font-weight: 600; }
+  .nav.active .ico { border-color: var(--brand); background: var(--brand); }
+  .main { flex: 1; padding: 22px 28px; overflow: hidden; }
+  .crumb { font-size: 12.5px; color: var(--faint); margin-bottom: 12px; }
+  .crumb b { color: var(--ink); font-weight: 500; }
+  .title-row { display: flex; align-items: center; }
+  .title-row h1 { font-family: var(--serif); font-size: 22px; font-weight: 700; }
+  .title-row .btn { margin-left: auto; font-size: 13.5px; padding: 9px 18px; border-radius: 9px;
+    border: 1px solid var(--brand); background: var(--brand); color: #fff; font-weight: 600; }
+  .tabs { display: flex; gap: 8px; margin-top: 14px; }
+  .tab { font-size: 13px; padding: 7px 16px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--card); color: var(--muted); }
+  .tab.on { background: var(--brand-tint); border-color: #c9cdca; color: var(--brand-deep); font-weight: 600; }
+  .cols { display: grid; grid-template-columns: 1fr 320px; gap: 14px; margin-top: 14px; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; overflow: hidden; }
+  th { font-size: 11.5px; color: var(--faint); font-weight: 500; text-align: left; padding: 12px 16px;
+    border-bottom: 1px solid var(--line); background: #fbfcfa; }
+  td { font-size: 13px; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  .mat { display: flex; align-items: center; gap: 12px; }
+  .thumb { width: 62px; height: 40px; border-radius: 8px; display: grid; place-items: center;
+    font-family: var(--serif); font-size: 17px; font-weight: 700; flex-shrink: 0; }
+  .thumb.g1 { background: linear-gradient(135deg, #353a37, #565d59); color: #fff; }
+  .thumb.g2 { background: linear-gradient(135deg, #efe6d4, #ddc79e); color: var(--amber-deep); }
+  .thumb.g3 { background: linear-gradient(135deg, #e3e8f0, #c3cede); color: #4a5c74; }
+  .thumb.g4 { background: linear-gradient(135deg, #e9e2f0, #cec3de); color: #5d4a74; }
+  .mat .nm { font-weight: 600; }
+  .mat .tp { font-size: 11px; color: var(--faint); margin-top: 2px; }
+  td.num { font-variant-numeric: tabular-nums; }
+  td.sort { font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--muted); }
+  .st { font-size: 11.5px; font-weight: 600; padding: 2.5px 10px; border-radius: 999px; }
+  .st.on { color: var(--brand-deep); background: var(--brand-tint); }
+  .st.off { color: var(--faint); background: var(--paper); border: 1px solid var(--line); }
+  td.op { font-size: 12.5px; color: var(--brand); }
+  td.op span { margin-right: 12px; }
+  td.op .del { color: var(--faint); }
+  /* 右列：屏状态 + 快捷叫号 */
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .panel h3 { font-size: 14px; margin-bottom: 10px; }
+  .panel h3 .hint { font-size: 11px; color: var(--faint); font-weight: 400; margin-left: 8px; }
+  .scr { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+  .scr:last-child { margin-bottom: 0; }
+  .scr .sn { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+  .scr .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--brand); }
+  .scr .dot.off { background: #c9cdca; }
+  .scr .sm { font-size: 11.5px; color: var(--muted); margin-top: 5px; line-height: 1.6; }
+  .scr .sm b { color: var(--ink); font-weight: 600; }
+  .call-num { display: flex; align-items: baseline; gap: 12px; margin: 10px 0 4px; }
+  .call-num .n { font-family: var(--serif); font-size: 40px; font-weight: 700; color: var(--brand-deep); }
+  .call-num .w { font-size: 15px; font-weight: 600; }
+  .call-row { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .call-btn { margin-top: 12px; background: var(--amber); color: #fff; text-align: center; font-size: 14px;
+    font-weight: 600; border-radius: 9px; padding: 11px; }
+  .call-tip { font-size: 11.5px; color: var(--faint); margin-top: 9px; line-height: 1.6; }
+</style>
+</head>
+<body>
+  <aside class="side">
+    <div class="logo">
+      <div class="logo-mark">养</div>
+      <div><div class="logo-name">Youngs 医馆</div><div class="logo-sub">Sinomed 管理后台</div></div>
+    </div>
+    <div class="nav-group">门店</div>
+    <div class="nav"><i class="ico"></i>工作台</div>
+    <div class="nav"><i class="ico"></i>顾客</div>
+    <div class="nav"><i class="ico"></i>员工</div>
+    <div class="nav"><i class="ico"></i>接诊</div>
+    <div class="nav"><i class="ico"></i>卡项</div>
+    <div class="nav"><i class="ico"></i>订单</div>
+    <div class="nav active"><i class="ico"></i>广告屏</div>
+    <div class="nav"><i class="ico"></i>复盘回访</div>
+  </aside>
+  <main class="main">
+    <div class="crumb">广告屏 / <b>素材管理</b></div>
+    <div class="title-row">
+      <h1>广告屏管理</h1>
+      <button class="btn">上传素材</button>
+    </div>
+    <div class="tabs">
+      <span class="tab on">素材管理</span>
+      <span class="tab">排期管理</span>
+      <span class="tab">屏幕管理</span>
+      <span class="tab">叫号</span>
+    </div>
+    <div class="cols">
+      <table>
+        <tr>
+          <th>素材</th><th style="width:90px">时长</th><th style="width:76px">排序</th>
+          <th style="width:96px">状态</th><th style="width:130px">操作</th>
+        </tr>
+        <tr>
+          <td><div class="mat"><div class="thumb g1">灸</div><div><div class="nm">三伏灸疗程卡</div><div class="tp">图片 · 门店活动</div></div></div></td>
+          <td class="num">30 秒</td>
+          <td class="sort">1</td>
+          <td><span class="st on">启用</span></td>
+          <td class="op"><span>编辑</span><span class="del">停用</span></td>
+        </tr>
+        <tr>
+          <td><div class="mat"><div class="thumb g2">肺</div><div><div class="nm">秋季润肺科普</div><div class="tp">图片 · 健康科普</div></div></div></td>
+          <td class="num">15 秒</td>
+          <td class="sort">2</td>
+          <td><span class="st on">启用</span></td>
+          <td class="op"><span>编辑</span><span class="del">停用</span></td>
+        </tr>
+        <tr>
+          <td><div class="mat"><div class="thumb g3">肩</div><div><div class="nm">肩颈放松 5 次卡</div><div class="tp">图片 · 卡项推广</div></div></div></td>
+          <td class="num">20 秒</td>
+          <td class="sort">3</td>
+          <td><span class="st on">启用</span></td>
+          <td class="op"><span>编辑</span><span class="del">停用</span></td>
+        </tr>
+        <tr>
+          <td><div class="mat"><div class="thumb g4">馆</div><div><div class="nm">门店环境实拍</div><div class="tp">视频 · 品牌形象</div></div></div></td>
+          <td class="num">45 秒</td>
+          <td class="sort">4</td>
+          <td><span class="st off">停用</span></td>
+          <td class="op"><span>编辑</span><span>启用</span></td>
+        </tr>
+      </table>
+      <div class="stack">
+        <section class="panel">
+          <h3>屏幕状态<span class="hint">断网续播</span></h3>
+          <div class="scr">
+            <div class="sn"><span class="dot"></span>候诊区 1 号屏</div>
+            <div class="sm">在线 · 正在播 <b>10 月常规排期</b>（3 条素材轮播）</div>
+          </div>
+          <div class="scr">
+            <div class="sn"><span class="dot"></span>大堂 2 号屏</div>
+            <div class="sm">在线 · 正在播 <b>活动周排期</b>（2 条素材轮播）</div>
+          </div>
+          <div class="scr">
+            <div class="sn"><span class="dot off"></span>理疗区 3 号屏</div>
+            <div class="sm">离线 · 上次在线 10-07 18:40，本地缓存续播中</div>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>快捷叫号</h3>
+          <div class="call-num"><span class="n">08</span><span class="w">王*</span></div>
+          <div class="call-row">就诊科室：中医一诊室（3 号）</div>
+          <div class="call-row">上屏约 1 秒，停留 15 秒后自动回轮播</div>
+          <div class="call-btn">叫号上屏</div>
+          <div class="call-tip">姓名默认脱敏显示（王*），候诊区可见但不泄隐私；提示音与语音播报按屏能力自动开关。</div>
+        </section>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
