@@ -1,0 +1,198 @@
+// 顾客档案页 —— 对齐 docs/design/mockups/admin-customer.html（石墨×古金 tokens）
+@import '@/tokens.css';
+
+.cu-head {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px 24px;
+
+  .avatar {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--brand-tint);
+    color: var(--brand-deep);
+    font-family: var(--serif);
+    font-size: 25px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .who {
+    h2 {
+      font-family: var(--serif);
+      font-size: 21px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    p {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 7px 0 0;
+      span {
+        margin-right: 16px;
+      }
+    }
+  }
+  .tier {
+    font-size: 11px;
+    font-family: var(--sans);
+    font-weight: 600;
+    color: var(--amber-deep);
+    background: var(--amber-tint);
+    border: 1px solid #e6d5b8;
+    padding: 2.5px 9px;
+    border-radius: 999px;
+    letter-spacing: 1px;
+  }
+  .head-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+  }
+}
+
+.cu-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 14px 0;
+
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 15px 18px;
+
+    .k {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .v {
+      font-family: var(--serif);
+      font-size: 24px;
+      font-weight: 700;
+      margin-top: 5px;
+
+      small {
+        font-size: 12px;
+        color: var(--faint);
+        font-family: var(--sans);
+        font-weight: 400;
+        margin-left: 4px;
+      }
+    }
+    .v.amber {
+      color: var(--amber-deep);
+    }
+    .v.hold {
+      font-size: 14px;
+      color: var(--faint);
+      font-family: var(--sans);
+      font-weight: 400;
+      margin-top: 9px;
+    }
+  }
+}
+
+.cu-cols {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 14px;
+}
+
+.cu-panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+
+  h3 {
+    font-size: 14.5px;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    a {
+      font-size: 12px;
+      color: var(--brand);
+      font-weight: 400;
+      margin-left: auto;
+    }
+  }
+}
+
+.plan-pill {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--amber-deep);
+  background: var(--amber-tint);
+  border: 1px solid #e6d5b8;
+  padding: 1px 8px;
+  border-radius: 999px;
+  letter-spacing: 1px;
+}
+
+.plan-note {
+  margin-top: 12px;
+  background: var(--brand-tint);
+  border-radius: 10px;
+  padding: 13px 15px;
+  font-size: 12.5px;
+  color: var(--brand-deep);
+  line-height: 1.7;
+}
+
+.visit {
+  display: flex;
+  gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 2px;
+  }
+  .v-date {
+    width: 52px;
+    flex-shrink: 0;
+    text-align: center;
+
+    .d {
+      font-family: var(--serif);
+      font-size: 19px;
+      font-weight: 700;
+    }
+    .m {
+      font-size: 11px;
+      color: var(--faint);
+    }
+  }
+  .v-body {
+    flex: 1;
+
+    .t {
+      font-size: 14.5px;
+      font-weight: 600;
+    }
+    .s {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+  }
+}
+
+.cu-empty {
+  padding: 26px 0 10px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--faint);
+}
