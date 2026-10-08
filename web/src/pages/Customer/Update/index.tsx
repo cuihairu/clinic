@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { updateCustomer, fetchCustomerById } from '@/services/ant-design-pro/customer';
 import { queryTreatByPage } from '@/services/ant-design-pro/treat';
+import { fetchOrderSummary } from '@/services/ant-design-pro/order';
+import type { OrderSummary } from '@/services/ant-design-pro/order';
 import {
   PageContainer,
   ProForm,
@@ -29,6 +31,7 @@ const Update: React.FC = () => {
   const [customer, setCustomer] = useState<API.Customer | undefined>();
   const [treats, setTreats] = useState<TreatRow[]>([]);
   const [treatTotal, setTreatTotal] = useState(0);
+  const [summary, setSummary] = useState<OrderSummary>();
   const [editOpen, setEditOpen] = useState(false);
 
   const load = useCallback(async () => {
@@ -38,6 +41,8 @@ const Update: React.FC = () => {
     const res = await queryTreatByPage({ customerId: Number(customerId), pageSize: 4, current: 1 });
     setTreats(res?.data || []);
     setTreatTotal(res?.total || 0);
+    const s = await fetchOrderSummary(Number(customerId));
+    setSummary(s);
   }, [customerId]);
 
   useEffect(() => {
@@ -105,7 +110,7 @@ const Update: React.FC = () => {
         </div>
         <div className="stat">
           <div className="k">累计消费</div>
-          <div className="v hold">规划功能 · 无订单聚合接口</div>
+          <div className="v">{summary ? <>¥{summary.amount ?? 0}</> : '—'}</div>
         </div>
         <div className="stat">
           <div className="k">持卡卡项</div>

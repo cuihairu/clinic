@@ -8,6 +8,7 @@ import com.sinomed.repository.ItemRepository;
 import com.sinomed.service.OrderService;
 import com.sinomed.vo.ExceptionView;
 import com.sinomed.vo.MessageView;
+import com.sinomed.vo.OrderSummaryView;
 import com.sinomed.vo.OrderView;
 import com.sinomed.vo.PageResp;
 import io.swagger.v3.oas.annotations.Operation;
@@ -92,6 +93,23 @@ public class OrderController {
         resp.total = result.getTotalElements();
         resp.success = true;
         return resp;
+    }
+
+    @Operation(summary = "按顾客汇总消费", description = "顾客档案「累计消费」统计卡数据源：累计消费=已完成（status=2）订单价格合计，orders=完成单数",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "消费汇总", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = OrderSummaryView.class)
+                    )),
+                    @ApiResponse(responseCode = "401", description = "没有权限", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageView.class)
+                    ))
+            })
+    @GetMapping("/summary")
+    public OrderSummaryView summary(
+            @Parameter(description = "顾客id") @Validated @NotNull @RequestParam Long customerId) {
+        return orderService.summaryByCustomer(customerId);
     }
 
     @Operation(summary = "订单详情", description = "按 id 查单条（含联出的顾客与卡项名）",

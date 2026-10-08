@@ -32,6 +32,13 @@ export interface OrderPageResult {
   success?: boolean;
 }
 
+/** 顾客消费汇总（顾客档案「累计消费」统计卡）：只统计已完成订单 */
+export interface OrderSummary {
+  orders?: number;
+  /** 累计消费金额（元，已完成订单价格合计） */
+  amount?: number;
+}
+
 export async function queryOrderPage(
   params: { current?: number; pageSize?: number; status?: number },
   options?: { [key: string]: any },
@@ -46,6 +53,18 @@ export async function queryOrderPage(
 export async function fetchOrder(id: number, options?: { [key: string]: any }) {
   return request<Order>(`/api/v1/order/${id}`, {
     method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 按顾客汇总消费：累计消费=已完成订单价格合计 */
+export async function fetchOrderSummary(
+  customerId: number,
+  options?: { [key: string]: any },
+) {
+  return request<OrderSummary>('/api/v1/order/summary', {
+    method: 'GET',
+    params: { customerId },
     ...(options || {}),
   });
 }

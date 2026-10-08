@@ -3,6 +3,7 @@ package com.sinomed.service.impl;
 import com.sinomed.entity.OrderEntity;
 import com.sinomed.repository.OrderRepository;
 import com.sinomed.service.OrderService;
+import com.sinomed.vo.OrderSummaryView;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -83,5 +85,18 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setStatus(status);
         return orderRepository.save(order);
+    }
+
+    /**
+     * 按顾客汇总消费：只统计已完成（status=2）的订单，价格空视为 0
+     */
+    @Override
+    public OrderSummaryView summaryByCustomer(Long customerId) {
+        List<OrderEntity> done = orderRepository.findByUserIdAndStatus(customerId, 2);
+        long amount = done.stream().mapToLong(order -> order.getPrice() == null ? 0L : order.getPrice()).sum();
+        return OrderSummaryView.builder()
+                .orders((long) done.size())
+                .amount(amount)
+                .build();
     }
 }
