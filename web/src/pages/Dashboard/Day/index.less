@@ -1,0 +1,266 @@
+// 每日报表 —— 对齐 docs/design/mockups/admin-dash-day.html（石墨×古金 tokens）
+@import '@/tokens.css';
+
+/* 顶部 4 统计卡 */
+.dd-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 18px;
+
+    .k {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .v {
+      font-family: var(--serif);
+      font-size: 23px;
+      font-weight: 700;
+      margin-top: 4px;
+
+      small {
+        font-size: 12px;
+        color: var(--faint);
+        font-family: var(--sans);
+        font-weight: 400;
+        margin-left: 3px;
+      }
+      &.amber {
+        color: var(--amber-deep);
+      }
+      &.hold {
+        font-size: 13px;
+        font-family: var(--sans);
+        font-weight: 400;
+        color: var(--faint);
+        margin-top: 9px;
+      }
+    }
+  }
+}
+
+/* 左表 + 右栏栈 */
+.dd-cols {
+  display: grid;
+  grid-template-columns: 1fr 372px;
+  gap: 14px;
+  align-items: start;
+}
+
+.dd-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dd-panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 17px 20px;
+
+  h3 {
+    font-size: 14.5px;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+
+    .hint {
+      font-size: 11.5px;
+      color: var(--faint);
+      font-weight: 400;
+      text-align: right;
+    }
+  }
+}
+
+/* 员工总结表 */
+.dd-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+
+  th {
+    font-size: 11.5px;
+    color: var(--faint);
+    font-weight: 500;
+    text-align: left;
+    padding: 9px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  td {
+    font-size: 13px;
+    padding: 13px 8px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  .who {
+    font-weight: 600;
+  }
+  tr.dim td {
+    color: var(--faint);
+
+    .who {
+      color: var(--faint);
+    }
+  }
+}
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2.5px 10px;
+  border-radius: 999px;
+
+  &.ok {
+    color: var(--brand-deep);
+    background: var(--brand-tint);
+  }
+  &.todo {
+    color: #a3542e;
+    background: #f7ede4;
+  }
+}
+
+/* 今日回访 */
+.rv {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 3px;
+  }
+  .av {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--brand-tint);
+    color: var(--brand-deep);
+    font-family: var(--serif);
+    font-size: 15px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .nm {
+    font-size: 13.5px;
+    font-weight: 600;
+
+    span {
+      font-size: 11px;
+      color: var(--faint);
+      font-weight: 400;
+      margin-left: 7px;
+    }
+  }
+  .why {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .act {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--brand);
+    border: 1px solid #d2d5d3;
+    border-radius: 8px;
+    padding: 5px 12px;
+  }
+}
+
+/* 今日总结列表 */
+.sum {
+  .sg {
+    font-size: 11.5px;
+    color: var(--faint);
+    letter-spacing: 1px;
+    margin: 9px 0 2px;
+  }
+  .li {
+    font-size: 12.5px;
+    padding: 6px 0 6px 15px;
+    position: relative;
+    line-height: 1.6;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 1px;
+      top: 13px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    &.good::before {
+      background: var(--brand);
+    }
+    &.fix::before {
+      background: var(--amber);
+    }
+  }
+}
+
+/* 近 7 日柱状 */
+.dd-bars {
+  display: flex;
+  gap: 11px;
+  align-items: stretch;
+  height: 150px;
+  padding: 6px 4px 0;
+
+  .bar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    i {
+      display: block;
+      margin-top: auto;
+      border-radius: 7px 7px 3px 3px;
+      background: var(--brand-tint);
+    }
+    &.on i {
+      background: var(--brand);
+    }
+    span {
+      display: block;
+      text-align: center;
+      font-size: 10.5px;
+      color: var(--faint);
+      line-height: 1.5;
+      padding-top: 7px;
+      border-top: 1px solid var(--line);
+      margin-top: 6px;
+
+      b {
+        font-family: var(--serif);
+        font-size: 13px;
+        color: var(--ink);
+      }
+    }
+  }
+}
+
+.dd-empty {
+  padding: 16px 0 8px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--faint);
+}
