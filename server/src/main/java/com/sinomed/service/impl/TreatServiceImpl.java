@@ -4,6 +4,7 @@ import com.sinomed.entity.CustomerEntity;
 import com.sinomed.entity.TreatEntity;
 import com.sinomed.repository.TreatRepository;
 import com.sinomed.service.TreatService;
+import com.sinomed.util.DateUtil;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -64,11 +66,14 @@ public class TreatServiceImpl implements TreatService {
     public Page<TreatEntity> findAllByPage(List<Long> customerIds, String startTime, String endTime, Pageable pageable){
         Specification<TreatEntity> specification = (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new LinkedList<>();
-            if (startTime != null && !startTime.trim().isEmpty()) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createTime").as(String.class), startTime));
+            // createTime 落库为毫秒整数，需按 Date 比较；字符串词法比较在 SQLite 永不命中
+            Date start = DateUtil.parseParam(startTime);
+            if (start != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.<Date>get("createTime"), start));
             }
-            if (endTime != null && !endTime.trim().isEmpty()) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createTime").as(String.class), endTime));
+            Date end = DateUtil.parseParam(endTime);
+            if (end != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Date>get("createTime"), end));
             }
 
             if (customerIds != null && !customerIds.isEmpty()){

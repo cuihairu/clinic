@@ -139,14 +139,15 @@ public class DemoSeedRunner implements ApplicationRunner {
     /** 顾客建档：虚构脱敏人名，手机号取明显虚构号段 */
     private Map<String, Long> seedCustomers() {
         record CustomerSeed(String name, int gender, int age, int level,
-                            String phone, String address, int birthYear, int birthMonth, int birthDay) {}
+                            String phone, String address, int birthYear, int birthMonth, int birthDay,
+                            int registeredDaysAgo) {}
         List<CustomerSeed> seeds = List.of(
-                new CustomerSeed("王慕清", 0, 34, 2, "13900000001", "南京市秦淮区", 1992, 3, 14),
-                new CustomerSeed("李景和", 1, 47, 3, "13900000002", "苏州市姑苏区", 1979, 8, 2),
-                new CustomerSeed("陈屿", 1, 29, 1, "13900000003", "杭州市上城区", 1997, 11, 26),
-                new CustomerSeed("赵蘅", 0, 52, 3, "13900000004", "泰州市海陵区", 1974, 5, 9),
-                new CustomerSeed("孙泽宇", 1, 41, 1, "13900000005", "无锡市梁溪区", 1985, 1, 20),
-                new CustomerSeed("吴清禾", 0, 38, 2, "13900000006", "常州市天宁区", 1988, 7, 7)
+                new CustomerSeed("王慕清", 0, 34, 2, "13900000001", "南京市秦淮区", 1992, 3, 14, 30),
+                new CustomerSeed("李景和", 1, 47, 3, "13900000002", "苏州市姑苏区", 1979, 8, 2, 14),
+                new CustomerSeed("陈屿", 1, 29, 1, "13900000003", "杭州市上城区", 1997, 11, 26, 21),
+                new CustomerSeed("赵蘅", 0, 52, 3, "13900000004", "泰州市海陵区", 1974, 5, 9, 10),
+                new CustomerSeed("孙泽宇", 1, 41, 1, "13900000005", "无锡市梁溪区", 1985, 1, 20, 5),
+                new CustomerSeed("吴清禾", 0, 38, 2, "13900000006", "常州市天宁区", 1988, 7, 7, 16)
         );
         Map<String, Long> byPhone = new java.util.HashMap<>();
         for (CustomerSeed s : seeds) {
@@ -165,6 +166,9 @@ public class DemoSeedRunner implements ApplicationRunner {
             customer.setBirthday(Date.from(LocalDate.of(s.birthYear(), s.birthMonth(), s.birthDay())
                     .atStartOfDay(ZoneId.systemDefault()).toInstant()));
             customerRepository.save(customer);
+            // 建档时间回写过去 N 天，顾客档案「最近到店」/每日报表「新客建档」才有真实时间线
+            backdateCustomer(customer.getId(), Date.from(LocalDate.now().minusDays(s.registeredDaysAgo())
+                    .atStartOfDay(ZoneId.systemDefault()).toInstant()));
             byPhone.put(s.phone(), customer.getId());
         }
         log.info("种子·顾客：检查完成");
@@ -180,7 +184,7 @@ public class DemoSeedRunner implements ApplicationRunner {
         Long li = customers.get("13900000002");
         Long zhao = customers.get("13900000004");
         if (wang != null) {
-            treatIfAbsent(wang, daysAgo(14),
+            treatIfAbsent(wang, daysAgoAt(14),
                     "近一月夜寐不安，多梦易醒，晨起头昏乏力。",
                     "饮食尚可，二便调，经量偏少色淡，久坐伏案。",
                     "面色少华，舌淡苔薄白，唇色偏淡。",
@@ -196,7 +200,7 @@ public class DemoSeedRunner implements ApplicationRunner {
                     "首次针灸留针 25 分钟，灸后温阳茶饮一杯。");
         }
         if (li != null) {
-            treatIfAbsent(li, daysAgo(7),
+            treatIfAbsent(li, daysAgoAt(7),
                     "腰部酸痛两月，久坐加重，俯仰不利，无下肢放射痛。",
                     "久坐司机，喜卧软床，二便调。",
                     "舌暗红苔薄白，腰肌紧张。",
@@ -212,7 +216,7 @@ public class DemoSeedRunner implements ApplicationRunner {
                     "本次推拿松解腰背 30 分钟，温针灸 20 分钟。");
         }
         if (zhao != null) {
-            treatIfAbsent(zhao, daysAgo(2),
+            treatIfAbsent(zhao, daysAgoAt(2),
                     "咽干微痛反复三月，晨起有痰，久语加重。",
                     "用嗓较多，喜辛辣，夜间口干，二便调。",
                     "咽部黏膜偏暗红，舌红少津苔薄。",
@@ -353,6 +357,15 @@ public class DemoSeedRunner implements ApplicationRunner {
         }
     }
 
+    private void backdateCustomer(Long customerId, Date createTime) {
+        try {
+            jdbcTemplate.update("UPDATE customers SET create_time = ?, update_time = ? WHERE id = ?",
+                    new Timestamp(createTime.getTime()), new Timestamp(createTime.getTime()), customerId);
+        } catch (Exception e) {
+            log.warn("种子·顾客建档时间回写失败（仅影响演示时间线，不影响功能）", e);
+        }
+    }
+
     private boolean staffExists(String account) {
         return staffRepository.findAll().stream().anyMatch(s -> account.equals(s.getAccount()));
     }
@@ -390,6 +403,12 @@ public class DemoSeedRunner implements ApplicationRunner {
     /** n 天前 */
     private Date daysAgo(int n) {
         return day(LocalDate.now().minusDays((long) n));
+    }
+
+    /** n 天前的上午 10:30——诊疗落在营业时间；分页 endTime 为闭区间，00:00 整点会误入前一日的边界 */
+    private Date daysAgoAt(int n) {
+        return Date.from(LocalDate.now().minusDays((long) n).atTime(10, 30)
+                .atZone(ZoneId.systemDefault()).toInstant());
     }
 
     /** n 天后 */

@@ -3,6 +3,7 @@ package com.sinomed.service.impl;
 import com.sinomed.entity.CustomerEntity;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.service.CustomerService;
+import com.sinomed.util.DateUtil;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -43,11 +45,14 @@ public class CustomerServiceImpl implements CustomerService {
             if (phone != null && !phone.isEmpty()){
                 predicates.add(criteriaBuilder.equal(root.get("phone").as(String.class),phone));
             }
-            if (startTime != null && !startTime.trim().isEmpty()) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createTime").as(String.class), startTime));
+            // createTime 落库为毫秒整数，需按 Date 比较；字符串词法比较在 SQLite 永不命中
+            Date start = DateUtil.parseParam(startTime);
+            if (start != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.<Date>get("createTime"), start));
             }
-            if (endTime != null && !endTime.trim().isEmpty()) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createTime").as(String.class), endTime));
+            Date end = DateUtil.parseParam(endTime);
+            if (end != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Date>get("createTime"), end));
             }
             Predicate[] array = new Predicate[predicates.size()];
             return criteriaBuilder.and(predicates.toArray(array));

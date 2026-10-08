@@ -1,10 +1,35 @@
 package com.sinomed.util;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 public class DateUtil {
+    /**
+     * 解析分页接口的日期过滤参数（支持 yyyy-MM-dd 与 yyyy-MM-dd HH:mm:ss），
+     * 不可解析返回 null（调用方跳过该过滤）。createTime 在 SQLite 以毫秒整数落库，
+     * 过滤必须转 Date 比较；直接拿字符串与列做词法比较永远不命中。
+     */
+    public static Date parseParam(String text) {
+        if (text == null) {
+            return null;
+        }
+        String t = text.trim();
+        if (t.isEmpty()) {
+            return null;
+        }
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(t);
+        } catch (ParseException ignored) {
+        }
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd").parse(t);
+        } catch (ParseException ignored) {
+        }
+        return null;
+    }
+
     private static final  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static String stdFormat(Date date){
         return sdf.format(date);

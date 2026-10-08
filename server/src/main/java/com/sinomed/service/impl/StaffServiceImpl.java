@@ -68,11 +68,14 @@ public class StaffServiceImpl implements StaffService {
             if (phone != null && !phone.isEmpty()){
                 predicates.add(criteriaBuilder.equal(root.get("phone").as(String.class),phone));
             }
-            if (startTime != null && !startTime.trim().isEmpty()) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createTime").as(String.class), startTime));
+            // createTime 落库为毫秒整数，需按 Date 比较；字符串词法比较在 SQLite 永不命中
+            Date start = DateUtil.parseParam(startTime);
+            if (start != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.<Date>get("createTime"), start));
             }
-            if (endTime != null && !endTime.trim().isEmpty()) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createTime").as(String.class), endTime));
+            Date end = DateUtil.parseParam(endTime);
+            if (end != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Date>get("createTime"), end));
             }
             Predicate[] array = new Predicate[predicates.size()];
             return criteriaBuilder.and(predicates.toArray(array));
@@ -87,11 +90,14 @@ public class StaffServiceImpl implements StaffService {
             if (staffId != null && staffId >= 0){
                 predicates.add(criteriaBuilder.equal(root.get("staffId").as(Long.class),staffId));
             }
-            if (startTime != null && !startTime.trim().isEmpty()) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createTime").as(String.class), startTime));
+            // createTime 落库为毫秒整数，需按 Date 比较；字符串词法比较在 SQLite 永不命中
+            Date start = DateUtil.parseParam(startTime);
+            if (start != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.<Date>get("createTime"), start));
             }
-            if (endTime != null && !endTime.trim().isEmpty()) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createTime").as(String.class), endTime));
+            Date end = DateUtil.parseParam(endTime);
+            if (end != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Date>get("createTime"), end));
             }
             Predicate[] array = new Predicate[predicates.size()];
             return criteriaBuilder.and(predicates.toArray(array));
