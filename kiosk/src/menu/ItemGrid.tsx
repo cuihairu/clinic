@@ -2,7 +2,8 @@ import type { KioskItem } from '../types'
 import './menu.css'
 
 /**
- * 卡项网格：大字触摸友好；点选切换选中（购物篮在底部状态栏，下单见 K5）。
+ * 卡项网格（对齐原型 kiosk-menu .svc）：渐变首字封面 + 底部横排
+ * 圆勾 / 名称（+简介）/ 宋体价签；点选切换选中，选中卡墨绿描边+光环。
  */
 export function ItemGrid({
   items,
@@ -15,8 +16,9 @@ export function ItemGrid({
 }) {
   return (
     <div className="item-grid">
-      {items.map((item) => {
+      {items.map((item, index) => {
         const isPicked = selected.has(item.id)
+        const tone = index % 2 === 0 ? 'c1' : 'c2'
         return (
           <button
             key={item.id}
@@ -24,17 +26,21 @@ export function ItemGrid({
             className={isPicked ? 'item-card item-card-picked' : 'item-card'}
             onClick={() => onToggle(item.id)}
           >
-            <div className="item-cover">
+            <div className={`item-cover ${tone}`}>
               {item.cover ? (
                 <img src={item.cover} alt={item.name} />
               ) : (
-                <span className="item-cover-fallback">{item.name.slice(0, 1)}</span>
+                <span className="item-cover-fallback serif">{item.name.slice(0, 1)}</span>
               )}
-              {isPicked && <span className="item-check">✓</span>}
             </div>
-            <div className="item-name">{item.name}</div>
-            {item.description && <div className="item-desc">{item.description}</div>}
-            <div className="item-price">¥{item.price}</div>
+            <div className="item-body">
+              <span className="item-check">{isPicked ? '✓' : ''}</span>
+              <span className="item-nameblock">
+                <span className="item-name">{item.name}</span>
+                {item.description && <span className="item-desc">{item.description}</span>}
+              </span>
+              <span className="item-price serif">¥{item.price}</span>
+            </div>
           </button>
         )
       })}

@@ -1,44 +1,95 @@
-/* Kiosk 全局：暖白底、墨绿单点缀色，大字为主 */
-* {
-  box-sizing: border-box;
-}
-
-html,
-body,
-#root {
-  margin: 0;
-  min-height: 100%;
-}
-
-body {
-  background: #f6f5f1;
-  color: #17211b;
-  font-family: system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  -webkit-tap-highlight-color: transparent;
-}
+/* Kiosk 全局：宣纸底 + 墨绿（pine）点缀、大字为主。底色/字体/ink 由 tokens.css 提供
+   （tokens 与 docs/design/mockups/tokens.css 同源，index.html 挂 data-theme="pine"） */
 
 .kiosk-page {
   min-height: 100vh;
 }
 
-.kiosk-header {
+/* 顶栏 hero（对齐原型 kiosk-menu .hero）：金棕印章 + 宋体问候 + 实时时钟 */
+.kiosk-hero {
   display: flex;
-  align-items: baseline;
-  gap: 18px;
-  padding: 28px 24px 0;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 32px 0;
   max-width: 1280px;
   margin: 0 auto;
 }
 
-.kiosk-title {
-  font-size: 40px;
+.kiosk-seal {
+  width: 58px;
+  height: 58px;
+  border-radius: 15px;
+  background: var(--amber);
+  color: #fff;
+  font-family: var(--serif);
+  font-size: 30px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
 }
 
-.kiosk-sub {
-  font-size: 18px;
-  color: #6b7a71;
+.kiosk-hero-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.kiosk-hero-text h1 {
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--ink);
+}
+
+.kiosk-hero-text p {
+  font-size: 15px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.kiosk-clock {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.kiosk-clock-tm {
+  font-family: var(--serif);
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--brand-deep);
+  font-variant-numeric: tabular-nums;
+}
+
+.kiosk-clock-dt {
+  font-size: 13px;
+  color: var(--faint);
+  margin-top: 3px;
+}
+
+/* 三步流程胶囊（对齐原型 .steps）：选服务 → 留手机号 → 前台接待 */
+.kiosk-steps {
+  display: flex;
+  gap: 10px;
+  padding: 20px 32px 4px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.kiosk-step {
+  font-size: 14.5px;
+  color: var(--faint);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 18px;
+}
+
+.kiosk-step-on {
+  background: var(--brand-tint);
+  color: var(--brand-deep);
+  font-weight: 600;
+  border-color: transparent;
 }
 
 .kiosk-center {
@@ -52,7 +103,7 @@ body {
 
 .kiosk-hint {
   font-size: 28px;
-  color: #6b7a71;
+  color: var(--muted);
 }
 
 .kiosk-retry {
@@ -60,39 +111,77 @@ body {
   padding: 12px 40px;
   border-radius: 12px;
   border: none;
-  background: #2f6d4f;
+  background: var(--brand);
   color: #fff;
   cursor: pointer;
 }
 
+/* 底部购物篮（对齐原型 .basket）：已选行 + 大合计/提交行 */
 .basket-bar {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 18px;
-  background: #fff;
-  box-shadow: 0 -2px 12px rgba(20, 24, 22, 0.1);
+  background: var(--card);
+  border-top: 1px solid var(--line);
+  padding: 16px 32px 22px;
 }
 
-.basket-summary {
-  font-size: 28px;
-  font-weight: 600;
-  color: #2f6d4f;
+.basket-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.basket-head b {
+  font-size: 15.5px;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.basket-names {
+  font-size: 13.5px;
+  color: var(--faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.basket-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 10px;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.basket-amount {
+  font-family: var(--serif);
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.basket-amount small {
+  font-size: 18px;
 }
 
 .basket-go {
-  margin-left: 24px;
-  font-size: 26px;
+  flex: 1;
+  font-size: 20px;
   font-weight: 600;
   font-family: inherit;
-  padding: 14px 44px;
+  letter-spacing: 2px;
+  padding: 20px 0;
   border: none;
-  border-radius: 14px;
-  background: #2f6d4f;
+  border-radius: 16px;
+  background: var(--brand);
   color: #fff;
   cursor: pointer;
 }

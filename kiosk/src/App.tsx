@@ -13,6 +13,50 @@ const SUCCESS_MS = 10_000
 
 type View = 'browse' | 'checkout' | 'success'
 
+/** 顶栏实时时钟：30s 粒度足够（分钟位显示），开机常显 */
+function useClock(): Date {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const tick = window.setInterval(() => setNow(new Date()), 30_000)
+    return () => window.clearInterval(tick)
+  }, [])
+  return now
+}
+
+const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
+
+/** 首页顶栏：金棕印章 + 宋体问候 + 实时时钟（对齐原型 kiosk-menu hero） */
+function Hero() {
+  const now = useClock()
+  const hhmm = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false })
+  return (
+    <header className="kiosk-hero">
+      <span className="kiosk-seal">养</span>
+      <div className="kiosk-hero-text">
+        <h1>欢迎光临 Youngs 中医养生</h1>
+        <p>点选想做的项目，提交后前台马上为您安排</p>
+      </div>
+      <div className="kiosk-clock">
+        <div className="kiosk-clock-tm">{hhmm}</div>
+        <div className="kiosk-clock-dt">
+          {now.getMonth() + 1} 月 {now.getDate()} 日 星期{WEEKDAYS[now.getDay()]}
+        </div>
+      </div>
+    </header>
+  )
+}
+
+/** 三步流程胶囊：如实反映自助机链路（选服务 → 留手机号 → 前台接待） */
+function Steps() {
+  return (
+    <div className="kiosk-steps">
+      <span className="kiosk-step kiosk-step-on">① 选服务</span>
+      <span className="kiosk-step">② 留手机号</span>
+      <span className="kiosk-step">③ 前台接待</span>
+    </div>
+  )
+}
+
 export default function App() {
   const { items, retry } = useItems()
   const [selected, setSelected] = useState<Set<number>>(new Set())
@@ -104,29 +148,35 @@ export default function App() {
   }
 
   const pickedCount = selected.size
-  const pickedTotal = items
-    .filter((item) => selected.has(item.id))
-    .reduce((sum, item) => sum + (item.price || 0), 0)
+  const pickedItems = items.filter((item) => selected.has(item.id))
+  const pickedTotal = pickedItems.reduce((sum, item) => sum + (item.price || 0), 0)
 
   return (
     <div className="kiosk-page">
-      <header className="kiosk-header">
-        <span className="kiosk-title">选服务</span>
-        <span className="kiosk-sub">点选想做的项目，找前台确认</span>
-      </header>
+      <Hero />
+      <Steps />
       <ItemGrid items={items} selected={selected} onToggle={toggle} />
       {pickedCount > 0 && (
         <div className="basket-bar">
-          <span className="basket-summary">
-            已选 {pickedCount} 项 · ¥{pickedTotal}
-          </span>
-          <button
-            type="button"
-            className="basket-go"
-            onClick={() => setView('checkout')}
-          >
-            去下单
-          </button>
+          <div className="basket-head">
+            <b>已选 {pickedCount} 项</b>
+            <span className="basket-names">
+              {pickedItems.map((item) => `${item.name} ×1`).join('、')}
+            </span>
+          </div>
+          <div className="basket-row">
+            <span className="basket-amount">
+              <small>¥</small>
+              {pickedTotal}
+            </span>
+            <button
+              type="button"
+              className="basket-go"
+              onClick={() => setView('checkout')}
+            >
+              提交到前台
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -1,4 +1,4 @@
-/* 下单 / 成功页：居中单卡，大字输入，与首页同一套暖白 + 墨绿点缀 */
+/* 下单 / 成功页：居中单卡，大字输入；全走 tokens.css 变量（pine 墨绿） */
 .order-page {
   min-height: 100vh;
   display: flex;
@@ -9,22 +9,24 @@
 
 .order-card {
   width: min(560px, 100%);
-  background: #fff;
+  background: var(--card);
   border-radius: 20px;
   box-shadow: 0 4px 24px rgba(20, 24, 22, 0.12);
   padding: 36px 36px 32px;
 }
 
 .order-title {
+  font-family: var(--serif);
   font-size: 34px;
   font-weight: 700;
   text-align: center;
+  color: var(--ink);
 }
 
 .order-sub {
   margin-top: 10px;
   font-size: 19px;
-  color: #6b7a71;
+  color: var(--muted);
   text-align: center;
 }
 
@@ -32,7 +34,7 @@
   list-style: none;
   margin: 26px 0 0;
   padding: 0;
-  border-top: 1px solid #e7ebe8;
+  border-top: 1px solid var(--line);
 }
 
 .order-lines li {
@@ -41,7 +43,7 @@
   align-items: baseline;
   gap: 16px;
   padding: 14px 0;
-  border-bottom: 1px solid #e7ebe8;
+  border-bottom: 1px solid var(--line);
   font-size: 22px;
 }
 
@@ -49,24 +51,27 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  color: var(--ink);
 }
 
 .order-line-id {
   font-size: 16px;
-  color: #6b7a71;
+  color: var(--faint);
 }
 
 .order-line-price {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
+  color: var(--brand-deep);
 }
 
 .order-total {
   margin-top: 18px;
   text-align: right;
+  font-family: var(--serif);
   font-size: 30px;
   font-weight: 700;
-  color: #2f6d4f;
+  color: var(--brand-deep);
   font-variant-numeric: tabular-nums;
 }
 
@@ -78,7 +83,7 @@
 .order-label {
   display: block;
   font-size: 18px;
-  color: #6b7a71;
+  color: var(--muted);
   margin-bottom: 8px;
 }
 
@@ -86,22 +91,22 @@
   width: 100%;
   font-size: 24px;
   padding: 14px 16px;
-  border: 2px solid #cfd8d2;
+  border: 2px solid var(--line);
   border-radius: 12px;
-  background: #fbfbf9;
-  color: #17211b;
+  background: var(--paper);
+  color: var(--ink);
   font-family: inherit;
 }
 
 .order-input:focus {
   outline: none;
-  border-color: #2f6d4f;
+  border-color: var(--brand);
 }
 
 .order-error {
   margin-top: 16px;
   font-size: 19px;
-  color: #b3402f;
+  color: #b3402f; /* 语义错误色，非主题色 */
 }
 
 .order-actions {
@@ -126,7 +131,7 @@
 }
 
 .order-btn-primary {
-  background: #2f6d4f;
+  background: var(--brand);
   color: #fff;
 }
 
@@ -135,8 +140,8 @@
 }
 
 .order-btn-ghost {
-  background: #eef1ee;
-  color: #17211b;
+  background: var(--brand-tint);
+  color: var(--brand-deep);
 }
 
 .order-card-success {
@@ -148,7 +153,7 @@
   height: 72px;
   margin: 0 auto 14px;
   border-radius: 50%;
-  background: #2f6d4f;
+  background: var(--brand);
   color: #fff;
   font-size: 40px;
   display: flex;
@@ -159,5 +164,5 @@
 .order-countdown {
   margin-top: 16px;
   font-size: 17px;
-  color: #6b7a71;
+  color: var(--faint);
 }
