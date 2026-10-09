@@ -104,6 +104,22 @@ export default [
     redirect: '/dash/day',
   },
   {
+    path: '/appointment/',
+    icon: 'CalendarOutlined',
+    name: 'appointment',
+    routes: [
+      {
+        name: 'appointment-query',
+        path: '/appointment/query',
+        component: './Appointment/Query',
+      },
+      {
+        path: '/appointment/create',
+        component: './Appointment/Create',
+      },
+    ],
+  },
+  {
     path: '/treat/',
     icon: 'table',
     name: 'treat',

@@ -1,0 +1,84 @@
+// 新建预约 —— 石墨×古金 tokens
+@import '@/tokens.css';
+
+.ap-create {
+  max-width: 720px;
+}
+
+/* 步 1：顾客定位 */
+.ap-customer {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+
+  h3 {
+    font-family: var(--serif);
+    font-size: 15px;
+    margin: 0 0 12px;
+  }
+
+  .find {
+    display: flex;
+    gap: 10px;
+
+    .phone {
+      width: 240px;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      font-size: 14px;
+      background: var(--paper);
+
+      &:focus {
+        outline: none;
+        border-color: var(--brand);
+      }
+    }
+  }
+
+  .found {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .nm {
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .tier {
+      font-size: 11px;
+      color: var(--brand-deep);
+      background: var(--brand-tint);
+      border-radius: 999px;
+      padding: 2px 10px;
+    }
+    .tel {
+      color: var(--faint);
+      font-size: 12.5px;
+    }
+  }
+
+  .none {
+    margin-top: 12px;
+    color: var(--faint);
+    font-size: 12.5px;
+  }
+}
+
+/* 步 2：时段表单 */
+.ap-form {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+
+  h3 {
+    font-family: var(--serif);
+    font-size: 15px;
+    margin: 0 0 12px;
+  }
+}
