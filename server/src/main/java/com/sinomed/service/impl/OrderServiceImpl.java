@@ -1,6 +1,8 @@
 package com.sinomed.service.impl;
 
+import com.sinomed.entity.ItemEntity;
 import com.sinomed.entity.OrderEntity;
+import com.sinomed.repository.ItemRepository;
 import com.sinomed.repository.OrderRepository;
 import com.sinomed.service.OrderService;
 import com.sinomed.vo.OrderSummaryView;
@@ -20,6 +22,7 @@ import java.util.Optional;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+    private final ItemRepository itemRepository;
     /**
      * 根据订单的id查询订单
      *
@@ -87,6 +90,25 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("订单状态不允许从 " + current + " 流转到 " + status);
         }
         order.setStatus(status);
+        return orderRepository.save(order);
+    }
+
+    /**
+     * 前台建单：卡项须存在且启用，价格取卡项现价快照，落 status=0 待接待
+     */
+    @Override
+    public OrderEntity create(Long customerId, Long itemId, Long staffId) {
+        ItemEntity item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("卡项不存在：" + itemId));
+        if (item.getEnabled() == null || item.getEnabled() != 1) {
+            throw new IllegalArgumentException("卡项已下架：" + item.getName());
+        }
+        OrderEntity order = new OrderEntity();
+        order.setUserId(customerId);
+        order.setItemId(item.getId());
+        order.setStaffId(staffId);
+        order.setStatus(0);
+        order.setPrice(item.getPrice());
         return orderRepository.save(order);
     }
 

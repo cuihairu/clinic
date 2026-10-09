@@ -6,6 +6,7 @@ import com.sinomed.entity.OrderEntity;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.repository.ItemRepository;
 import com.sinomed.repository.SettlementRepository;
+import com.sinomed.repository.StaffRepository;
 import com.sinomed.service.OrderService;
 import com.sinomed.vo.ExceptionView;
 import com.sinomed.vo.MessageView;
@@ -41,15 +42,56 @@ public class OrderController {
     private final CustomerRepository customerRepository;
     private final ItemRepository itemRepository;
     private final SettlementRepository settlementRepository;
+    private final StaffRepository staffRepository;
 
     public OrderController(OrderService orderService,
                            CustomerRepository customerRepository,
                            ItemRepository itemRepository,
-                           SettlementRepository settlementRepository) {
+                           SettlementRepository settlementRepository,
+                           StaffRepository staffRepository) {
         this.orderService = orderService;
         this.customerRepository = customerRepository;
         this.itemRepository = itemRepository;
         this.settlementRepository = settlementRepository;
+        this.staffRepository = staffRepository;
+    }
+
+    @Operation(summary = "前台建单", description = "前台/馆长替顾客下单：customerId + itemId 必填（卡项须存在且启用），staffId 可选记录建单人；"
+            + "价格取卡项现价快照，落 status=0 待接待，之后照常走接单/完成/取消与结算",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "创建后的订单（联顾客与卡项名）", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = OrderView.class)
+                    )),
+                    @ApiResponse(responseCode = "400", description = "参数缺失 / 顾客或卡项不存在 / 卡项已下架", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageView.class)
+                    )),
+                    @ApiResponse(responseCode = "401", description = "没有权限", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageView.class)
+                    ))
+            })
+    @PostMapping("/")
+    public OrderView create(@Validated @RequestBody OrderView view) {
+        if (view.getCustomerId() == null) {
+            throw new IllegalArgumentException("需要顾客 id");
+        }
+        if (view.getItemId() == null) {
+            throw new IllegalArgumentException("需要卡项 id");
+        }
+        CustomerEntity customer = customerRepository.findById(view.getCustomerId())
+                .orElseThrow(() -> new IllegalArgumentException("顾客不存在：" + view.getCustomerId()));
+        if (view.getStaffId() != null) {
+            staffRepository.findById(view.getStaffId())
+                    .orElseThrow(() -> new IllegalArgumentException("员工不存在：" + view.getStaffId()));
+        }
+        OrderEntity saved = orderService.create(view.getCustomerId(), view.getItemId(), view.getStaffId());
+        OrderView result = OrderView.FromOrderEntity(saved);
+        result.setCustomerName(customer.getName());
+        result.setCustomerPhone(customer.getPhone());
+        itemRepository.findById(saved.getItemId()).ifPresent(i -> result.setItemName(i.getName()));
+        return result;
     }
 
     @Operation(summary = "订单分页", description = "管理端列表：联出顾客名/手机号、卡项名与结算支付方式；status 可选过滤（0 已下单、1 已确认、2 已完成、9 已取消）；pending=true 只看待结算（结算台队列）",

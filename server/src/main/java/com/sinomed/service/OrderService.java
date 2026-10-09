@@ -28,6 +28,11 @@ public interface OrderService {
      * 状态流转：只允许 0→1、1→2 正向与 0/1→9 取消；非法流转抛 IllegalArgumentException
      * */
     OrderEntity updateStatus(Long id, Integer status);
+
+    /**
+     * 前台建单：按卡项现价快照落单（status=0 待接待，staffId 记录建单人）；卡项须存在且启用
+     * */
+    OrderEntity create(Long customerId, Long itemId, Long staffId);
     /**
      * 按顾客汇总消费：累计消费=已完成（status=2）订单价格合计
      * */
