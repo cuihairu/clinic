@@ -21,6 +21,8 @@ export interface Order {
   status?: number;
   /** 成交价（元，下单时刻卡项价格快照） */
   price?: number;
+  /** 支付方式（结算联出）：1 储值 / 2 微信 / 3 支付宝 / 4 现金，未结算为 null */
+  payType?: number;
   createTime?: string;
   updateTime?: string;
 }
@@ -40,7 +42,7 @@ export interface OrderSummary {
 }
 
 export async function queryOrderPage(
-  params: { current?: number; pageSize?: number; status?: number },
+  params: { current?: number; pageSize?: number; status?: number; pending?: boolean },
   options?: { [key: string]: any },
 ) {
   return request<OrderPageResult>('/api/v1/order/page', {

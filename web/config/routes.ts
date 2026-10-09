@@ -168,6 +168,18 @@ export default [
     ],
   },
   {
+    path: '/billing/',
+    icon: 'PayCircleOutlined',
+    name: 'billing',
+    routes: [
+      {
+        name: 'billing-settle',
+        path: '/billing/settle',
+        component: './Billing/Settle',
+      },
+    ],
+  },
+  {
     path: '/ads',
     icon: 'PlayCircleOutlined',
     name: 'ads',

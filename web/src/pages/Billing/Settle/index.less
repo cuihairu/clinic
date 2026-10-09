@@ -1,0 +1,362 @@
+// 结算台 —— 对齐 docs/design/mockups/admin-billing.html（石墨×古金 tokens）
+@import '@/tokens.css';
+
+.bl-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 14px;
+  align-items: start;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bl-left {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bl-panel,
+.bl-due {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+
+.bl-panel h3 {
+  font-size: 14px;
+  margin: 0 0 6px;
+  display: flex;
+  align-items: center;
+
+  .hint {
+    font-size: 11.5px;
+    color: var(--faint);
+    font-weight: 400;
+    margin-left: 10px;
+  }
+  .refresh {
+    margin-left: auto;
+    color: var(--muted);
+  }
+}
+
+.bl-empty {
+  color: var(--faint);
+  font-size: 12.5px;
+  padding: 14px 2px;
+
+  &.tall {
+    padding: 60px 0;
+    text-align: center;
+  }
+}
+
+/* 待结算队列 */
+.q-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 8px;
+  margin: 0 -8px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+  cursor: pointer;
+  border-radius: 8px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+  &:hover {
+    background: var(--paper);
+  }
+  &.on {
+    background: var(--brand-tint);
+    outline: 1px solid var(--brand);
+  }
+
+  .oid {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .src {
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.5px 7px;
+    flex-shrink: 0;
+  }
+  .who {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    b {
+      font-weight: 600;
+    }
+    i {
+      font-style: normal;
+      font-size: 11.5px;
+      color: var(--faint);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  .amt {
+    margin-left: auto;
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .st {
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 2px 9px;
+    flex-shrink: 0;
+
+    &.wait {
+      color: #a3542e;
+      background: #f7ede4;
+    }
+    &.serving {
+      color: var(--brand-deep);
+      background: var(--brand-tint);
+    }
+  }
+}
+
+/* 最近结算 */
+.s-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  margin: 0 -8px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+  .oid {
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .who b {
+    font-weight: 600;
+  }
+  .pay {
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.5px 7px;
+  }
+  .amt {
+    margin-left: auto;
+    font-family: var(--serif);
+    font-weight: 700;
+  }
+  .tm {
+    font-size: 11.5px;
+    color: var(--faint);
+  }
+}
+
+/* 右列：应收与支付 */
+.bl-due {
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 12px;
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--brand-tint);
+      color: var(--brand-deep);
+      font-family: var(--serif);
+      font-size: 18px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .who {
+      min-width: 0;
+
+      .nm {
+        font-family: var(--serif);
+        font-size: 17px;
+        font-weight: 700;
+      }
+      .mt {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+    }
+    .bal {
+      margin-left: auto;
+      text-align: right;
+
+      .k {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .v {
+        font-family: var(--serif);
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--amber-deep);
+      }
+    }
+  }
+
+  .line {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 8px 0;
+
+    .nm {
+      font-weight: 600;
+      font-size: 13.5px;
+    }
+    .num {
+      margin-left: auto;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  .k {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .total {
+    font-family: var(--serif);
+    font-size: 34px;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  .pays {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+
+    .pay {
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      padding: 11px 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+
+      &.on {
+        border-color: var(--brand);
+        background: var(--brand-tint);
+      }
+      &.short .ps {
+        color: #a3542e;
+      }
+
+      .pi {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        font-family: var(--serif);
+        font-size: 13px;
+        font-weight: 700;
+        color: #fff;
+        background: var(--brand);
+        flex-shrink: 0;
+      }
+      .pn {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .ps {
+        font-size: 11px;
+        color: var(--faint);
+        margin-top: 1px;
+      }
+      .ck {
+        margin-left: auto;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        border: 1.5px solid #c6cac7;
+        flex-shrink: 0;
+      }
+      &.on .ck {
+        border-color: var(--brand);
+        background: var(--brand);
+        position: relative;
+
+        &::after {
+          content: '';
+          position: absolute;
+          inset: 4px;
+          border-radius: 50%;
+          background: #fff;
+        }
+      }
+    }
+  }
+
+  .recharge {
+    margin-top: 12px;
+    background: #f7ede4;
+    border-radius: 10px;
+    padding: 12px 14px;
+
+    .tip {
+      font-size: 12.5px;
+      color: #a3542e;
+
+      b {
+        font-weight: 700;
+      }
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+  }
+
+  .btn-pay {
+    margin-top: 14px;
+    width: 100%;
+    height: 42px;
+    font-weight: 600;
+    border-radius: 10px;
+    background: var(--brand);
+  }
+
+  .note {
+    margin-top: 10px;
+    font-size: 11.5px;
+    color: var(--faint);
+    line-height: 1.6;
+  }
+}
