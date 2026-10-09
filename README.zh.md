@@ -33,6 +33,10 @@
 
 <p align="center"><img src="docs/public/screenshots/admin-themes.png" width="880" alt="管理后台 · 四套主题色切换：石墨×古金（默认，取自 logo）/ 松烟绿 / 朱砂 / 黛蓝" /></p>
 
+**预约排班**（管理后台 · 建约 / 待到店列表 / 到店接待转接诊；时段网格为设计原型，小程序自助约期规划中）
+
+<p align="center"><img src="docs/public/screenshots/admin-booking.png" width="880" alt="预约排班 · 建约与待到店列表已实现，时段网格与小程序自助约期为设计原型" /></p>
+
 **桌面工作站**（desktop · 接诊开单 + 小票机 / 扫码枪外设状态）
 
 <p align="center"><img src="docs/public/screenshots/desktop-workstation.png" width="880" alt="桌面工作站 · 接诊开单（界面原型）" /></p>
@@ -53,11 +57,7 @@
 
 ## 未来功能规划（设计原型）
 
-以下功能尚未开发，先出高保真原型定交互与视觉，标注「规划功能 · 设计原型」：
-
-**预约排班**（时段网格 · 待到店转接诊 · 小程序自助约期）
-
-<p align="center"><img src="docs/public/screenshots/admin-booking.png" width="880" alt="预约排班 · 时段网格与待到店列表（规划功能设计原型）" /></p>
+以下功能尚未开发，先出高保真原型定交互与视觉，标注「规划功能 · 设计原型」（预约排班的管理端列表/建约/到店接待已实装，见上方产品预览；时段网格与小程序自助约期仍在规划中）：
 
 **中药处方**（处方笺 · 饮片剂量与特殊煎法 · 配伍禁忌审方 · 代煎）
 

@@ -33,6 +33,10 @@ A single design language runs across five device targets: a graphite × antique 
 
 <p align="center"><img src="docs/public/screenshots/admin-themes.png" width="880" alt="Admin frontend · four theme colors: graphite × antique gold (default, from the logo) / pine green / cinnabar / indigo" /></p>
 
+**Appointment scheduling** (admin frontend · booking / arrival list / arrival-to-consult handoff; the time-slot grid is a design prototype, mini-program self-service booking planned)
+
+<p align="center"><img src="docs/public/screenshots/admin-booking.png" width="880" alt="Appointment scheduling · booking and arrival list implemented; time-slot grid and mini-program self-service booking remain design prototypes" /></p>
+
 **Desktop workstation** (desktop · consultation charting + receipt printer / barcode scanner status)
 
 <p align="center"><img src="docs/public/screenshots/desktop-workstation.png" width="880" alt="Desktop workstation · consultation charting (interface prototype)" /></p>
@@ -53,11 +57,7 @@ The admin frontend also has prototypes for the daily report, service packages, o
 
 ## Planned Features (Design Prototypes)
 
-The following features are not built yet. High-fidelity prototypes came first to settle interaction and visuals, each labeled "Planned feature · design prototype":
-
-**Appointment scheduling** (time-slot grid · arrival-to-consult handoff · self-service booking in the mini program)
-
-<p align="center"><img src="docs/public/screenshots/admin-booking.png" width="880" alt="Appointment scheduling · time-slot grid and arrival list (planned feature, design prototype)" /></p>
+The following features are not built yet. High-fidelity prototypes came first to settle interaction and visuals, each labeled "Planned feature · design prototype" (for appointment scheduling, the admin-side list / booking / arrival handoff is implemented — see Product Preview above; the time-slot grid and mini-program self-service booking remain planned):
 
 **Herbal prescription** (prescription sheet · herb doses and special decoction methods · compatibility review · decoction service)
 

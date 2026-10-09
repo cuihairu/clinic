@@ -73,6 +73,22 @@
 | `orders`（订单） | `user_id`（顾客）、`item_id`（卡项）、`staff_id`、`status`、`price` | 已接线：Kiosk 下单落 `status=0` 并快照卡项现价；`status` 语义 `0` 已下单 → `1` 已确认 → `2` 已完成，`9` 已取消（`0/1→9`，仅 `9` 可删），管理端分页与流转见 [api](/server/api) 订单组 |
 | `recharges`（充值） | `user_id`、`money` | 仅有 Repository，无接口 |
 
+## appointments — 预约（前台/馆长建约 → 到店接待 → 转接诊）
+
+| 字段 | 类型 | 含义 |
+| ---- | ---- | ---- |
+| id | Long | 主键 |
+| customer_id | Long | 顾客 id（非空，customers.id） |
+| item_id | Long | 预约卡项 id（可空=到店再定） |
+| staff_id | Long | 接待员工 id（可空=到店分配） |
+| start_time | Date | 预约时段开始时刻（非空） |
+| duration | Integer | 时长（分钟） |
+| status | Integer | `0` 待到店 → `1` 已接待（转接诊），`0→9` 取消；仅 `9` 可删 |
+| remark | String | 备注（症状/需求） |
+| create_time / update_time | Date | 审计时间 |
+
+索引：顾客、卡项、时段。接口见 [api](/server/api) 预约组；不做同时段冲突校验（演示边界）。
+
 ## staffs — 员工（登录主体，诊所运营）
 
 | 字段 | 类型 | 含义 |

@@ -127,6 +127,19 @@
 | PUT | `/api/v1/order/status` | 状态流转：`0→1`、`1→2`，`0/1→9` 取消；其余组合报错（body 带 id 与 status） |
 | DELETE | `/api/v1/order/{id}` | 删除，仅 `status=9`（已取消）可删 |
 
+## 预约 `/api/v1/appointment`（需登录）
+
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| POST | `/api/v1/appointment/` | 新建预约：`customerId` + `startTime` 必填，`itemId`/`staffId`/`duration`/`remark` 可选；新预约一律 `status=0` 待到店 |
+| GET | `/api/v1/appointment/page` | 分页（current、pageSize、status 可空、date 可空 `yyyy-MM-dd` 按日过滤），联出顾客名/手机号、卡项名、员工名 |
+| PUT | `/api/v1/appointment/status` | 状态流转：只允许 `0→1`（到店接待，随后从接诊页建单）与 `0→9`（取消）；其余组合报错 |
+| DELETE | `/api/v1/appointment/{id}` | 删除，仅 `status=9`（已取消）可删 |
+
+::: tip 预约口径
+时段为开始时刻 + 时长（分钟），不做同时段冲突校验（演示边界，同一员工同刻重复约不会拦截）；到店接待后请从接诊页发起接诊，预约状态不随接诊单自动回写。
+:::
+
 ## 广告投屏 `/api/v1/ads`（tablet.md T1/T2）
 
 管理接口需登录；下发与媒体静态资源免登录（内网屏设备约定，见[平板展示设计](/design/tablet)）。

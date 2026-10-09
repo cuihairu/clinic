@@ -16,7 +16,7 @@
 | `admin-orders.html` | web | ✅ 已实现功能 | 订单管理：分页/状态流转（接单/完成/取消/删除）/分页 |
 | `admin-ads.html` | web | ✅ 已实现功能 | 广告屏管理：素材/排期/屏幕/叫号四标签 |
 | `admin-appearance.html` | web | ✅ 已实现功能 | 外观设置：四主题卡即时切换 + 实时预览网格 |
-| `admin-booking.html` | web | 📐 **规划功能·设计原型** | 预约排班：时段网格/待到店转接诊/小程序联动 |
+| `admin-booking.html` | web | ◐ **部分实现** | 预约排班：待到店列表/建约/到店接待转接诊已实装（`/appointment/*`，列表工作台形态）；时段网格与小程序自助约期仍为设计稿 |
 | `admin-herbprescription.html` | web | 📐 **规划功能·设计原型** | 中药处方：处方笺/饮片剂量/配伍审方/代煎领取 |
 | `admin-billing.html` | web | 📐 **规划功能·设计原型** | 收费结算：储值/微信/支付宝/现金/卡项抵扣/小票 |
 | `desktop-workstation.html` | desktop | ✅ 已实现功能 | 接诊开单 + 打印/扫码外设状态 |
