@@ -1,0 +1,108 @@
+package com.sinomed.service.impl;
+
+import com.sinomed.entity.PrescriptionEntity;
+import com.sinomed.entity.PrescriptionItemEntity;
+import com.sinomed.repository.PrescriptionItemRepository;
+import com.sinomed.repository.PrescriptionRepository;
+import com.sinomed.service.PrescriptionService;
+import com.sinomed.vo.PrescriptionItemView;
+import com.sinomed.vo.PrescriptionView;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Slf4j
+@RequiredArgsConstructor
+@Service
+public class PrescriptionServiceImpl implements PrescriptionService {
+
+    private final PrescriptionRepository prescriptionRepository;
+    private final PrescriptionItemRepository prescriptionItemRepository;
+
+    /**
+     * 开方：顾客必填、至少 1 味药、剂数 ≥ 1、剂量 > 0；创建/更新时间由审计维护
+     */
+    @Override
+    @Transactional
+    public PrescriptionEntity save(PrescriptionView view) {
+        if (view.getCustomerId() == null) {
+            throw new IllegalArgumentException("顾客id不能为空");
+        }
+        List<PrescriptionItemView> herbs = view.getHerbs();
+        if (herbs == null || herbs.isEmpty()) {
+            throw new IllegalArgumentException("处方至少要有 1 味药");
+        }
+        int doses = view.getDoses() == null ? 7 : view.getDoses();
+        if (doses < 1) {
+            throw new IllegalArgumentException("剂数必须 ≥ 1");
+        }
+
+        PrescriptionEntity prescription = new PrescriptionEntity();
+        prescription.setTreatId(view.getTreatId());
+        prescription.setCustomerId(view.getCustomerId());
+        prescription.setStaffId(view.getStaffId());
+        prescription.setDoses(doses);
+        prescription.setUsage(view.getUsage());
+        prescription.setRemark(view.getRemark());
+        prescription = prescriptionRepository.save(prescription);
+
+        for (int i = 0; i < herbs.size(); i++) {
+            PrescriptionItemView herb = herbs.get(i);
+            if (herb.getHerb() == null || herb.getHerb().isBlank()) {
+                throw new IllegalArgumentException("第 " + (i + 1) + " 味药名不能为空");
+            }
+            if (herb.getWeight() == null || herb.getWeight() <= 0) {
+                throw new IllegalArgumentException("药材「" + herb.getHerb() + "」剂量必须大于 0");
+            }
+            PrescriptionItemEntity item = new PrescriptionItemEntity();
+            item.setPrescriptionId(prescription.getId());
+            item.setHerb(herb.getHerb().trim());
+            item.setWeight(herb.getWeight());
+            item.setSpecial(herb.getSpecial());
+            item.setSort(i);
+            prescriptionItemRepository.save(item);
+        }
+        return prescription;
+    }
+
+    /**
+     * 处方详情（含按 sort 排好的药味）
+     */
+    @Override
+    public PrescriptionView findById(Long id) {
+        PrescriptionEntity prescription = prescriptionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("处方不存在：" + id));
+        PrescriptionView view = PrescriptionView.FromPrescriptionEntity(prescription);
+        view.setHerbs(prescriptionItemRepository.findByPrescriptionIdOrderBySortAsc(id).stream()
+                .map(PrescriptionItemView::FromItemEntity).toList());
+        return view;
+    }
+
+    /**
+     * 处方分页；customerId 为空查全部
+     */
+    @Override
+    public Page<PrescriptionEntity> findPage(Long customerId, Pageable pageable) {
+        if (customerId == null) {
+            return prescriptionRepository.findAll(pageable);
+        }
+        return prescriptionRepository.findByCustomerId(customerId, pageable);
+    }
+
+    /**
+     * 删除处方（连同药味，一个事务）
+     */
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        prescriptionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("处方不存在：" + id));
+        prescriptionItemRepository.deleteByPrescriptionId(id);
+        prescriptionRepository.deleteById(id);
+    }
+}

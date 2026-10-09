@@ -4,6 +4,8 @@ import com.sinomed.entity.AppointmentEntity;
 import com.sinomed.entity.CustomerEntity;
 import com.sinomed.entity.ItemEntity;
 import com.sinomed.entity.OrderEntity;
+import com.sinomed.entity.PrescriptionEntity;
+import com.sinomed.entity.PrescriptionItemEntity;
 import com.sinomed.entity.RechargeEntity;
 import com.sinomed.entity.ReviewCustomerEntity;
 import com.sinomed.entity.ReviewEntity;
@@ -15,6 +17,8 @@ import com.sinomed.repository.AppointmentRepository;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.repository.ItemRepository;
 import com.sinomed.repository.OrderRepository;
+import com.sinomed.repository.PrescriptionItemRepository;
+import com.sinomed.repository.PrescriptionRepository;
 import com.sinomed.repository.RechargeRepository;
 import com.sinomed.repository.ReviewCustomerRepository;
 import com.sinomed.repository.ReviewRepository;
@@ -58,6 +62,8 @@ public class DemoSeedRunner implements ApplicationRunner {
     private final AppointmentRepository appointmentRepository;
     private final RechargeRepository rechargeRepository;
     private final OrderRepository orderRepository;
+    private final PrescriptionRepository prescriptionRepository;
+    private final PrescriptionItemRepository prescriptionItemRepository;
     private final CustomerRepository customerRepository;
     private final TreatRepository treatRepository;
     private final ItemRepository itemRepository;
@@ -81,6 +87,7 @@ public class DemoSeedRunner implements ApplicationRunner {
             seedSigns();
             seedAppointments(customers);
             seedBilling(customers);
+            seedPrescriptions(customers);
             log.info("演示种子数据检查完成（逐表幂等，已有数据自动跳过）；"
                     + "广告素材模块源码未实现，无种子数据");
         } catch (Exception e) {
@@ -377,6 +384,44 @@ public class DemoSeedRunner implements ApplicationRunner {
         log.info("种子·待结算单：检查完成");
     }
 
+    /** 中药处方演示数据：王慕清昨日一张逍遥散化裁（药材名为自由文本，虚构演示） */
+    private void seedPrescriptions(Map<String, Long> customers) {
+        record HerbSeed(String herb, double weight, String special) {}
+        Long customerId = customers.get("13900000001");
+        Long staffId = staffByAccount("shen");
+        if (customerId == null || prescriptionOnDayExists(customerId, -1)) {
+            return;
+        }
+        List<HerbSeed> herbs = List.of(
+                new HerbSeed("柴胡", 12, null),
+                new HerbSeed("白芍", 15, null),
+                new HerbSeed("当归", 10, null),
+                new HerbSeed("茯苓", 15, null),
+                new HerbSeed("白术", 12, null),
+                new HerbSeed("薄荷", 6, "后下"),
+                new HerbSeed("炙甘草", 6, null)
+        );
+        PrescriptionEntity prescription = new PrescriptionEntity();
+        prescription.setCustomerId(customerId);
+        prescription.setStaffId(staffId);
+        prescription.setDoses(7);
+        prescription.setUsage("水煎服，日一剂，早晚温服；代煎 7 袋");
+        prescription.setRemark("复诊请带近期睡眠记录");
+        prescription = prescriptionRepository.save(prescription);
+        for (int i = 0; i < herbs.size(); i++) {
+            HerbSeed herb = herbs.get(i);
+            PrescriptionItemEntity item = new PrescriptionItemEntity();
+            item.setPrescriptionId(prescription.getId());
+            item.setHerb(herb.herb());
+            item.setWeight(herb.weight());
+            item.setSpecial(herb.special());
+            item.setSort(i);
+            prescriptionItemRepository.save(item);
+        }
+        backdateRow("prescriptions", prescription.getId(), at(-1, 10, 30)); // 回写昨日开方时间线
+        log.info("种子·处方：检查完成");
+    }
+
     private void seedSigns() {
         if (signRepository.count() > 0) {
             return;
@@ -506,6 +551,14 @@ public class DemoSeedRunner implements ApplicationRunner {
                         && itemId.equals(o.getItemId())
                         && o.getCreateTime() != null
                         && DateUtil.isSomeDay(o.getCreateTime(), at(dayOffset, 12, 0)));
+    }
+
+    /** 该顾客在 offset 天当日是否已有处方（按自然日判重） */
+    private boolean prescriptionOnDayExists(Long customerId, int dayOffset) {
+        return prescriptionRepository.findAll().stream()
+                .anyMatch(p -> customerId.equals(p.getCustomerId())
+                        && p.getCreateTime() != null
+                        && DateUtil.isSomeDay(p.getCreateTime(), at(dayOffset, 12, 0)));
     }
 
     /** 相对当天的某时刻（dayOffset 天后 hour:minute） */
