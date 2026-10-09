@@ -157,7 +157,7 @@ public class KioskController {
                     ))
             })
     @PostMapping("/appointments")
-    public KioskAppointmentResult appointment(@RequestBody KioskAppointmentRequest request) {
+    public KioskAppointmentResult appointment(@Validated @RequestBody KioskAppointmentRequest request) {
         if (!request.getPhone().matches("^1\\d{10}$")) {
             throw new IllegalArgumentException("手机号格式不对：应为 1 开头的 11 位数字");
         }
