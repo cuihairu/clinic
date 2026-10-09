@@ -10,13 +10,13 @@
 | ---- | ---- | ---- | ---- |
 | 预约挂号 | openhis-clinic(预约登记)、ZainZhao/HIS、TANGKUO/HIS(挂号工作站)、hisystem(挂号收费) | 已实现 | `appointments` 表 + `/api/v1/appointment`（建约/待到店列表/到店接待转接诊/取消），管理端 `/appointment/*` 列表工作台 + `/appointment/schedule` 医师×时段排班网格；小程序自助约期未做（不做同时段冲突校验）。**界面：[预约排班](/screenshots/admin-booking.png)** |
 | 电子病历 | Yukang(主诉/现病史/四诊/辨证/医嘱)、openhis(EMR 模块)、his_mvp | 部分 | `treats` 诊疗单承载主诉、问诊、望诊、触诊、脉象、五行、取穴、诊断、方案、饮食、调理、回访;无独立病史(过敏史/既往史)结构 |
-| 处方(西药/成药) | Yukang(中西成药处方)、openhis-clinic(收费发药) | 未实现 | 无药品目录与处方模型 |
+| 处方(西药/成药) | Yukang(中西成药处方)、openhis-clinic(收费发药) | 未实现 | 西药/成药处方与药品目录未做；中药处方已实装（`prescriptions`/`prescription_items`，药材自由文本，无字典/计价）。**界面：[中药处方笺](/screenshots/admin-herbprescription.png)** |
 | 中药处方 | Yukang(中药/贴敷/外治)、herb-ms-ssm(药材-处方-计价)、his_mvp(中药方剂)、chinese_medicine_store_cos(病症处方) | 部分 | `prescriptions`/`prescription_items` 表 + `/api/v1/prescription`（开方/详情/分页/删除，药味含剂量克数与特殊煎法）+ `/prescription/*` 开方与查询页；药材为自由文本，无字典/库存/计价，配伍审方与代煎领取未做。**界面：[中药处方笺](/screenshots/admin-herbprescription.png)** |
 | 药房与发药 | ZainZhao/HIS、TANGKUO/HIS(药房工作站)、openhis-clinic、hisystem(药房取药) | 未实现 | - |
 | 中药饮片库存 | chinese_medicine_store_cos(药材档案/采购/库房预警)、his_mvp(出入库/盘点)、Yukang(批次/效期) | 未实现 | - |
 | 收费结算 | Yukang(现金/微信/支付宝/银行卡/医保)、OpenHIS(划价收费)、openhis-clinic | 部分 | `settlements` 结算单 + `/api/v1/settlement`（订单 0/1→2 收款，一单一结算）+ `/api/v1/recharge` 储值流水（余额=合计），管理端 `/billing/settle` 结算台；微信/支付宝仅记录方式，无退费/日对账/发票，处方饮片行与卡项次卡抵扣未做。**界面：[收费结算台](/screenshots/admin-billing.png)** |
 | 患者会员 | TANGKUO/HIS(患者管理)、Yukang(连锁分店)、chinese_medicine_store_cos(会员购买/订单) | 部分 | `customers.level` 会员等级字段存在；储值充值/扣减流水已接线（`recharges`），无折扣/套餐/跨店消费 |
-| 排班 | 调研项目中未见明确实现的排班模块 | 未实现 | 现有 `signs` 考勤是员工上下班打卡,非排班 |
+| 排班 | 调研项目中未见明确实现的排班模块 | 部分 | `signs` 考勤仍是上下班打卡；预约排班已实装——`/appointment/schedule` 医师×时段日网格（占用/空档/格内接待），周期性员工班表未做。**界面：[预约排班](/screenshots/admin-booking.png)** |
 | 报表统计 | Yukang(经营统计/处方量趋势)、OpenHIS(图表统计)、openhis-clinic(报表查询) | 部分 | 已有每日报表(总结/复盘/回访)与按月考勤统计;无经营/收费类报表 |
 | 多门店/连锁 | Yukang(总店聚合/分店独立库)、chinese_medicine_store_cos(多门店) | 未实现 | 单店模型 |
 
@@ -25,7 +25,7 @@
 | 功能点 | 参考来源项目 | Sinomed 现状 | 说明 |
 | ---- | ---- | ---- | ---- |
 | 辨证论治记录 | Yukang(四诊+辨证+医嘱病历结构)、his_mvp(辨证开方) | 部分 | 诊疗单含五行生克(本/克/难经/比率)、脉象(左右手)、诊断字段,可支撑辨证记录;无标准证型字典 |
-| 中药饮片/方剂 | Yukang(中药饮片/中成药/颗粒分类)、his_mvp(方剂库+拼音输入)、herb-ms-ssm、chinese_medicine_store_cos | 未实现 | 无饮片目录、方剂库与剂量模型 |
+| 中药饮片/方剂 | Yukang(中药饮片/中成药/颗粒分类)、his_mvp(方剂库+拼音输入)、herb-ms-ssm、chinese_medicine_store_cos | 部分 | 剂量模型已随中药处方上线（`prescription_items.weight` 克/剂 + `special` 煎法）；饮片目录、方剂库、拼音检索与计价未做 |
 | 针灸/取穴记录 | Yukang(外治/贴敷处方)、his_mvp(含经络穴位课程体系) | 部分 | 诊疗单含 `acupoint_left/right` 取穴字段;无穴位字典与针灸处方 |
 | 推拿/艾灸疗程 | 仲正堂门店业态(推拿、关元灸;未见其 App 功能清单) | 未实现 | 疗程卡管理在源码中无对应物;卡项(item)仅记录名称/价格 |
 | 病症处方模板 | chinese_medicine_store_cos(病症处方模板库) | 未实现 | - |
