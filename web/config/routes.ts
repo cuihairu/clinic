@@ -109,6 +109,11 @@ export default [
     name: 'appointment',
     routes: [
       {
+        name: 'appointment-schedule',
+        path: '/appointment/schedule',
+        component: './Appointment/Schedule',
+      },
+      {
         name: 'appointment-query',
         path: '/appointment/query',
         component: './Appointment/Query',

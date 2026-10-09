@@ -17,6 +17,7 @@ export default {
   'menu.treat.treat-create': 'New Consultation',
   'menu.treat.treat-query': 'Consultation Query',
   'menu.appointment': 'Appointments',
+  'menu.appointment.appointment-schedule': 'Schedule Grid',
   'menu.appointment.appointment-query': 'Appointment Query',
   'menu.prescription': 'Herbal Prescription',
   'menu.prescription.prescription-create': 'New Prescription',

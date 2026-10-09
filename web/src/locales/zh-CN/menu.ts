@@ -33,6 +33,7 @@ export default {
   'menu.item.item-spread':'卡项展示',
   'menu.order.order-query':'订单管理',
   'menu.appointment':'预约排班',
+  'menu.appointment.appointment-schedule':'排班视图',
   'menu.appointment.appointment-query':'预约查询',
   'menu.billing':'收费',
   'menu.billing.billing-settle':'结算台',
