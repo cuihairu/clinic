@@ -32,7 +32,7 @@
 | 7 | 广告屏（admin-ads） | `Ads/Materials|Schedules|Screens|Calls` 四个 ProTable 页 | **布局**：原型为单页 4 tab + 右栏屏幕状态/快捷叫号；逐页对齐卡片化与 pill；**文案**：脱敏 `王*` 已在展示屏口径 | 素材/排期/屏幕/叫号四组接口 ✅ | P1 |
 | 8 | 复盘回访 / 员工 / 登录 | 无专属原型 | 仅随全局壳主题（#1）被动对齐，不单独排屏 | ✅ | P1（被动） |
 | 9 | 外观设置（admin-appearance） | 无此页 | 新建「系统/外观设置」页：4 主题卡选择 → 写 localStorage → `data-theme` + antd token 运行时切换 + 实时预览区 | 纯前端 ✅ | P1 |
-| 10 | 预约排班 / 中药处方 / 收费结算 | 无→预约/结算已建域 | 预约排班已实装（5910aee/f04cf62：`appointments` 表 + `/api/v1/appointment` + `/appointment/*` 列表工作台，时段网格仍为设计稿）；收费结算已实装（26d6419/9d1e018：`settlements` 表 + 储值流水扣减 + `/api/v1/settlement`、`/api/v1/recharge` + `/billing/settle` 结算台，处方饮片行/次卡抵扣/小票打印仍为设计稿）；中药处方已实装（f91add1/0ee1d1d：`prescriptions`/`prescription_items` 表 + `/api/v1/prescription` + `/prescription/*` 开方与查询，药材自由文本；配伍审方/计价/代煎领取仍为设计稿） | 预约 ✅ / 处方 ✅ / 收费 ✅ | 三者均已实现；处方无药材字典与计价（规划） |
+| 10 | 预约排班 / 中药处方 / 收费结算 | 无→预约/结算已建域 | 预约排班已实装（5910aee/f04cf62：`appointments` 表 + `/api/v1/appointment` + `/appointment/*` 列表工作台 + `/appointment/schedule` 医师×时段排班网格）；收费结算已实装（26d6419/9d1e018：`settlements` 表 + 储值流水扣减 + `/api/v1/settlement`、`/api/v1/recharge` + `/billing/settle` 结算台，处方饮片行/次卡抵扣/小票打印仍为设计稿）；中药处方已实装（f91add1/0ee1d1d：`prescriptions`/`prescription_items` 表 + `/api/v1/prescription` + `/prescription/*` 开方与查询，药材自由文本；配伍审方/计价/代煎领取仍为设计稿） | 预约 ✅ / 处方 ✅ / 收费 ✅ | 三者均已实现；处方无药材字典与计价（规划） |
 
 ## 二、桌面工作站（desktop 壳）
 

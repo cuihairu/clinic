@@ -33,9 +33,9 @@ A single design language runs across five device targets: a graphite × antique 
 
 <p align="center"><img src="docs/public/screenshots/admin-themes.png" width="880" alt="Admin frontend · four theme colors: graphite × antique gold (default, from the logo) / pine green / cinnabar / indigo" /></p>
 
-**Appointment scheduling** (admin frontend · booking / arrival list / arrival-to-consult handoff; the time-slot grid is a design prototype, mini-program self-service booking planned)
+**Appointment scheduling** (admin frontend · booking / arrival list / arrival-to-consult handoff / per-day doctor-by-time-slot schedule grid; mini-program self-service booking planned)
 
-<p align="center"><img src="docs/public/screenshots/admin-booking.png" width="880" alt="Appointment scheduling · booking and arrival list implemented; time-slot grid and mini-program self-service booking remain design prototypes" /></p>
+<p align="center"><img src="docs/public/screenshots/admin-booking.png" width="880" alt="Appointment scheduling · booking, arrival list, and the doctor-by-time-slot schedule grid implemented; mini-program self-service booking remains a design prototype" /></p>
 
 **Billing and checkout** (admin frontend · settlement desk: pending-checkout queue + stored-value / WeChat / Alipay / cash payments; the prescription line items, package redemption, and receipt printing from the prototype remain design drafts)
 
@@ -65,7 +65,7 @@ The admin frontend also has prototypes for the daily report, service packages, o
 
 ## Planned Features (Design Prototypes)
 
-For appointment scheduling, the admin-side list / booking / arrival handoff is implemented; for billing, the settlement desk with stored-value recharge is implemented; for herbal prescription, the sheet create / query is implemented — see Product Preview above. The remaining parts of each (time-slot grid, receipt printing and per-visit card deduction, compatibility review and decoction service) stay as design prototypes.
+For appointment scheduling, the admin-side list / booking / arrival handoff and the per-day schedule grid are implemented; for billing, the settlement desk with stored-value recharge is implemented; for herbal prescription, the sheet create / query is implemented — see Product Preview above. What stays as design prototypes: mini-program self-service booking, receipt printing and per-visit card deduction, and compatibility review with decoction service.
 
 ## Repository Layout
 
