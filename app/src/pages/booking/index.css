@@ -1,0 +1,269 @@
+/* 自助约期页：口径见 docs/design/app-booking.md。全部走 tokens.css 变量，样式习惯同首页。 */
+.bk-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: var(--paper);
+  padding-bottom: 40px;
+}
+
+.bk-sec {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 20px 10px;
+}
+
+.bk-h3 {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.bk-sec-note {
+  font-size: 11.5px;
+  color: var(--faint);
+}
+
+/* 日期条（横向 7 格均分） */
+.bk-days {
+  display: flex;
+  padding: 0 16px;
+  gap: 6px;
+}
+
+.bk-day {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 9px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.bk-day-l {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.bk-day-d {
+  font-size: 13px;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.bk-day.on {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.bk-day.on .bk-day-l,
+.bk-day.on .bk-day-d {
+  color: #fff;
+}
+
+/* 时段网格（3 列；off=今日已过时段，如实禁选） */
+.bk-hours {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+.bk-hour {
+  width: 30%;
+  box-sizing: border-box;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 0;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+.bk-hour.on {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+  font-weight: 600;
+}
+
+.bk-hour.off {
+  opacity: 0.38;
+}
+
+/* 项目 chips（含「到店再定」缺省项） */
+.bk-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+.bk-item {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.bk-item.on {
+  background: var(--amber-tint);
+  border-color: var(--amber);
+  color: var(--brand-deep);
+  font-weight: 600;
+}
+
+.bk-item-p {
+  font-size: 11.5px;
+  color: var(--faint);
+}
+
+/* 联系方式表单 */
+.bk-form {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bk-input {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+/* 加载/失败提示（口径同首页 plan-note，不造假数据） */
+.bk-note {
+  margin: 0 16px;
+  background: var(--card);
+  border: 1px dashed var(--line);
+  border-radius: 13px;
+  padding: 13px 16px;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.bk-retry {
+  color: var(--brand);
+  font-weight: 600;
+  margin-left: 10px;
+}
+
+/* 错误行：服务端 400 文案原样透出 */
+.bk-err {
+  margin: 14px 16px 0;
+  background: #f7e9e6;
+  border: 1px solid #e3c3bc;
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 12.5px;
+  color: #a4543f;
+  line-height: 1.6;
+}
+
+/* 提交按钮 */
+.bk-submit {
+  margin: 18px 16px 0;
+  background: var(--brand);
+  border-radius: 999px;
+  padding: 13px 0;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.bk-submit.off {
+  opacity: 0.6;
+}
+
+.bk-foot {
+  margin: 12px 20px 0;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--faint);
+  text-align: center;
+}
+
+/* 成功回执 */
+.bk-done {
+  padding: 34px 16px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bk-done-ic {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 12px rgba(184, 147, 90, 0.35);
+}
+
+.bk-done-tt {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 14px;
+}
+
+.bk-done-card {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 2px 16px;
+}
+
+.bk-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 0;
+}
+
+.bk-row + .bk-row {
+  border-top: 1px solid var(--line);
+}
+
+.bk-k {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.bk-v {
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+.bk-strong {
+  font-weight: 600;
+}
+
+.bk-done-tip {
+  margin-top: 14px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--faint);
+  text-align: center;
+}

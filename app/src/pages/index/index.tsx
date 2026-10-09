@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { View, Image, Text } from '@tarojs/components'
+import Taro from '@tarojs/taro'
 import { BRAND } from '../../services/brand'
 import { fetchHomeItems } from '../../services/api'
 import type { HomeItem } from '../../services/api'
@@ -46,14 +47,12 @@ export default function Index() {
         </View>
       </View>
 
-      {/* 预约横幅：接口为规划域，横幅样式先行、功能如实标注 */}
-      <View className="appt">
+      {/* 预约横幅：入口接自助约期页（免登录写入口，见 docs/design/app-booking.md） */}
+      <View className="appt" onClick={() => Taro.navigateTo({ url: '/pages/booking/index' })}>
         <View className="ic">预</View>
         <View className="appt-bd">
-          <View className="tt">
-            在线预约 <PlanPill />
-          </View>
-          <View className="ss">上线后可在这里查看预约、到店免等待</View>
+          <View className="tt">在线预约</View>
+          <View className="ss">选个时段，到店免等待</View>
         </View>
       </View>
 
