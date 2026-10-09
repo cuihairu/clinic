@@ -1,0 +1,108 @@
+// 处方查询 —— 石墨×古金 tokens
+@import '@/tokens.css';
+
+.pid {
+  font-family: var(--serif);
+  font-weight: 700;
+}
+
+.herbs {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.faint {
+  color: var(--faint);
+}
+
+/* 详情抽屉：处方笺样式 */
+.pr-detail {
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+
+    .nm {
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .sub {
+      color: var(--faint);
+      font-size: 12.5px;
+      margin-top: 4px;
+    }
+    .doses {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      color: var(--brand-deep);
+
+      b {
+        font-size: 26px;
+        font-family: var(--serif);
+      }
+      span {
+        font-size: 13px;
+      }
+    }
+  }
+
+  .herb-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin-bottom: 14px;
+
+    th {
+      text-align: left;
+      color: var(--faint);
+      font-weight: 500;
+      font-size: 12px;
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    td {
+      padding: 8px;
+      border-bottom: 1px dashed var(--line);
+    }
+    .no {
+      width: 32px;
+      color: var(--faint);
+    }
+    .wt {
+      width: 72px;
+      font-variant-numeric: tabular-nums;
+    }
+    .sp {
+      width: 96px;
+      color: var(--brand-deep);
+      font-size: 12.5px;
+    }
+  }
+
+  .field {
+    display: flex;
+    gap: 10px;
+    font-size: 13.5px;
+    margin-bottom: 10px;
+
+    .k {
+      flex: none;
+      color: var(--faint);
+      font-size: 12.5px;
+      padding-top: 1px;
+    }
+    .v {
+      color: var(--ink);
+    }
+  }
+
+  .hint {
+    margin-top: 16px;
+    color: var(--faint);
+    font-size: 12px;
+  }
+}

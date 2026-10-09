@@ -140,6 +140,23 @@ export default [
     ],
   },
   {
+    path: '/prescription/',
+    icon: 'MedicineBoxOutlined',
+    name: 'prescription',
+    routes:[
+      {
+        name: 'prescription-create',
+        path: '/prescription/create',
+        component: './Prescription/Create',
+      },
+      {
+        name: 'prescription-query',
+        path: '/prescription/query',
+        component: './Prescription/Query',
+      },
+    ],
+  },
+  {
     path: '/item/',
     icon: 'FileDoneOutlined',
     name: 'item',
