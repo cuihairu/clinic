@@ -70,8 +70,21 @@
 
 | 表 | 字段要点 | 现状 |
 | ---- | ---- | ---- |
-| `orders`（订单） | `user_id`（顾客）、`item_id`（卡项）、`staff_id`、`status`、`price` | 已接线：Kiosk 下单落 `status=0` 并快照卡项现价；`status` 语义 `0` 已下单 → `1` 已确认 → `2` 已完成，`9` 已取消（`0/1→9`，仅 `9` 可删），管理端分页与流转见 [api](/server/api) 订单组 |
-| `recharges`（充值） | `user_id`、`money` | 仅有 Repository，无接口 |
+| `orders`（订单） | `user_id`（顾客）、`item_id`（卡项）、`staff_id`、`status`、`price` | 已接线：Kiosk 下单落 `status=0` 并快照卡项现价；`status` 语义 `0` 已下单 → `1` 已确认 → `2` 已完成，`9` 已取消（`0/1→9`，仅 `9` 可删），管理端分页与流转见 [api](/server/api) 订单组；结算信息在 `settlements` 表（一单一结算），订单分页联出支付方式 |
+| `recharges`（储值流水） | `user_id`、`money` | 已接线：充值为正、储值支付扣减为负，余额 = 流水合计；接口见 [api](/server/api) 储值组 |
+
+## settlements — 结算单（收费结算）
+
+| 字段 | 类型 | 含义 |
+| ---- | ---- | ---- |
+| id | Long | 主键（结算单号，时间倒序展示） |
+| order_id | Long | 订单 id（非空，唯一索引——一单一结算，防重复收款） |
+| user_id | Long | 顾客 id（非空，冗余自订单便于按顾客对账） |
+| pay_type | Integer | 支付方式：`1` 储值 / `2` 微信 / `3` 支付宝 / `4` 现金 |
+| money | Integer | 实收金额（元，取订单价格快照） |
+| create_time / update_time | Date | 审计时间 |
+
+索引：`order_id`（唯一）、`user_id`。结算动作把订单 `0/1 → 2` 已完成；储值支付同时在 `recharges` 落一条负数流水。微信/支付宝为演示口径（仅记录方式，无真实收银通道），见 [api](/server/api) 收费组。
 
 ## appointments — 预约（前台/馆长建约 → 到店接待 → 转接诊）
 

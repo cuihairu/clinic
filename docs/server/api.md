@@ -122,7 +122,7 @@
 
 | 方法 | 路径 | 功能 |
 | ---- | ---- | ---- |
-| GET | `/api/v1/order/page` | 分页（current、pageSize、status 可空），联出顾客名/手机号与卡项名 |
+| GET | `/api/v1/order/page` | 分页（current、pageSize、status 可空、pending 可空 `true`=只看待结算 0/1），联出顾客名/手机号、卡项名与结算支付方式 `payType` |
 | GET | `/api/v1/order/{id}` | 详情（联顾客与卡项名） |
 | PUT | `/api/v1/order/status` | 状态流转：`0→1`、`1→2`，`0/1→9` 取消；其余组合报错（body 带 id 与 status） |
 | DELETE | `/api/v1/order/{id}` | 删除，仅 `status=9`（已取消）可删 |
@@ -138,6 +138,25 @@
 
 ::: tip 预约口径
 时段为开始时刻 + 时长（分钟），不做同时段冲突校验（演示边界，同一员工同刻重复约不会拦截）；到店接待后请从接诊页发起接诊，预约状态不随接诊单自动回写。
+:::
+
+## 储值 `/api/v1/recharge`（需登录）
+
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| POST | `/api/v1/recharge/` | 储值充值：`customerId` + `money`（>0），顾客须已建档；落一条正数流水 |
+| GET | `/api/v1/recharge/balance` | 顾客储值余额：流水合计（`customerId` 必填），无流水为 0 |
+| GET | `/api/v1/recharge/page` | 流水分页（current、pageSize、customerId 可空），联出顾客名；`money` 为负的行是储值支付扣减 |
+
+## 收费 `/api/v1/settlement`（需登录）
+
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| POST | `/api/v1/settlement/` | 收款结算：`orderId` + `payType`（`1` 储值 / `2` 微信 / `3` 支付宝 / `4` 现金）；订单状态 `0/1 → 2` 已完成，一单一结算（`order_id` 唯一索引兜底）；储值支付校验余额并落负数流水，不足报 400 |
+| GET | `/api/v1/settlement/page` | 结算单分页（current、pageSize），联出顾客名，时间倒序 |
+
+::: tip 收费口径
+实收金额取订单价格快照（空价格按 0 收）；微信/支付宝为演示口径——仅记录支付方式，不拉起真实收银通道；小票打印与卡项次卡抵扣为规划功能。已结算订单的支付方式从订单分页 `payType` 联出。
 :::
 
 ## 广告投屏 `/api/v1/ads`（tablet.md T1/T2）

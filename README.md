@@ -17,7 +17,7 @@
 
 **Demo site https://sinomed.cuihairu.site/ (domain TBD, placeholder for now) | Demo account `admin` / `123`** (for sandbox exploration; data is reset periodically)
 
-> The demo environment starts with a single `compose.yml` at the repo root: server + admin frontend + a persistent SQLite volume. With `DEMO_SEED=true`, it idempotently seeds a fully fictional, de-identified demo dataset (customers, TCM treatment records, service packages, review and follow-up). Staff demo accounts: `gu` (director), `shen` (TCM physician), `su` (front desk), all with the password `123`. Images are published to ghcr.io by CI (`latest` + `sha-<short commit>`).
+> The demo environment starts with a single `compose.yml` at the repo root: server + admin frontend + a persistent SQLite volume. With `DEMO_SEED=true`, it idempotently seeds a fully fictional, de-identified demo dataset (customers, TCM treatment records, service packages, review and follow-up, appointments, stored-value ledger, and pending-checkout orders). Staff demo accounts: `gu` (director), `shen` (TCM physician), `su` (front desk), all with the password `123`. Images are published to ghcr.io by CI (`latest` + `sha-<short commit>`).
 
 ## Product Preview
 
@@ -36,6 +36,10 @@ A single design language runs across five device targets: a graphite × antique 
 **Appointment scheduling** (admin frontend · booking / arrival list / arrival-to-consult handoff; the time-slot grid is a design prototype, mini-program self-service booking planned)
 
 <p align="center"><img src="docs/public/screenshots/admin-booking.png" width="880" alt="Appointment scheduling · booking and arrival list implemented; time-slot grid and mini-program self-service booking remain design prototypes" /></p>
+
+**Billing and checkout** (admin frontend · settlement desk: pending-checkout queue + stored-value / WeChat / Alipay / cash payments; the prescription line items, package redemption, and receipt printing from the prototype remain design drafts)
+
+<p align="center"><img src="docs/public/screenshots/admin-billing.png" width="880" alt="Billing and checkout · pending-checkout queue with stored-value recharge and payment implemented; prescription line items, package redemption, and receipt printing remain design prototypes" /></p>
 
 **Desktop workstation** (desktop · consultation charting + receipt printer / barcode scanner status)
 
@@ -57,15 +61,11 @@ The admin frontend also has prototypes for the daily report, service packages, o
 
 ## Planned Features (Design Prototypes)
 
-The following features are not built yet. High-fidelity prototypes came first to settle interaction and visuals, each labeled "Planned feature · design prototype" (for appointment scheduling, the admin-side list / booking / arrival handoff is implemented — see Product Preview above; the time-slot grid and mini-program self-service booking remain planned):
+The following features are not built yet. High-fidelity prototypes came first to settle interaction and visuals, each labeled "Planned feature · design prototype" (for appointment scheduling, the admin-side list / booking / arrival handoff is implemented, and for billing, the settlement desk with stored-value recharge is implemented — see Product Preview above; the remaining parts of each stay planned):
 
 **Herbal prescription** (prescription sheet · herb doses and special decoction methods · compatibility review · decoction service)
 
 <p align="center"><img src="docs/public/screenshots/admin-herbprescription.png" width="880" alt="Herbal prescription · compatibility review and decoction service (planned feature, design prototype)" /></p>
-
-**Billing and checkout** (stored-value card / WeChat / Alipay / cash · package redemption · receipt printing)
-
-<p align="center"><img src="docs/public/screenshots/admin-billing.png" width="880" alt="Billing and checkout · stored-value payment and package redemption (planned feature, design prototype)" /></p>
 
 ## Repository Layout
 
