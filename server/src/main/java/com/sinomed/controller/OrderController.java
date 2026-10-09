@@ -5,6 +5,7 @@ import com.sinomed.entity.ItemEntity;
 import com.sinomed.entity.OrderEntity;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.repository.ItemRepository;
+import com.sinomed.repository.SettlementRepository;
 import com.sinomed.service.OrderService;
 import com.sinomed.vo.ExceptionView;
 import com.sinomed.vo.MessageView;
@@ -39,16 +40,19 @@ public class OrderController {
     private final OrderService orderService;
     private final CustomerRepository customerRepository;
     private final ItemRepository itemRepository;
+    private final SettlementRepository settlementRepository;
 
     public OrderController(OrderService orderService,
                            CustomerRepository customerRepository,
-                           ItemRepository itemRepository) {
+                           ItemRepository itemRepository,
+                           SettlementRepository settlementRepository) {
         this.orderService = orderService;
         this.customerRepository = customerRepository;
         this.itemRepository = itemRepository;
+        this.settlementRepository = settlementRepository;
     }
 
-    @Operation(summary = "订单分页", description = "管理端列表：联出顾客名/手机号与卡项名；status 可选过滤（0 已下单、1 已确认、2 已完成、9 已取消）",
+    @Operation(summary = "订单分页", description = "管理端列表：联出顾客名/手机号、卡项名与结算支付方式；status 可选过滤（0 已下单、1 已确认、2 已完成、9 已取消）；pending=true 只看待结算（结算台队列）",
             responses = {
                     @ApiResponse(responseCode = "200", description = "分页订单", content = @Content(
                             mediaType = "application/json",
@@ -63,9 +67,10 @@ public class OrderController {
     public PageResp<OrderView> findPage(
             @Parameter(description = "页码，1 起始") @Validated @NotNull @RequestParam int current,
             @Parameter(description = "每页条数") @Validated @NotNull @RequestParam int pageSize,
-            @Parameter(description = "状态过滤，可空") @RequestParam(required = false) Integer status) {
+            @Parameter(description = "状态过滤，可空") @RequestParam(required = false) Integer status,
+            @Parameter(description = "只看待结算（状态 0/1），可空") @RequestParam(required = false) Boolean pending) {
         PageRequest pageRequest = PageRequest.of(current > 0 ? current - 1 : 0, pageSize > 0 ? pageSize : 10);
-        Page<OrderEntity> result = orderService.findPage(status, pageRequest);
+        Page<OrderEntity> result = orderService.findPage(status, pending, pageRequest);
 
         Map<Long, CustomerEntity> customers = customerRepository.findAllById(
                         result.map(OrderEntity::getUserId).toSet()).stream()
@@ -73,6 +78,9 @@ public class OrderController {
         Map<Long, ItemEntity> items = itemRepository.findAllById(
                         result.map(OrderEntity::getItemId).toSet()).stream()
                 .collect(Collectors.toMap(ItemEntity::getId, Function.identity()));
+        Map<Long, Integer> payTypes = settlementRepository.findByOrderIdIn(
+                        result.map(OrderEntity::getId).toSet()).stream()
+                .collect(Collectors.toMap(s -> s.getOrderId(), s -> s.getPayType()));
 
         List<OrderView> data = result.map(order -> {
             OrderView view = OrderView.FromOrderEntity(order);
@@ -85,6 +93,7 @@ public class OrderController {
             if (item != null) {
                 view.setItemName(item.getName());
             }
+            view.setPayType(payTypes.get(order.getId()));
             return view;
         }).getContent();
         PageResp<OrderView> resp = new PageResp<>();

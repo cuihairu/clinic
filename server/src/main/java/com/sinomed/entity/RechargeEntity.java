@@ -2,6 +2,7 @@ package com.sinomed.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -25,6 +26,7 @@ public class RechargeEntity {
     @Column(name = "money")
     private Integer money;
 
+    @CreatedDate
     @Column(name = "create_time")
     private Date createTime;
 

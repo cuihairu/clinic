@@ -60,10 +60,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
-     * 管理端分页；status 为空查全部
+     * 管理端分页；status 为空查全部；pending=true 只看待结算（状态 0 已下单 / 1 已确认，结算台队列用）
      */
     @Override
-    public Page<OrderEntity> findPage(Integer status, Pageable pageable) {
+    public Page<OrderEntity> findPage(Integer status, Boolean pending, Pageable pageable) {
+        if (Boolean.TRUE.equals(pending)) {
+            return orderRepository.findByStatusIn(List.of(0, 1), pageable);
+        }
         if (status == null) {
             return orderRepository.findAll(pageable);
         }

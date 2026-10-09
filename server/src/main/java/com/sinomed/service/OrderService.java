@@ -21,9 +21,9 @@ public interface OrderService {
      * */
     void deleteById(Long id);
     /**
-     * 管理端分页；status 为空查全部
+     * 管理端分页；status 为空查全部；pending=true 只看待结算（状态 0 已下单 / 1 已确认）
      * */
-    Page<OrderEntity> findPage(Integer status, Pageable pageable);
+    Page<OrderEntity> findPage(Integer status, Boolean pending, Pageable pageable);
     /**
      * 状态流转：只允许 0→1、1→2 正向与 0/1→9 取消；非法流转抛 IllegalArgumentException
      * */

@@ -47,6 +47,9 @@ public class OrderView {
     @Schema(title = "成交价（元，下单时刻卡项价格快照）", example = "99")
     private Integer price;
 
+    @Schema(title = "支付方式（结算联出）：1 储值 / 2 微信 / 3 支付宝 / 4 现金，未结算为 null", example = "1")
+    private Integer payType;
+
     @Schema(title = "下单时间", example = "2026-10-07 15:00:00")
     private Date createTime;
 

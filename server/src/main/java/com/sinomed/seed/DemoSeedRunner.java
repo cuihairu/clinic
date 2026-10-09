@@ -3,6 +3,8 @@ package com.sinomed.seed;
 import com.sinomed.entity.AppointmentEntity;
 import com.sinomed.entity.CustomerEntity;
 import com.sinomed.entity.ItemEntity;
+import com.sinomed.entity.OrderEntity;
+import com.sinomed.entity.RechargeEntity;
 import com.sinomed.entity.ReviewCustomerEntity;
 import com.sinomed.entity.ReviewEntity;
 import com.sinomed.entity.ReviewStaffEntity;
@@ -12,6 +14,8 @@ import com.sinomed.entity.TreatEntity;
 import com.sinomed.repository.AppointmentRepository;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.repository.ItemRepository;
+import com.sinomed.repository.OrderRepository;
+import com.sinomed.repository.RechargeRepository;
 import com.sinomed.repository.ReviewCustomerRepository;
 import com.sinomed.repository.ReviewRepository;
 import com.sinomed.repository.ReviewStaffRepository;
@@ -52,6 +56,8 @@ public class DemoSeedRunner implements ApplicationRunner {
 
     private final StaffRepository staffRepository;
     private final AppointmentRepository appointmentRepository;
+    private final RechargeRepository rechargeRepository;
+    private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final TreatRepository treatRepository;
     private final ItemRepository itemRepository;
@@ -74,6 +80,7 @@ public class DemoSeedRunner implements ApplicationRunner {
             seedReviewStaffs();
             seedSigns();
             seedAppointments(customers);
+            seedBilling(customers);
             log.info("演示种子数据检查完成（逐表幂等，已有数据自动跳过）；"
                     + "广告素材模块源码未实现，无种子数据");
         } catch (Exception e) {
@@ -327,6 +334,49 @@ public class DemoSeedRunner implements ApplicationRunner {
         log.info("种子·预约：检查完成");
     }
 
+    /** 收费结算演示数据：两笔储值充值 + 两条今日自助机待结算单（staffId 空 = 自助机来源） */
+    private void seedBilling(Map<String, Long> customers) {
+        record RechargeSeed(String phone, int money, int dayOffset) {}
+        for (RechargeSeed r : List.of(
+                new RechargeSeed("13900000005", 500, -2),
+                new RechargeSeed("13900000001", 2000, -6)
+        )) {
+            Long customerId = customers.get(r.phone());
+            if (customerId == null || rechargeOnDayExists(customerId, r.dayOffset())) {
+                continue;
+            }
+            RechargeEntity recharge = new RechargeEntity();
+            recharge.setUserId(customerId);
+            recharge.setMoney(r.money());
+            Date when = at(r.dayOffset(), 10, 0);
+            recharge.setCreateTime(when);
+            RechargeEntity saved = rechargeRepository.save(recharge);
+            backdateRow("recharges", saved.getId(), when); // @CreatedDate 会覆盖显式时间，回写演示时间线
+        }
+        log.info("种子·储值：检查完成");
+
+        record KioskOrderSeed(String phone, String itemName, int hour, int minute) {}
+        for (KioskOrderSeed k : List.of(
+                new KioskOrderSeed("13900000005", "艾灸温阳调理（5 次卡）", 10, 20),
+                new KioskOrderSeed("13900000002", "经络推拿（10 次卡）", 11, 5)
+        )) {
+            Long customerId = customers.get(k.phone());
+            Long itemId = k.itemName() == null ? null : itemByName(k.itemName());
+            if (customerId == null || itemId == null || kioskOrderOnDayExists(customerId, itemId, 0)) {
+                continue;
+            }
+            OrderEntity order = new OrderEntity();
+            order.setUserId(customerId);
+            order.setItemId(itemId);
+            order.setStaffId(null); // 自助机单，无接待员工
+            order.setStatus(0); // 已下单，待前台结算
+            ItemEntity item = itemRepository.findById(itemId).orElse(null);
+            order.setPrice(item == null ? null : item.getPrice()); // 下单时刻价格快照
+            orderRepository.save(order); // create_time 由审计写为今天，幂等判重按当日即可
+        }
+        log.info("种子·待结算单：检查完成");
+    }
+
     private void seedSigns() {
         if (signRepository.count() > 0) {
             return;
@@ -382,11 +432,16 @@ public class DemoSeedRunner implements ApplicationRunner {
      * 仅影响演示数据；失败只记日志，不影响其余种子。
      */
     private void backdate(Long treatId, Date createTime) {
+        backdateRow("treats", treatId, createTime);
+    }
+
+    /** 演示时间线回写通用化：把某行 create_time/update_time 改写到过去；失败只记日志 */
+    private void backdateRow(String table, Long id, Date createTime) {
         try {
-            jdbcTemplate.update("UPDATE treats SET create_time = ?, update_time = ? WHERE id = ?",
-                    new Timestamp(createTime.getTime()), new Timestamp(createTime.getTime()), treatId);
+            jdbcTemplate.update("UPDATE " + table + " SET create_time = ?, update_time = ? WHERE id = ?",
+                    new Timestamp(createTime.getTime()), new Timestamp(createTime.getTime()), id);
         } catch (Exception e) {
-            log.warn("种子·诊疗记录时间回写失败（仅影响演示时间线，不影响功能）", e);
+            log.warn("种子·时间回写失败（表 " + table + "，仅影响演示时间线，不影响功能）", e);
         }
     }
 
@@ -434,6 +489,23 @@ public class DemoSeedRunner implements ApplicationRunner {
                 .anyMatch(a -> customerId.equals(a.getCustomerId())
                         && a.getStartTime() != null
                         && DateUtil.isSomeDay(a.getStartTime(), at(dayOffset, 12, 0)));
+    }
+
+    /** 该顾客在 offset 天当日是否已有储值流水（按自然日判重） */
+    private boolean rechargeOnDayExists(Long customerId, int dayOffset) {
+        return rechargeRepository.findAll().stream()
+                .anyMatch(r -> customerId.equals(r.getUserId())
+                        && r.getCreateTime() != null
+                        && DateUtil.isSomeDay(r.getCreateTime(), at(dayOffset, 12, 0)));
+    }
+
+    /** 该顾客该卡项当日是否已有自助机单（任意状态，含已结算，避免重启后重复补单） */
+    private boolean kioskOrderOnDayExists(Long customerId, Long itemId, int dayOffset) {
+        return orderRepository.findAll().stream()
+                .anyMatch(o -> customerId.equals(o.getUserId())
+                        && itemId.equals(o.getItemId())
+                        && o.getCreateTime() != null
+                        && DateUtil.isSomeDay(o.getCreateTime(), at(dayOffset, 12, 0)));
     }
 
     /** 相对当天的某时刻（dayOffset 天后 hour:minute） */
