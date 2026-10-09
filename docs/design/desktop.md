@@ -57,7 +57,7 @@
 
 **打印模板与离线缓存**：处方笺 / 小票模板为 HTML 文件，随安装包内置并缓存到本地应用数据目录（`templates/`）；断网时模板壳仍可打开打印。P1 起模板**版本化**：服务端新增免登录模板接口（`GET /api/v1/print/templates`，空白版式不含业务数据），内置版式兜底、可被服务端同名模板覆盖（`data/printtemplates/` 目录放同名文件即可，`PRINT_TEMPLATES_DIR` 可配），壳启动与每次打印前按 `version`（内容摘要）增量拉取——模板更新只改服务端，不发壳版本。注意边界：模板里的**业务数据来自服务端接口**，完整离线接诊不在本设计范围内。
 
-**扫码挂号的边界**：源码中预约挂号模块未实现（见[功能点清单](/research/features)）。P0 的「扫码」= 扫顾客码 → 调 `GET /api/v1/customer/phone/{phone}` 等现有接口定位顾客并进入建档 / 接诊；完整挂号叫号闭环见[平板展示设计](/design/tablet)的最小叫号接口。
+**扫码挂号的边界**：预约挂号已实装（`appointments` 表 + `/api/v1/appointment`，管理端 `/appointment/*` 含排班网格，见[功能点清单](/research/features)）。P0 的「扫码」= 扫顾客码 → 调 `GET /api/v1/customer/phone/{phone}` 等现有接口定位顾客并进入建档 / 接诊；完整挂号叫号闭环见[平板展示设计](/design/tablet)的最小叫号接口。
 
 ## 打包与自动更新
 
