@@ -1,5 +1,6 @@
 package com.sinomed.seed;
 
+import com.sinomed.entity.AppointmentEntity;
 import com.sinomed.entity.CustomerEntity;
 import com.sinomed.entity.ItemEntity;
 import com.sinomed.entity.ReviewCustomerEntity;
@@ -8,6 +9,7 @@ import com.sinomed.entity.ReviewStaffEntity;
 import com.sinomed.entity.SignEntity;
 import com.sinomed.entity.StaffEntity;
 import com.sinomed.entity.TreatEntity;
+import com.sinomed.repository.AppointmentRepository;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.repository.ItemRepository;
 import com.sinomed.repository.ReviewCustomerRepository;
@@ -40,7 +42,7 @@ import java.util.Map;
  * 逐表幂等：以自然键（账号 / 手机号 / 卡项名 / 复盘日）判重，已有数据即跳过，
  * 重复启动不会产生重复数据；某一节失败只记录日志、不阻断服务启动，下次启动会补齐缺项。
  *
- * <p>说明：排班、广告素材两个模块源码尚未实现，暂无对应种子数据（如实留空）。
+ * <p>说明：广告素材模块源码尚未实现，暂无对应种子数据（如实留空）。
  */
 @Slf4j
 @Component
@@ -49,6 +51,7 @@ import java.util.Map;
 public class DemoSeedRunner implements ApplicationRunner {
 
     private final StaffRepository staffRepository;
+    private final AppointmentRepository appointmentRepository;
     private final CustomerRepository customerRepository;
     private final TreatRepository treatRepository;
     private final ItemRepository itemRepository;
@@ -70,8 +73,9 @@ public class DemoSeedRunner implements ApplicationRunner {
             seedReviewCustomers(customers);
             seedReviewStaffs();
             seedSigns();
+            seedAppointments(customers);
             log.info("演示种子数据检查完成（逐表幂等，已有数据自动跳过）；"
-                    + "排班、广告素材模块源码未实现，无种子数据");
+                    + "广告素材模块源码未实现，无种子数据");
         } catch (Exception e) {
             // 播种失败不阻断启动：演示站优先可用，下次启动按自然键补齐缺项
             log.error("演示种子数据失败（服务继续启动）", e);
@@ -294,6 +298,35 @@ public class DemoSeedRunner implements ApplicationRunner {
     }
 
     /** 考勤（诊所运营）：今日上班打卡各一条 */
+    /** 预约：今日 3 条（1 条已到店）+ 明日 1 条 + 昨日取消 1 条，逐条按顾客+当日判重 */
+    private void seedAppointments(Map<String, Long> customers) {
+        record ApptSeed(String phone, String staffAccount, String itemName,
+                        int dayOffset, int hour, int minute, int duration, int status, String remark) {}
+        List<ApptSeed> seeds = List.of(
+                new ApptSeed("13900000001", "shen", "艾灸温阳调理（5 次卡）", 0, 9, 30, 60, 1, "艾灸第 4 次复诊，已到店"),
+                new ApptSeed("13900000002", null, null, 0, 11, 0, 60, 0, "肩颈不适初诊"),
+                new ApptSeed("13900000004", "shen", "经络推拿（10 次卡）", 0, 15, 0, 60, 0, null),
+                new ApptSeed("13900000003", "su", "中医体质辨识（单次）", 1, 10, 0, 30, 0, "首次到店体验"),
+                new ApptSeed("13900000005", null, null, -1, 16, 0, 60, 9, "临时改期，改约下周")
+        );
+        for (ApptSeed a : seeds) {
+            Long customerId = customers.get(a.phone());
+            if (customerId == null || appointmentOnDayExists(customerId, a.dayOffset())) {
+                continue;
+            }
+            AppointmentEntity appointment = new AppointmentEntity();
+            appointment.setCustomerId(customerId);
+            appointment.setStaffId(a.staffAccount() == null ? null : staffByAccount(a.staffAccount()));
+            appointment.setItemId(a.itemName() == null ? null : itemByName(a.itemName()));
+            appointment.setStartTime(at(a.dayOffset(), a.hour(), a.minute()));
+            appointment.setDuration(a.duration());
+            appointment.setStatus(a.status());
+            appointment.setRemark(a.remark());
+            appointmentRepository.save(appointment);
+        }
+        log.info("种子·预约：检查完成");
+    }
+
     private void seedSigns() {
         if (signRepository.count() > 0) {
             return;
@@ -386,6 +419,27 @@ public class DemoSeedRunner implements ApplicationRunner {
 
     private boolean itemExists(String name) {
         return itemRepository.findAll().stream().anyMatch(i -> name.equals(i.getName()));
+    }
+
+    private Long itemByName(String name) {
+        return itemRepository.findAll().stream()
+                .filter(i -> name.equals(i.getName()))
+                .map(ItemEntity::getId)
+                .findFirst().orElse(null);
+    }
+
+    /** 该顾客在 offset 天（0=今天）当日是否已有预约（按自然日判重，时段不同也视同已约） */
+    private boolean appointmentOnDayExists(Long customerId, int dayOffset) {
+        return appointmentRepository.findAll().stream()
+                .anyMatch(a -> customerId.equals(a.getCustomerId())
+                        && a.getStartTime() != null
+                        && DateUtil.isSomeDay(a.getStartTime(), at(dayOffset, 12, 0)));
+    }
+
+    /** 相对当天的某时刻（dayOffset 天后 hour:minute） */
+    private Date at(int dayOffset, int hour, int minute) {
+        return Date.from(LocalDate.now().plusDays(dayOffset).atTime(hour, minute)
+                .atZone(ZoneId.systemDefault()).toInstant());
     }
 
     private boolean reviewCustomerExists(Long customerId, Date day) {
