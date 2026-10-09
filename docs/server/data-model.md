@@ -70,7 +70,7 @@
 
 | 表 | 字段要点 | 现状 |
 | ---- | ---- | ---- |
-| `orders`（订单） | `user_id`（顾客）、`item_id`（卡项）、`staff_id`、`status`、`price` | 已接线：Kiosk 下单落 `status=0` 并快照卡项现价；`status` 语义 `0` 已下单 → `1` 已确认 → `2` 已完成，`9` 已取消（`0/1→9`，仅 `9` 可删），管理端分页与流转见 [api](/server/api) 订单组；结算信息在 `settlements` 表（一单一结算），订单分页联出支付方式 |
+| `orders`（订单） | `user_id`（顾客）、`item_id`（卡项）、`staff_id`、`status`、`price` | 已接线：Kiosk 下单与前台建单均落 `status=0` 并快照卡项现价（前台建单记录 `staff_id`）；`status` 语义 `0` 已下单 → `1` 已确认 → `2` 已完成，`9` 已取消（`0/1→9`，仅 `9` 可删），管理端分页与流转见 [api](/server/api) 订单组；结算信息在 `settlements` 表（一单一结算），订单分页联出支付方式 |
 | `recharges`（储值流水） | `user_id`、`money` | 已接线：充值为正、储值支付扣减为负，余额 = 流水合计；接口见 [api](/server/api) 储值组 |
 
 ## settlements — 结算单（收费结算）

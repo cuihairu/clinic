@@ -122,6 +122,7 @@
 
 | 方法 | 路径 | 功能 |
 | ---- | ---- | ---- |
+| POST | `/api/v1/order/` | 前台建单：`customerId` + `itemId` 必填（卡项须存在且启用），`staffId` 可选记录建单人；价格取卡项现价快照，落 `status=0` 待接待 |
 | GET | `/api/v1/order/page` | 分页（current、pageSize、status 可空、pending 可空 `true`=只看待结算 0/1），联出顾客名/手机号、卡项名与结算支付方式 `payType` |
 | GET | `/api/v1/order/{id}` | 详情（联顾客与卡项名） |
 | PUT | `/api/v1/order/status` | 状态流转：`0→1`、`1→2`，`0/1→9` 取消；其余组合报错（body 带 id 与 status） |
