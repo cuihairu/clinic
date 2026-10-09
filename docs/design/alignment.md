@@ -45,7 +45,7 @@
 
 | # | 屏 | 现状 | 主要差距 | 级别 |
 |---|---|---|---|---|
-| 1 | 首页（mobile-home） | 已按原型实装：品牌头 / 预约横幅 / 今日宜养宫格（实拉 `GET /api/v1/kiosk/items`）/ 我的卡项 / 养生贴士 / 白标自检页底；**预约横幅、卡项余次 ❌ 无接口 → 标「规划」占位**；配色已收编 tokens（`src/tokens.css` 与 mockups 同源） | 自助约期页为设计草案待拍板（[/design/app-booking](/design/app-booking)），拍板落地后首页预约横幅占位撤掉 | P1 |
+| 1 | 首页（mobile-home） | 已按原型实装：品牌头 / 预约横幅（入口 → `pages/booking` 自助约期）/ 今日宜养宫格（实拉 `GET /api/v1/kiosk/items`）/ 我的卡项 / 养生贴士 / 白标自检页底；**卡项余次 ❌ 无接口 → 标「规划」占位**；配色已收编 tokens（`src/tokens.css` 与 mockups 同源） | 自助约期已实装（`POST /api/v1/kiosk/appointments`，口径见 [/design/app-booking](/design/app-booking)）；登录与卡项余次页未做 | P1 |
 
 ## 四、自助机 kiosk
 

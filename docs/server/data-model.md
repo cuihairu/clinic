@@ -86,7 +86,7 @@
 
 索引：`order_id`（唯一）、`user_id`。结算动作把订单 `0/1 → 2` 已完成；储值支付同时在 `recharges` 落一条负数流水。微信/支付宝为演示口径（仅记录方式，无真实收银通道），见 [api](/server/api) 收费组。
 
-## appointments — 预约（前台/馆长建约 → 到店接待 → 转接诊）
+## appointments — 预约（前台/馆长建约、小程序自助约期 → 到店接待 → 转接诊）
 
 | 字段 | 类型 | 含义 |
 | ---- | ---- | ---- |
@@ -95,9 +95,9 @@
 | item_id | Long | 预约卡项 id（可空=到店再定） |
 | staff_id | Long | 接待员工 id（可空=到店分配） |
 | start_time | Date | 预约时段开始时刻（非空） |
-| duration | Integer | 时长（分钟） |
+| duration | Integer | 时长（分钟；自助约期固定 60） |
 | status | Integer | `0` 待到店 → `1` 已接待（转接诊），`0→9` 取消；仅 `9` 可删 |
-| remark | String | 备注（症状/需求） |
+| remark | String | 备注（症状/需求）；自助约期记「小程序自助」软标记，无 source 列 |
 | create_time / update_time | Date | 审计时间 |
 
 索引：顾客、卡项、时段。接口见 [api](/server/api) 预约组；不做同时段冲突校验（演示边界）。

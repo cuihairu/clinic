@@ -7,7 +7,7 @@
 - **放行路径**：
   - 登录与文档：`/api/v1/user/login`、`/doc.html`、`/swagger-ui/**`、`/v3/api-docs/**`、`/swagger-resources/**`、`/webjars/**`
   - **业务免登录端点（内网设备约定，见对应设计文档）**：
-    - `/api/v1/kiosk/**` — 顾客自助机浏览与下单（只读 + 单一写入口，见 [kiosk.md](/design/kiosk)）
+    - `/api/v1/kiosk/**` — 顾客自助机浏览与下单 + 小程序自助约期（只读 + 两个写入口，见 [kiosk.md](/design/kiosk) 与 [app-booking.md](/design/app-booking)）
     - `/api/v1/ads/playlist` — 平板拉取排期（只读 + 屏 code 校验，见 [tablet.md](/design/tablet)）
     - `/api/v1/calls/latest` — 平板轮询叫号（只读 + 屏 code 校验，见 [tablet.md](/design/tablet)）
     - `/api/v1/print/templates` — 打印模板下发（空白版式无业务数据，见 [desktop.md](/design/desktop) D7）
@@ -103,12 +103,13 @@
 
 ## 顾客选服务 Kiosk `/api/v1/kiosk`（kiosk.md K2）
 
-免登录（前台大屏自助入口，见[顾客选服务设计](/design/kiosk)）；浏览只读 + 单一下单写入口。
+免登录（前台大屏自助入口，见[顾客选服务设计](/design/kiosk)）；浏览只读 + 下单、自助约期两个写入口。
 
 | 方法 | 路径 | 功能 |
 | ---- | ---- | ---- |
 | GET | `/api/v1/kiosk/items` | 上架卡项列表（enabled=1，sort+name 升序），只透 id/name/price/cover/description |
 | POST | `/api/v1/kiosk/orders` | 下单：body `{ phone, name?, itemIds[] }`。手机号须 `1\d{10}`；卡项须存在且上架（先全量校验再建档）；按手机号幂等建档（缺称呼默认「到店客人」），逐项落 `status=0` 订单并取卡项现价快照。返回 `{ customerId, customerName, orders[{id,itemId,itemName,price}], totalFee }` |
+| POST | `/api/v1/kiosk/appointments` | 自助约期：body `{ phone, name?, itemId?, startTime }`。时段 `yyyy-MM-dd HH:mm` **整点**、`09:00–17:00` 且晚于当前时刻；卡项可空（到店再定），须存在且上架；频控同手机号当日 `status IN (0,1)` 限 1 条（超出 400「当日已有预约，请到店或致电改约」）；按手机号幂等建档，落 `duration=60`、`status=0`、`staffId=null`、remark「小程序自助」的预约。返回 `{ customerId, customerName, appointmentId, startTime, itemName?, status: 0 }`。口径见[小程序自助约期设计](/design/app-booking) |
 
 ## 打印模板 `/api/v1/print`（desktop.md D7）
 
