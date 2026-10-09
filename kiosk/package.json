@@ -2,6 +2,7 @@
   "name": "sinomed-kiosk",
   "private": true,
   "version": "0.1.0",
+  "license": "Apache-2.0",
   "description": "sinomed 顾客选服务 Kiosk（浏览卡项 / 下单）",
   "engines": {
     "node": ">=24.0.0"

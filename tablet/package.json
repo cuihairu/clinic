@@ -2,6 +2,7 @@
   "name": "sinomed-tablet",
   "private": true,
   "version": "0.1.0",
+  "license": "Apache-2.0",
   "description": "sinomed 候诊区 Kiosk（广告轮播 / 叫号提示）",
   "engines": {
     "node": ">=24.0.0"

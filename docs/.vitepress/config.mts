@@ -112,6 +112,10 @@ export default defineConfig({
       ]
     },
     socialLinks: [{ icon: 'github', link: 'https://github.com/cuihairu/sinomed' }],
+    footer: {
+      message: '基于 <a href="https://opensource.org/licenses/Apache-2.0" target="_blank" rel="noopener">Apache-2.0</a> 许可发布（见仓库 <a href="https://github.com/cuihairu/sinomed/blob/main/LICENSE" target="_blank" rel="noopener">LICENSE</a>）',
+      copyright: 'Copyright © 2026 cuihairu'
+    },
     outline: { level: [2, 3], label: '本页目录' },
     search: {
       provider: 'local',
