@@ -32,6 +32,7 @@ export default {
   'menu.item.item-query':'卡项查询',
   'menu.item.item-spread':'卡项展示',
   'menu.order.order-query':'订单管理',
+  'menu.order.order-create':'前台下单',
   'menu.appointment':'预约排班',
   'menu.appointment.appointment-schedule':'排班视图',
   'menu.appointment.appointment-query':'预约查询',

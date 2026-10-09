@@ -184,6 +184,11 @@ export default [
     name: 'order',
     routes:[
       {
+        name: 'order-create',
+        path: '/order/create',
+        component: './Order/Create',
+      },
+      {
         path: '/order/query',
         component: './Order/Query',
       }

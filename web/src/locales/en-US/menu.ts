@@ -32,6 +32,7 @@ export default {
   'menu.item.item-query': 'Item Query',
   'menu.order': 'Orders',
   'menu.order.order-query': 'Order Management',
+  'menu.order.order-create': 'New Order',
   'menu.billing': 'Billing',
   'menu.billing.billing-settle': 'Settlement Desk',
   'menu.review': 'Review',

@@ -83,6 +83,18 @@ export async function updateOrderStatus(
   });
 }
 
+/** 前台建单：价格取卡项现价快照，落 status=0 待接待 */
+export async function createOrder(
+  body: { customerId: number; itemId: number; staffId?: number },
+  options?: { [key: string]: any },
+) {
+  return request<Order>('/api/v1/order/', {
+    method: 'POST',
+    data: body,
+    ...(options || {}),
+  });
+}
+
 export async function deleteOrder(id: number, options?: { [key: string]: any }) {
   return request<{ message?: string }>(`/api/v1/order/${id}`, {
     method: 'DELETE',

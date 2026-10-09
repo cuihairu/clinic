@@ -1,0 +1,122 @@
+// 前台下单 —— 石墨×古金 tokens（顾客定位同新建预约）
+@import '@/tokens.css';
+
+.od-create {
+  max-width: 640px;
+}
+
+.od-customer {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+
+  h3 {
+    font-family: var(--serif);
+    font-size: 15px;
+    margin: 0 0 12px;
+  }
+
+  .find {
+    display: flex;
+    gap: 10px;
+
+    .phone {
+      width: 240px;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      font-size: 14px;
+      background: var(--paper);
+
+      &:focus {
+        outline: none;
+        border-color: var(--brand);
+      }
+    }
+  }
+
+  .found {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .nm {
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .tier {
+      font-size: 11px;
+      color: var(--brand-deep);
+      background: var(--brand-tint);
+      border-radius: 999px;
+      padding: 2px 10px;
+    }
+    .tel {
+      color: var(--faint);
+      font-size: 12.5px;
+    }
+  }
+
+  .none {
+    margin-top: 12px;
+    color: var(--faint);
+    font-size: 12.5px;
+  }
+}
+
+.od-form {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+
+  h3 {
+    font-family: var(--serif);
+    font-size: 15px;
+    margin: 0 0 12px;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+
+    label {
+      flex: none;
+      width: 56px;
+      font-size: 13.5px;
+      color: var(--ink);
+    }
+    .item,
+    .staff {
+      flex: 1;
+      max-width: 320px;
+    }
+  }
+
+  .foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px dashed var(--line);
+    padding-top: 14px;
+    margin-top: 4px;
+
+    .price {
+      color: var(--faint);
+      font-size: 13px;
+
+      b {
+        color: var(--brand-deep);
+        font-size: 20px;
+        font-family: var(--serif);
+        margin-left: 2px;
+      }
+    }
+  }
+}
