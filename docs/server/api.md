@@ -159,6 +159,19 @@
 实收金额取订单价格快照（空价格按 0 收）；微信/支付宝为演示口径——仅记录支付方式，不拉起真实收银通道；小票打印与卡项次卡抵扣为规划功能。已结算订单的支付方式从订单分页 `payType` 联出。
 :::
 
+## 处方 `/api/v1/prescription`（需登录）
+
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| POST | `/api/v1/prescription/` | 开方：`customerId` + `herbs`（至少 1 味：`herb` 药名 + `weight` 剂量克，`special` 特殊煎法可选）必填；`treatId`/`staffId`/`doses`（默认 7）/`usage`/`remark` 可选；返回创建后的处方（含药味） |
+| GET | `/api/v1/prescription/page` | 分页（current、pageSize、customerId 可空），联出顾客名、医师名与药味，id 倒序 |
+| GET | `/api/v1/prescription/{id}` | 处方详情（含按 sort 排序的药味） |
+| DELETE | `/api/v1/prescription/{id}` | 删除处方（连同药味；演示环境口径，无留痕） |
+
+::: tip 处方口径
+药材名为自由文本——MVP 无药材字典、库存与计价，配伍审方与代煎领取为规划功能；剂量为单剂克数（可小数），`special` 记录先煎/后下/包煎等煎法。
+:::
+
 ## 广告投屏 `/api/v1/ads`（tablet.md T1/T2）
 
 管理接口需登录；下发与媒体静态资源免登录（内网屏设备约定，见[平板展示设计](/design/tablet)）。

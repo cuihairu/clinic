@@ -41,6 +41,10 @@
 
 <p align="center"><img src="docs/public/screenshots/admin-billing.png" width="880" alt="收费结算 · 待结算队列与储值充值/支付已实现，处方饮片行、次卡抵扣与小票打印为设计原型" /></p>
 
+**中药处方**（管理后台 · 开方 / 处方查询：药味剂量与特殊煎法；配伍审方、计价与代煎领取为规划功能）
+
+<p align="center"><img src="docs/public/screenshots/admin-herbprescription.png" width="880" alt="中药处方笺 · 开方与查询已实现，配伍审方与代煎领取为设计原型" /></p>
+
 **桌面工作站**（desktop · 接诊开单 + 小票机 / 扫码枪外设状态）
 
 <p align="center"><img src="docs/public/screenshots/desktop-workstation.png" width="880" alt="桌面工作站 · 接诊开单（界面原型）" /></p>
@@ -61,11 +65,7 @@
 
 ## 未来功能规划（设计原型）
 
-以下功能尚未开发，先出高保真原型定交互与视觉，标注「规划功能 · 设计原型」（预约排班的管理端列表/建约/到店接待与收费结算的结算台/储值充值已实装，见上方产品预览；各自的其余部分仍在规划中）：
-
-**中药处方**（处方笺 · 饮片剂量与特殊煎法 · 配伍禁忌审方 · 代煎）
-
-<p align="center"><img src="docs/public/screenshots/admin-herbprescription.png" width="880" alt="中药处方笺 · 饮片配伍审方与代煎（规划功能设计原型）" /></p>
+预约排班的管理端列表/建约/到店接待、收费结算的结算台/储值充值、中药处方的开方/查询均已实装，见上方产品预览；各自的其余部分（时段网格、小票打印与次卡抵扣、配伍审方与代煎领取）仍为设计原型。
 
 ## 目录结构
 

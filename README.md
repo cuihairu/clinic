@@ -41,6 +41,10 @@ A single design language runs across five device targets: a graphite × antique 
 
 <p align="center"><img src="docs/public/screenshots/admin-billing.png" width="880" alt="Billing and checkout · pending-checkout queue with stored-value recharge and payment implemented; prescription line items, package redemption, and receipt printing remain design prototypes" /></p>
 
+**Herbal prescription** (admin frontend · prescription create / query: herb doses and special decoction methods; compatibility review, pricing, and decoction service are planned features)
+
+<p align="center"><img src="docs/public/screenshots/admin-herbprescription.png" width="880" alt="Herbal prescription · sheet create and query implemented; compatibility review and decoction service remain design prototypes" /></p>
+
 **Desktop workstation** (desktop · consultation charting + receipt printer / barcode scanner status)
 
 <p align="center"><img src="docs/public/screenshots/desktop-workstation.png" width="880" alt="Desktop workstation · consultation charting (interface prototype)" /></p>
@@ -61,11 +65,7 @@ The admin frontend also has prototypes for the daily report, service packages, o
 
 ## Planned Features (Design Prototypes)
 
-The following features are not built yet. High-fidelity prototypes came first to settle interaction and visuals, each labeled "Planned feature · design prototype" (for appointment scheduling, the admin-side list / booking / arrival handoff is implemented, and for billing, the settlement desk with stored-value recharge is implemented — see Product Preview above; the remaining parts of each stay planned):
-
-**Herbal prescription** (prescription sheet · herb doses and special decoction methods · compatibility review · decoction service)
-
-<p align="center"><img src="docs/public/screenshots/admin-herbprescription.png" width="880" alt="Herbal prescription · compatibility review and decoction service (planned feature, design prototype)" /></p>
+For appointment scheduling, the admin-side list / booking / arrival handoff is implemented; for billing, the settlement desk with stored-value recharge is implemented; for herbal prescription, the sheet create / query is implemented — see Product Preview above. The remaining parts of each (time-slot grid, receipt printing and per-visit card deduction, compatibility review and decoction service) stay as design prototypes.
 
 ## Repository Layout
 

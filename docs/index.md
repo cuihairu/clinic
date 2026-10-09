@@ -33,7 +33,7 @@ features:
       src: /icons/prescription.svg
       alt: 规划
     title: 医馆板块规划
-    details: 挂号、处方、中药房等门诊板块在规划中，源码尚未实现（收费结算的结算台已实装）；分层规划与参考来源见「调研 · 功能点清单」。
+    details: 挂号、中药房等门诊板块在规划中，源码尚未实现（中药处方笺开方/查询与收费结算的结算台已实装）；分层规划与参考来源见「调研 · 功能点清单」。
   - icon:
       src: /icons/device-desktop.svg
       alt: 桌面
@@ -83,6 +83,10 @@ features:
 
 ![收费结算 · 待结算队列与储值充值/支付已实现，处方饮片行、次卡抵扣与小票打印为设计原型](/screenshots/admin-billing.png)
 
+**中药处方**（管理后台 · 开方 / 处方查询：药味剂量与特殊煎法；配伍审方、计价与代煎领取为规划功能）
+
+![中药处方笺 · 开方与查询已实现，配伍审方与代煎领取为设计原型](/screenshots/admin-herbprescription.png)
+
 **桌面工作站**（desktop · 接诊开单 + 外设状态）
 
 ![桌面工作站 · 接诊开单（界面原型）](/screenshots/desktop-workstation.png)
@@ -100,11 +104,3 @@ features:
 ![候诊区展示屏 · 广告轮播与叫号（界面原型）](/screenshots/tablet-screen.png)
 
 管理后台还有每日报表、卡项、订单、广告屏、外观设置等页面原型，见仓库 `docs/design/mockups/`。
-
-## 未来功能规划（设计原型）
-
-以下功能尚未开发，先出高保真原型定交互与视觉，标注「规划功能 · 设计原型」（预约排班的管理端列表/建约/到店接待与收费结算的结算台/储值充值已实装，见上方产品预览；各自的其余部分仍在规划中）：
-
-**中药处方**（处方笺 · 饮片剂量与特殊煎法 · 配伍禁忌审方 · 代煎）
-
-![中药处方笺 · 饮片配伍审方与代煎（规划功能设计原型）](/screenshots/admin-herbprescription.png)

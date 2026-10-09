@@ -11,7 +11,7 @@
 | 预约挂号 | openhis-clinic(预约登记)、ZainZhao/HIS、TANGKUO/HIS(挂号工作站)、hisystem(挂号收费) | 已实现 | `appointments` 表 + `/api/v1/appointment`（建约/待到店列表/到店接待转接诊/取消），管理端 `/appointment/*` 列表工作台；时段网格与小程序自助约期未做（不做同时段冲突校验）。**界面：[预约排班](/screenshots/admin-booking.png)** |
 | 电子病历 | Yukang(主诉/现病史/四诊/辨证/医嘱)、openhis(EMR 模块)、his_mvp | 部分 | `treats` 诊疗单承载主诉、问诊、望诊、触诊、脉象、五行、取穴、诊断、方案、饮食、调理、回访;无独立病史(过敏史/既往史)结构 |
 | 处方(西药/成药) | Yukang(中西成药处方)、openhis-clinic(收费发药) | 未实现 | 无药品目录与处方模型 |
-| 中药处方 | Yukang(中药/贴敷/外治)、herb-ms-ssm(药材-处方-计价)、his_mvp(中药方剂)、chinese_medicine_store_cos(病症处方) | 部分 | `treats.plan`(调理方案)以文本承载,无饮片/剂量/剂数结构。**设计原型：[中药处方笺](/screenshots/admin-herbprescription.png)** |
+| 中药处方 | Yukang(中药/贴敷/外治)、herb-ms-ssm(药材-处方-计价)、his_mvp(中药方剂)、chinese_medicine_store_cos(病症处方) | 部分 | `prescriptions`/`prescription_items` 表 + `/api/v1/prescription`（开方/详情/分页/删除，药味含剂量克数与特殊煎法）+ `/prescription/*` 开方与查询页；药材为自由文本，无字典/库存/计价，配伍审方与代煎领取未做。**界面：[中药处方笺](/screenshots/admin-herbprescription.png)** |
 | 药房与发药 | ZainZhao/HIS、TANGKUO/HIS(药房工作站)、openhis-clinic、hisystem(药房取药) | 未实现 | - |
 | 中药饮片库存 | chinese_medicine_store_cos(药材档案/采购/库房预警)、his_mvp(出入库/盘点)、Yukang(批次/效期) | 未实现 | - |
 | 收费结算 | Yukang(现金/微信/支付宝/银行卡/医保)、OpenHIS(划价收费)、openhis-clinic | 部分 | `settlements` 结算单 + `/api/v1/settlement`（订单 0/1→2 收款，一单一结算）+ `/api/v1/recharge` 储值流水（余额=合计），管理端 `/billing/settle` 结算台；微信/支付宝仅记录方式，无退费/日对账/发票，处方饮片行与卡项次卡抵扣未做。**界面：[收费结算台](/screenshots/admin-billing.png)** |
