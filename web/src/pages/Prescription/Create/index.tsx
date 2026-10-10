@@ -6,8 +6,10 @@ import { CheckCircleFilled, MinusCircleOutlined, PlusOutlined, WarningFilled } f
 import {
   checkCompatibility,
   createPrescription,
+  pricePrescription,
   type CompatibilityResult,
   type PrescriptionHerb,
+  type Pricing,
 } from '@/services/ant-design-pro/prescription';
 import { fetchCustomerByPhone } from '@/services/ant-design-pro/customer';
 import { queryStaffByPage } from '@/services/ant-design-pro/staff';
@@ -15,6 +17,9 @@ import './index.less';
 
 /** 会员等级展示口径（同顾客档案）：1 普通 / 2 银卡 / 3 金卡 */
 const LEVEL_TEXT: Record<number, string> = { 1: '普通会员', 2: '银卡会员', 3: '金卡会员' };
+
+/** 分 → 元（计价展示） */
+const fenToYuan = (fen?: number) => `¥${((fen ?? 0) / 100).toFixed(2)}`;
 
 type CustomerBrief = { id?: number; name?: string; phone?: string; level?: number };
 
@@ -32,6 +37,8 @@ const Create: React.FC = () => {
   const [compat, setCompat] = useState<CompatibilityResult | undefined>();
   const [checking, setChecking] = useState(false);
   const compatSeq = useRef(0);
+  const [pricing, setPricing] = useState<Pricing | undefined>();
+  const priceSeq = useRef(0);
 
   // 配伍审方：药名停顿 500ms 自动比对十八反/十九畏；少于两味不查
   const namedHerbs = herbs.map((r) => (r.herb || '').trim()).filter(Boolean);
@@ -62,6 +69,32 @@ const Create: React.FC = () => {
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [namedHerbs.join('|')]);
+
+  // 计价：同款防抖，按药材字典实时试算；无药名即清空
+  useEffect(() => {
+    if (namedHerbs.length < 1) {
+      setPricing(undefined);
+      return;
+    }
+    const seq = ++priceSeq.current;
+    const timer = setTimeout(async () => {
+      try {
+        const result = await pricePrescription({
+          doses,
+          herbs: namedHerbs.map((n) => ({ herb: n })),
+        });
+        if (seq === priceSeq.current) {
+          setPricing(result);
+        }
+      } catch {
+        if (seq === priceSeq.current) {
+          setPricing(undefined);
+        }
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [namedHerbs.join('|'), doses]);
 
   const loadStaff = async () => {
     if (staffOptions.length > 0) return;
@@ -138,7 +171,7 @@ const Create: React.FC = () => {
   return (
     <PageContainer
       title="中药处方"
-      content="按手机号定位顾客 → 写药味与剂数；配伍审方（十八反/十九畏）随写随查、提示不拦截。药材字典与计价仍为规划功能。"
+      content="按手机号定位顾客 → 写药味与剂数；配伍审方（十八反/十九畏）与实时计价随写随查。药材名按字典精确同名比价，未收录药名不计费；字典维护见「处方 → 药材字典」。"
     >
       <div className="pr-create">
         <div className="pr-customer">
@@ -239,6 +272,27 @@ const Create: React.FC = () => {
             )}
           </div>
 
+          <div className="pricing">
+            <h3>4 · 计价</h3>
+            {!pricing || (pricing.herbCount ?? 0) === 0 ? (
+              <div className="tip">写药名后按药材字典自动试算</div>
+            ) : (
+              <div className="sum">
+                <span className="total">{fenToYuan(pricing.totalFen)}</span>
+                <span className="detail">
+                  单剂 {fenToYuan(pricing.perDoseFen)} × {pricing.doses} 付
+                  {pricing.pricedHerbCount === pricing.herbCount
+                    ? ''
+                    : ` · 已比价 ${pricing.pricedHerbCount}/${pricing.herbCount} 味`}
+                </span>
+                {(pricing.unknownHerbs?.length ?? 0) > 0 ? (
+                  <div className="unknown">未收录（不计费）：{pricing.unknownHerbs!.join('、')}</div>
+                ) : null}
+                <div className="note">按药材字典实时试算、无快照；收费仍以卡项订单结算为准</div>
+              </div>
+            )}
+          </div>
+
           <div className="meta">
             <label>
               剂数
@@ -271,7 +325,7 @@ const Create: React.FC = () => {
             onChange={(e) => setRemark(e.target.value)}
           />
           <div className="foot">
-            <span className="hint">演示口径：药材无字典与价格，计价/库存为规划功能；审方提示不拦截</span>
+            <span className="hint">演示口径：计价按药材字典实时试算（无快照），库存为规划功能；审方提示不拦截</span>
             <Button type="primary" size="large" loading={busy} onClick={submit}>
               开方
             </Button>

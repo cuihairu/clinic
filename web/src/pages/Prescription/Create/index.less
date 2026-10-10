@@ -250,3 +250,55 @@
     }
   }
 }
+
+/* 步 4：计价（按药材字典实时试算） */
+.pricing {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--paper);
+
+  h3 {
+    font-family: var(--serif);
+    font-size: 13px;
+    margin: 0 0 8px;
+    color: var(--faint);
+  }
+
+  .tip {
+    font-size: 12px;
+    color: var(--faint);
+  }
+
+  .sum {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    .total {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--brand-deep);
+    }
+
+    .detail {
+      font-size: 12px;
+      color: var(--faint);
+    }
+  }
+
+  .unknown {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #a05a2c;
+  }
+
+  .note {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--faint);
+  }
+}

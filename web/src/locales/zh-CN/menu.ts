@@ -43,6 +43,7 @@ export default {
   'menu.prescription':'中药处方',
   'menu.prescription.prescription-create':'开方',
   'menu.prescription.prescription-query':'处方查询',
+  'menu.prescription.prescription-herbs':'药材字典',
   'menu.review.staff': '员工总结',
   'menu.review.customer': '顾客反馈',
   'menu.review.day': '每日总结',

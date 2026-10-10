@@ -159,6 +159,11 @@ export default [
         path: '/prescription/query',
         component: './Prescription/Query',
       },
+      {
+        name: 'prescription-herbs',
+        path: '/prescription/herbs',
+        component: './Herb/Query',
+      },
     ],
   },
   {

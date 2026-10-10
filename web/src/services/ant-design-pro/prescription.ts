@@ -26,6 +26,8 @@ export interface Prescription {
   remark?: string;
   /** 详情/列表联出的药味（按 sort 排序） */
   herbs?: PrescriptionHerb[];
+  /** 按药材字典实时算出的计价（无快照） */
+  pricing?: Pricing;
   createTime?: string;
 }
 
@@ -108,6 +110,28 @@ export async function checkCompatibility(
   return request<CompatibilityResult>('/api/v1/prescription/compatibility', {
     method: 'POST',
     data: { herbs },
+    ...(options || {}),
+  });
+}
+
+/** 处方计价：按药材字典实时试算；totalFen 仅含已比价药味，分单位 */
+export interface Pricing {
+  totalFen?: number;
+  perDoseFen?: number;
+  doses?: number;
+  herbCount?: number;
+  pricedHerbCount?: number;
+  unknownHerbs?: string[];
+}
+
+/** 处方试算：不开方只算钱；未收录药名计入 unknownHerbs 不计费 */
+export async function pricePrescription(
+  body: { doses?: number; herbs: PrescriptionHerb[] },
+  options?: { [key: string]: any },
+) {
+  return request<Pricing>('/api/v1/prescription/price', {
+    method: 'POST',
+    data: body,
     ...(options || {}),
   });
 }

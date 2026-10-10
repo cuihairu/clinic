@@ -198,7 +198,20 @@ export default function PrescriptionQuery() {
                 <span className="v">{detail.remark}</span>
               </div>
             ) : null}
-            <div className="hint">演示口径：药材无字典与价格，计价/库存/审方为规划功能</div>
+            {detail.pricing ? (
+              <div className="field">
+                <span className="k">计价</span>
+                <span className="v">
+                  ¥{((detail.pricing.totalFen ?? 0) / 100).toFixed(2)}
+                  （已比价 {detail.pricing.pricedHerbCount ?? 0}/{detail.pricing.herbCount ?? 0} 味
+                  {detail.pricing.unknownHerbs?.length
+                    ? `，未收录：${detail.pricing.unknownHerbs.join('、')}`
+                    : ''}
+                  ）
+                </span>
+              </div>
+            ) : null}
+            <div className="hint">演示口径：计价按药材字典实时试算、无快照（随改价同步），库存为规划功能</div>
           </div>
         ) : null}
       </Drawer>
