@@ -18,6 +18,8 @@ import com.sinomed.repository.CustomerRepository;
 import com.sinomed.repository.ItemRepository;
 import com.sinomed.repository.HerbRepository;
 import com.sinomed.entity.HerbEntity;
+import com.sinomed.repository.CustomerCardRepository;
+import com.sinomed.entity.CustomerCardEntity;
 import com.sinomed.repository.OrderRepository;
 import com.sinomed.repository.PrescriptionItemRepository;
 import com.sinomed.repository.PrescriptionRepository;
@@ -70,6 +72,7 @@ public class DemoSeedRunner implements ApplicationRunner {
     private final TreatRepository treatRepository;
     private final ItemRepository itemRepository;
     private final HerbRepository herbRepository;
+    private final CustomerCardRepository cardRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewCustomerRepository reviewCustomerRepository;
     private final ReviewStaffRepository reviewStaffRepository;
@@ -91,6 +94,7 @@ public class DemoSeedRunner implements ApplicationRunner {
             seedSigns();
             seedAppointments(customers);
             seedBilling(customers);
+            seedCards(customers);
             seedPrescriptions(customers);
             log.info("演示种子数据检查完成（逐表幂等，已有数据自动跳过）；"
                     + "广告素材模块源码未实现，无种子数据");
@@ -411,6 +415,26 @@ public class DemoSeedRunner implements ApplicationRunner {
             herbRepository.save(entity);
         }
         log.info("种子·药材字典：检查完成");
+    }
+
+    /** 次卡：演示顾客持「经络推拿（10 次卡）」已用 3 次 */
+    private void seedCards(Map<String, Long> customers) {
+        Long customerId = customers.get("13900000001");
+        if (customerId == null || cardRepository.count() > 0) {
+            return;
+        }
+        ItemEntity item = itemRepository.findByName("经络推拿（10 次卡）").orElse(null);
+        if (item == null) {
+            return;
+        }
+        CustomerCardEntity card = new CustomerCardEntity();
+        card.setCustomerId(customerId);
+        card.setItemId(item.getId());
+        card.setTotalTimes(10);
+        card.setRemainingTimes(7);
+        card.setStatus(1);
+        cardRepository.save(card);
+        log.info("种子·次卡：检查完成");
     }
 
     private void seedPrescriptions(Map<String, Long> customers) {

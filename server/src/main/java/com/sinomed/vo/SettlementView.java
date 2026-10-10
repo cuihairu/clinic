@@ -12,7 +12,8 @@ import java.util.Date;
 
 /**
  * 结算单视图：字段与 settlements 表对齐；customerName/orderId 关联信息为列表联出。
- * 支付方式：1 储值 / 2 微信 / 3 支付宝 / 4 现金（演示口径：微信/支付宝仅记录方式，不拉起真实收银台）。
+ * 支付方式：1 储值 / 2 微信 / 3 支付宝 / 4 现金 / 5 次卡抵扣（实收 0）
+ * （演示口径：微信/支付宝仅记录方式，不拉起真实收银台）。
  */
 @Builder
 @NoArgsConstructor
@@ -32,7 +33,7 @@ public class SettlementView {
     @Schema(title = "顾客名（列表联出）", example = "王女士")
     private String customerName;
 
-    @Schema(title = "支付方式：1 储值 / 2 微信 / 3 支付宝 / 4 现金", example = "1")
+    @Schema(title = "支付方式：1 储值 / 2 微信 / 3 支付宝 / 4 现金 / 5 次卡抵扣（实收 0）", example = "1")
     private Integer payType;
 
     @Schema(title = "实收金额（元）", example = "480")

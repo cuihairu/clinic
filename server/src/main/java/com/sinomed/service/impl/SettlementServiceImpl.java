@@ -6,6 +6,7 @@ import com.sinomed.entity.SettlementEntity;
 import com.sinomed.repository.OrderRepository;
 import com.sinomed.repository.RechargeRepository;
 import com.sinomed.repository.SettlementRepository;
+import com.sinomed.service.CardService;
 import com.sinomed.service.SettlementService;
 import com.sinomed.vo.SettlementView;
 import lombok.RequiredArgsConstructor;
@@ -20,19 +21,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SettlementServiceImpl implements SettlementService {
 
-    /** 支付方式：1 储值 / 2 微信 / 3 支付宝 / 4 现金 */
+    /** 支付方式：1 储值 / 2 微信 / 3 支付宝 / 4 现金 / 5 次卡抵扣 */
     static final int PAY_STORED_VALUE = 1;
     static final int PAY_WECHAT = 2;
     static final int PAY_ALIPAY = 3;
     static final int PAY_CASH = 4;
+    static final int PAY_CARD = 5;
 
     private final SettlementRepository settlementRepository;
     private final OrderRepository orderRepository;
     private final RechargeRepository rechargeRepository;
+    private final CardService cardService;
 
     /**
      * 收费结算：订单 0 已下单 / 1 已确认 → 2 已完成；落一条结算单（一单一结算，order_id 唯一兜底）。
      * 储值支付先校验余额，足够则落一条负数流水扣减。金额取订单价格快照，空价格按 0 收。
+     * 次卡抵扣（payType 5）：订单卡项须有有效余次卡，扣 1 次，实收记 0（money=实收口径）。
      */
     @Override
     @Transactional
@@ -41,8 +45,9 @@ public class SettlementServiceImpl implements SettlementService {
             throw new IllegalArgumentException("订单id不能为空");
         }
         int payType = view.getPayType() == null ? 0 : view.getPayType();
-        if (payType < PAY_STORED_VALUE || payType > PAY_CASH) {
-            throw new IllegalArgumentException("支付方式无效：" + view.getPayType() + "（1 储值 / 2 微信 / 3 支付宝 / 4 现金）");
+        if (payType < PAY_STORED_VALUE || payType > PAY_CARD) {
+            throw new IllegalArgumentException("支付方式无效：" + view.getPayType()
+                    + "（1 储值 / 2 微信 / 3 支付宝 / 4 现金 / 5 次卡抵扣）");
         }
         OrderEntity order = orderRepository.findById(view.getOrderId())
                 .orElseThrow(() -> new IllegalArgumentException("订单不存在：" + view.getOrderId()));
@@ -55,6 +60,7 @@ public class SettlementServiceImpl implements SettlementService {
         }
         int price = order.getPrice() == null ? 0 : order.getPrice();
 
+        int paid = price;
         if (payType == PAY_STORED_VALUE) {
             long balance = rechargeRepository.sumMoneyByUserId(order.getUserId());
             if (balance < price) {
@@ -64,13 +70,16 @@ public class SettlementServiceImpl implements SettlementService {
             deduct.setUserId(order.getUserId());
             deduct.setMoney(-price);
             rechargeRepository.save(deduct);
+        } else if (payType == PAY_CARD) {
+            cardService.deduct(order.getUserId(), order.getItemId());
+            paid = 0;
         }
 
         SettlementEntity settlement = new SettlementEntity();
         settlement.setOrderId(order.getId());
         settlement.setUserId(order.getUserId());
         settlement.setPayType(payType);
-        settlement.setMoney(price);
+        settlement.setMoney(paid);
         settlement = settlementRepository.save(settlement);
 
         order.setStatus(2);
