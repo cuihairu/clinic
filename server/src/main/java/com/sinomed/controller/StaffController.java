@@ -239,29 +239,6 @@ public class StaffController {
         return StaffView.fromStaffEntity(staffEntity);
     }
 
-    @Operation(summary = "员工请假", description = "员工请假", responses = {
-            @ApiResponse(responseCode = "200", description = "员工表", content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = StaffView.class)
-            )),
-            @ApiResponse(responseCode = "400", description = "参数错误", content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = MessageView.class)
-            )),
-            @ApiResponse(responseCode = "401", description = "没有权限", content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = MessageView.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "服务器参数", content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ExceptionView.class)
-            ))
-    })
-    @PostMapping("/leave")
-    public StaffView staffAskLeave() {
-        return StaffView.builder().build();
-    }
-
     @Operation(summary = "删除员工", description = "根据员工的id来删除员工", responses = {
             @ApiResponse(responseCode = "200", description = "员工表", content = @Content(
                     mediaType = "application/json",
