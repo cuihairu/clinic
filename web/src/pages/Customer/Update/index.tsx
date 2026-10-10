@@ -1,5 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { updateCustomer, fetchCustomerById } from '@/services/ant-design-pro/customer';
+import {
+  updateCustomer,
+  fetchCustomerById,
+  listCustomerHistories,
+  addCustomerHistory,
+  deleteCustomerHistory,
+  type CustomerHistory,
+} from '@/services/ant-design-pro/customer';
 import { queryTreatByPage } from '@/services/ant-design-pro/treat';
 import { fetchOrderSummary } from '@/services/ant-design-pro/order';
 import type { OrderSummary } from '@/services/ant-design-pro/order';
@@ -14,7 +21,7 @@ import {
   ProFormSelect,
   ProFormInstance,
 } from '@ant-design/pro-components';
-import { Button, Drawer, Form, InputNumber, message, Modal, Popconfirm, Select } from 'antd';
+import { Button, Drawer, Form, Input, InputNumber, message, Modal, Popconfirm, Radio, Select } from 'antd';
 import { history, useSearchParams } from '@umijs/max';
 import moment from 'moment';
 import './index.less';
@@ -42,6 +49,17 @@ const Update: React.FC = () => {
   const [usageCard, setUsageCard] = useState<Card | null>(null);
   const [usages, setUsages] = useState<CardUsage[]>([]);
   const [usageLoading, setUsageLoading] = useState(false);
+  /** 病史（过敏/既往）：档案内逐条增删 */
+  const [histories, setHistories] = useState<CustomerHistory[]>([]);
+  const [hisType, setHisType] = useState<number>(0);
+  const [hisText, setHisText] = useState('');
+  const [hisBusy, setHisBusy] = useState(false);
+
+  const loadHistories = useCallback(async () => {
+    if (!customerId) return;
+    const list = await listCustomerHistories(customerId);
+    setHistories(list || []);
+  }, [customerId]);
 
   const activeCardCount = cards.filter((c) => c.status === 1).length;
 
@@ -65,7 +83,8 @@ const Update: React.FC = () => {
       return;
     }
     load();
-  }, [customerId, load]);
+    loadHistories();
+  }, [customerId, load, loadHistories]);
 
   const openEdit = () => {
     formRef.current?.setFieldsValue(customer);
@@ -112,6 +131,29 @@ const Update: React.FC = () => {
     } finally {
       setUsageLoading(false);
     }
+  };
+
+  const submitHistory = async () => {
+    const text = hisText.trim();
+    if (!text) {
+      message.warning('请输入病史内容');
+      return;
+    }
+    setHisBusy(true);
+    try {
+      await addCustomerHistory(Number(customerId), { type: hisType, content: text });
+      message.success('已记录');
+      setHisText('');
+      await loadHistories();
+    } finally {
+      setHisBusy(false);
+    }
+  };
+
+  const removeHistory = async (hid: number) => {
+    await deleteCustomerHistory(hid);
+    message.success('已删除');
+    await loadHistories();
   };
 
   const lastVisit = treats
@@ -251,6 +293,52 @@ const Update: React.FC = () => {
           )}
         </aside>
       </div>
+
+      <section className="cu-panel his-panel">
+        <h3>
+          病史
+          <span className="his-hint">过敏史与既往史逐条记录，开方/接诊时调阅</span>
+        </h3>
+        <div className="his-add">
+          <Radio.Group
+            value={hisType}
+            onChange={(e) => setHisType(e.target.value as number)}
+            optionType="button"
+            buttonStyle="solid"
+            options={[
+              { label: '过敏', value: 0 },
+              { label: '既往', value: 1 },
+            ]}
+          />
+          <Input
+            className="his-input"
+            placeholder="如「青霉素过敏」「高血压 8 年，规律服药」"
+            maxLength={200}
+            value={hisText}
+            onChange={(e) => setHisText(e.target.value)}
+            onPressEnter={submitHistory}
+          />
+          <Button type="primary" loading={hisBusy} onClick={submitHistory}>
+            记录
+          </Button>
+        </div>
+        {histories.length === 0 ? (
+          <div className="plan-note">暂无病史记录；有过敏史或慢性病的顾客建议先记上，开方时调阅。</div>
+        ) : (
+          <div className="his-list">
+            {histories.map((h) => (
+              <div className="his-row" key={h.id}>
+                <span className={`his-tag t${h.type ?? 0}`}>{h.type === 0 ? '过敏' : '既往'}</span>
+                <span className="his-content">{h.content}</span>
+                <span className="his-time">{h.createTime ? moment(h.createTime).format('YYYY-MM-DD') : '—'}</span>
+                <Popconfirm title="删除这条病史？" onConfirm={() => h.id && removeHistory(h.id)}>
+                  <a className="his-del">删除</a>
+                </Popconfirm>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       <Modal
         title="发卡"
