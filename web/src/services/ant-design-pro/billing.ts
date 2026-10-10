@@ -111,3 +111,6 @@ export async function querySettlementPage(
     ...(options || {}),
   });
 }
+
+/** 结算小票打印地址：80mm HTML（服务端按结算单填充，浏览器打印即可） */
+export const receiptPrintUrl = (settlementId: number) => `/api/v1/print/receipt/${settlementId}`;

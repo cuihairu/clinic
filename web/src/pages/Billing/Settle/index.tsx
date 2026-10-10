@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { PageContainer } from '@ant-design/pro-components';
 import { Button, InputNumber, message } from 'antd';
-import { ReloadOutlined } from '@ant-design/icons';
+import { CheckCircleFilled, PrinterOutlined, ReloadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { Order, ORDER_STATUS, queryOrderPage } from '@/services/ant-design-pro/order';
 import {
@@ -12,6 +12,7 @@ import {
   createRecharge,
   fetchRechargeBalance,
   querySettlementPage,
+  receiptPrintUrl,
   settleOrder,
 } from '@/services/ant-design-pro/billing';
 import { listCardsByCustomer, type Card } from '@/services/ant-design-pro/card';
@@ -29,6 +30,8 @@ const Settle: React.FC = () => {
   const [busy, setBusy] = useState(false);
   /** 选中订单的顾客对该订单卡项的有效余次（无卡/停用为 0） */
   const [cardRest, setCardRest] = useState<number | undefined>();
+  /** 刚收完的结算单：右栏给「打印小票」入口 */
+  const [done, setDone] = useState<{ id: number; money: number; pay: string } | undefined>();
 
   const loadQueue = async () => {
     const [queue, recent] = await Promise.all([
@@ -47,6 +50,7 @@ const Settle: React.FC = () => {
     setSelected(order);
     setRechargeAmount(undefined);
     setCardRest(undefined);
+    setDone(undefined);
     if (order.customerId) {
       const b = await fetchRechargeBalance(order.customerId);
       setBalance(b?.balance ?? 0);
@@ -86,12 +90,13 @@ const Settle: React.FC = () => {
           return;
         }
       }
-      const done = await settleOrder({ orderId: selected.id, payType });
-      if (done?.id) {
-        message.success(`已收款 ¥${done.money}（${PAY_TYPE_TEXT[payType]}）`);
+      const receipt = await settleOrder({ orderId: selected.id, payType });
+      if (receipt?.id) {
+        message.success(`已收款 ¥${receipt.money}（${PAY_TYPE_TEXT[payType]}）`);
         setSelected(undefined);
         setBalance(undefined);
         setRechargeAmount(undefined);
+        setDone({ id: receipt.id, money: receipt.money ?? 0, pay: PAY_TYPE_TEXT[payType] });
         await loadQueue();
       }
     } finally {
@@ -144,6 +149,14 @@ const Settle: React.FC = () => {
                 <span className="pay">{PAY_TYPE_TEXT[s.payType ?? 0]}</span>
                 <span className="amt">¥{s.money}</span>
                 <span className="tm">{s.createTime ? moment(s.createTime).format('MM-DD HH:mm') : ''}</span>
+                <Button
+                  type="text"
+                  size="small"
+                  className="s-print"
+                  icon={<PrinterOutlined />}
+                  title="补打小票"
+                  onClick={() => window.open(receiptPrintUrl(s.id ?? 0), '_blank')}
+                />
               </div>
             ))}
           </section>
@@ -151,9 +164,26 @@ const Settle: React.FC = () => {
 
         <div className="bl-right">
           <section className="bl-due">
-            {!selected ? (
-              <div className="bl-empty tall">从左侧队列选一单开始收款</div>
-            ) : (
+            {!selected && done && (
+              <div className="done">
+                <CheckCircleFilled className="ok" />
+                <div className="tt">已收款 ¥{done.money}（{done.pay}）</div>
+                <div className="op">
+                  <Button
+                    icon={<PrinterOutlined />}
+                    onClick={() => window.open(receiptPrintUrl(done.id), '_blank')}
+                  >
+                    打印小票
+                  </Button>
+                  <Button type="text" onClick={() => setDone(undefined)}>
+                    继续收款
+                  </Button>
+                </div>
+                <div className="hp">80mm 版式，浏览器新窗口打开即可打印；历史小票可在左侧「最近结算」补打。</div>
+              </div>
+            )}
+            {!selected && !done && <div className="bl-empty tall">从左侧队列选一单开始收款</div>}
+            {selected && (
               <>
                 <div className="head">
                   <div className="avatar">{(selected.customerName || '?').slice(0, 1)}</div>
@@ -237,7 +267,7 @@ const Settle: React.FC = () => {
                 <Button type="primary" className="btn-pay" loading={busy} onClick={pay}>
                   {storedShort ? `充值 ¥${rechargeAmount ?? need} 并收款 ¥${price}` : `收款 ¥${price}`}
                 </Button>
-                <div className="note">演示口径：微信/支付宝仅记录支付方式；次卡抵扣扣 1 次、实收记 0（需顾客持本单卡项的有效余次卡）；小票打印为规划功能。</div>
+                <div className="note">演示口径：微信/支付宝仅记录支付方式；次卡抵扣扣 1 次、实收记 0（需顾客持本单卡项的有效余次卡）；收款后可打印 80mm 小票，历史小票可补打。</div>
               </>
             )}
           </section>
