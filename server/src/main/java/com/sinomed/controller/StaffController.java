@@ -210,7 +210,7 @@ public class StaffController {
             ))
     })
     @GetMapping("/name/{name}")
-    public StaffView findStaffByName(String name) {
+    public StaffView findStaffByName(@PathVariable String name) {
         StaffEntity staffEntity = staffService.findByName(name).orElseThrow(() -> new IllegalArgumentException("员工不存在"));
         return StaffView.fromStaffEntity(staffEntity);
     }
@@ -234,7 +234,7 @@ public class StaffController {
             ))
     })
     @GetMapping("/phone/{phone}")
-    public StaffView findStaffByPhone(String phone) {
+    public StaffView findStaffByPhone(@PathVariable String phone) {
         StaffEntity staffEntity = staffService.findByPhone(phone).orElseThrow(() -> new IllegalArgumentException("员工不存在"));
         return StaffView.fromStaffEntity(staffEntity);
     }

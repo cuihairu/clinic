@@ -176,7 +176,7 @@ public class ItemController {
             ))
     })
     @GetMapping("/name/{name}")
-    public ItemView findItemByName(String name) {
+    public ItemView findItemByName(@PathVariable String name) {
         ItemEntity itemEntity = itemService.findByName(name).orElseThrow(() -> new IllegalArgumentException("商品不存在"));
         return ItemView.FromItemEntity(itemEntity);
     }
