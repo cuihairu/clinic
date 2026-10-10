@@ -16,6 +16,7 @@ export default {
   'menu.staff.staff-create': 'New Staff',
   'menu.staff.staff-query': 'Staff Query',
   'menu.staff.staff-sign': 'Staff Sign-in',
+  'menu.staff.staff-leave': 'Staff Leave',
   'menu.staff.staff-today-timesheet': "Today's Timesheet",
   'menu.staff.timesheet-list': 'Timesheet List',
   'menu.treat': 'Consultation',

@@ -99,13 +99,55 @@ export async function fetchTimesheet (body: API.Sign,options?: { [key: string]: 
   });
 }
 
-export async function createLeave(body: API.Staff,options?: { [key: string]: any }) {
-  return request<API.Staff>('/api/v1/Leave/', {
+/** 员工请假记录（staffName 为列表联出展示字段） */
+export interface StaffLeave {
+  id?: number;
+  staffId?: number;
+  /** 列表联出的展示字段 */
+  staffName?: string;
+  /** 类型：0 病假 / 1 事假 */
+  leaveType?: number;
+  reason?: string;
+  startTime?: string;
+  endTime?: string;
+  createTime?: string;
+}
+
+export interface StaffLeavePageResult {
+  data?: StaffLeave[];
+  total?: number;
+  pages?: number;
+  success?: boolean;
+}
+
+/** 提交请假：staffId + leaveType（0 病假 / 1 事假）+ reason + startTime/endTime 必填 */
+export async function createLeave(
+  body: { staffId: number; leaveType: number; reason: string; startTime: string; endTime: string },
+  options?: { [key: string]: any },
+) {
+  return request<StaffLeave>('/api/v1/staff/leave/', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     data: body,
+    ...(options || {}),
+  });
+}
+
+/** 请假分页（id 倒序，联出员工名）；staffId 可选过滤 */
+export async function queryLeavePage(
+  params: { current?: number; pageSize?: number; staffId?: number },
+  options?: { [key: string]: any },
+) {
+  return request<StaffLeavePageResult>('/api/v1/staff/leave/page', {
+    method: 'GET',
+    params,
+    ...(options || {}),
+  });
+}
+
+/** 删除请假记录（演示环境口径，无留痕） */
+export async function deleteLeave(id: number, options?: { [key: string]: any }) {
+  return request<{ message?: string }>(`/api/v1/staff/leave/${id}`, {
+    method: 'DELETE',
     ...(options || {}),
   });
 }

@@ -1,0 +1,132 @@
+// 员工请假 —— 石墨×古金 tokens（同结算台/顾客档案）
+@import '@/tokens.css';
+
+.lv-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 14px;
+  align-items: start;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lv-panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+
+  h3 {
+    font-size: 14px;
+    margin: 0 0 14px;
+    display: flex;
+    align-items: center;
+
+    .refresh {
+      margin-left: auto;
+      color: var(--muted);
+    }
+  }
+}
+
+.lv-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .lv-reason {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+    background: var(--paper);
+
+    &:focus {
+      outline: 1px solid var(--brand);
+    }
+  }
+
+  .ant-btn {
+    align-self: flex-start;
+    background: var(--brand);
+  }
+}
+
+.lv-empty {
+  color: var(--faint);
+  font-size: 12.5px;
+  padding: 14px 2px;
+}
+
+.lv-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 4px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .who {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    b {
+      font-weight: 600;
+    }
+    i {
+      font-style: normal;
+      font-size: 11.5px;
+      color: var(--faint);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 260px;
+    }
+  }
+  .tp {
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 2px 9px;
+    flex-shrink: 0;
+
+    &.t0 {
+      color: #a3542e;
+      background: #f7ede4;
+    }
+    &.t1 {
+      color: var(--brand-deep);
+      background: var(--brand-tint);
+    }
+  }
+  .tm {
+    margin-left: auto;
+    font-size: 11.5px;
+    color: var(--faint);
+    white-space: nowrap;
+  }
+  .del {
+    color: var(--muted);
+
+    &:hover {
+      color: #a3542e;
+    }
+  }
+}

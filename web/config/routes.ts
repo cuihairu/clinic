@@ -89,6 +89,8 @@ export default [
         component: './Staff/Timesheet/Today',
       },
       {
+        access: 'canUser',
+        name: 'staff-leave',
         path: '/staff/leave',
         component: './Staff/Leave',
       },
