@@ -1,6 +1,7 @@
 package com.sinomed.controller;
 
 import com.sinomed.entity.CustomerEntity;
+import com.sinomed.entity.CustomerHistoryEntity;
 import com.sinomed.service.CustomerService;
 import com.sinomed.util.PhoneValidationUtil;
 import com.sinomed.vo.*;
@@ -143,6 +144,34 @@ public class CustomerController {
             ret.add(CustomerView.FromCustomerEntity(userEntity));
         }
         return ret;
+    }
+
+    @Operation(summary = "顾客病史列表", description = "过敏史/既往史记录，新记录在前；顾客不存在报 400")
+    @GetMapping("/{id}/history")
+    public List<CustomerHistoryView> listHistory(@PathVariable("id") Long id) throws IllegalArgumentException {
+        List<CustomerHistoryView> ret = new ArrayList<>();
+        for (CustomerHistoryEntity entity : customerService.listHistories(id)) {
+            ret.add(CustomerHistoryView.FromEntity(entity));
+        }
+        return ret;
+    }
+
+    @Operation(summary = "新增病史", description = "type 0 过敏 / 1 既往；content 非空且 ≤200 字，顾客不存在或类型无效报 400",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = CustomerHistoryView.class)
+            ), required = true))
+    @PostMapping("/{id}/history")
+    public CustomerHistoryView addHistory(@PathVariable("id") Long id, @Validated @RequestBody CustomerHistoryView view)
+            throws IllegalArgumentException {
+        return CustomerHistoryView.FromEntity(customerService.addHistory(id, view.getType(), view.getContent()));
+    }
+
+    @Operation(summary = "删除病史", description = "按病史记录 id 删除；演示环境口径，无留痕")
+    @DeleteMapping("/history/{historyId}")
+    public MessageView deleteHistory(@PathVariable("historyId") Long historyId) throws IllegalArgumentException {
+        customerService.deleteHistory(historyId);
+        return MessageView.builder().message("删除成功").build();
     }
 
     @Operation(summary = "创建客人",

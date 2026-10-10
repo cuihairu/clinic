@@ -1,6 +1,8 @@
 package com.sinomed.service.impl;
 
 import com.sinomed.entity.CustomerEntity;
+import com.sinomed.entity.CustomerHistoryEntity;
+import com.sinomed.repository.CustomerHistoryRepository;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.service.CustomerService;
 import com.sinomed.util.DateUtil;
@@ -28,6 +30,7 @@ import java.util.Optional;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final CustomerHistoryRepository historyRepository;
 
     @Override
     public Page<CustomerEntity> findAllByPage(String name,Integer age,String phone, String startTime,String endTime, Pageable pageable){
@@ -104,5 +107,42 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public void deleteById(Long id) {
         customerRepository.deleteById(id);
+    }
+
+    @Override
+    public List<CustomerHistoryEntity> listHistories(Long customerId) {
+        customerRepository.findById(customerId).orElseThrow(() ->
+                new IllegalArgumentException("顾客不存在，无法查询病史"));
+        return historyRepository.findByCustomerIdOrderByIdDesc(customerId);
+    }
+
+    @Override
+    public CustomerHistoryEntity addHistory(Long customerId, Integer type, String content) {
+        customerRepository.findById(customerId).orElseThrow(() ->
+                new IllegalArgumentException("顾客不存在，无法记录病史"));
+        if (type == null || (type != 0 && type != 1)) {
+            throw new IllegalArgumentException("病史类型无效：0 过敏 / 1 既往");
+        }
+        String text = content == null ? "" : content.trim();
+        if (text.isEmpty()) {
+            throw new IllegalArgumentException("病史内容不能为空");
+        }
+        if (text.length() > 200) {
+            throw new IllegalArgumentException("病史内容过长（≤200 字）");
+        }
+        CustomerHistoryEntity history = new CustomerHistoryEntity();
+        history.setCustomerId(customerId);
+        history.setType(type);
+        history.setContent(text);
+        CustomerHistoryEntity saved = historyRepository.save(history);
+        log.info("病史记录：customer={} type={}（{}）内容 {} 字", customerId, type, type == 0 ? "过敏" : "既往", text.length());
+        return saved;
+    }
+
+    @Override
+    public void deleteHistory(Long historyId) {
+        CustomerHistoryEntity history = historyRepository.findById(historyId).orElseThrow(() ->
+                new IllegalArgumentException("病史记录不存在：" + historyId));
+        historyRepository.delete(history);
     }
 }

@@ -3,6 +3,7 @@ package com.sinomed.seed;
 import com.sinomed.entity.AppointmentEntity;
 import com.sinomed.entity.CardUsageEntity;
 import com.sinomed.entity.CustomerEntity;
+import com.sinomed.entity.CustomerHistoryEntity;
 import com.sinomed.entity.ItemEntity;
 import com.sinomed.entity.OrderEntity;
 import com.sinomed.entity.PrescriptionEntity;
@@ -19,6 +20,7 @@ import com.sinomed.entity.TreatEntity;
 import com.sinomed.repository.AppointmentRepository;
 import com.sinomed.repository.CardUsageRepository;
 import com.sinomed.repository.CustomerRepository;
+import com.sinomed.repository.CustomerHistoryRepository;
 import com.sinomed.repository.ItemRepository;
 import com.sinomed.repository.PrescriptionTemplateItemRepository;
 import com.sinomed.repository.PrescriptionTemplateRepository;
@@ -76,6 +78,7 @@ public class DemoSeedRunner implements ApplicationRunner {
     private final PrescriptionRepository prescriptionRepository;
     private final PrescriptionItemRepository prescriptionItemRepository;
     private final CustomerRepository customerRepository;
+    private final CustomerHistoryRepository historyRepository;
     private final TreatRepository treatRepository;
     private final ItemRepository itemRepository;
     private final HerbRepository herbRepository;
@@ -107,6 +110,7 @@ public class DemoSeedRunner implements ApplicationRunner {
             seedBilling(customers);
             seedCards(customers);
             seedPrescriptions(customers);
+            seedHistories(customers);
             log.info("演示种子数据检查完成（逐表幂等，已有数据自动跳过）；"
                     + "广告素材模块源码未实现，无种子数据");
         } catch (Exception e) {
@@ -472,6 +476,35 @@ public class DemoSeedRunner implements ApplicationRunner {
         log.info("种子·次卡：检查完成");
     }
 
+    /** 病史（过敏/既往）：给两位演示顾客各补几条，顾客档案「病史」栏可查 */
+    private void seedHistories(Map<String, Long> customers) {
+        if (historyRepository.count() > 0) {
+            return;
+        }
+        record HistorySeed(String phone, int type, String content, int daysAgo) {}
+        List<HistorySeed> seeds = List.of(
+                new HistorySeed("13900000001", 0, "青霉素过敏（皮试阳性）", 28),
+                new HistorySeed("13900000001", 1, "高血压 8 年，规律服药，血压控制平稳", 28),
+                new HistorySeed("13900000004", 0, "海鲜类食物过敏，易发风疹", 9)
+        );
+        Calendar cal = Calendar.getInstance();
+        for (HistorySeed s : seeds) {
+            Long customerId = customers.get(s.phone());
+            if (customerId == null) {
+                continue;
+            }
+            CustomerHistoryEntity history = new CustomerHistoryEntity();
+            history.setCustomerId(customerId);
+            history.setType(s.type());
+            history.setContent(s.content());
+            history = historyRepository.save(history);
+            cal.setTime(new Date());
+            cal.add(Calendar.DAY_OF_MONTH, -s.daysAgo());
+            backdateRow("customer_histories", history.getId(), cal.getTime());
+        }
+        log.info("种子·病史：检查完成");
+    }
+
     private void seedPrescriptions(Map<String, Long> customers) {
         record HerbSeed(String herb, double weight, String special) {}
         Long customerId = customers.get("13900000001");
@@ -535,6 +568,7 @@ public class DemoSeedRunner implements ApplicationRunner {
         paste.setDoses(30);
         paste.setPrescriptionType(1);
         paste.setPasteStatus(2); // 三日可取，留给演示走「已取」流转
+        paste.setDecoctionStatus(0); // 膏方按料计，不走代煎（列 NOT NULL 需显式置 0）
         paste.setCraft("炼蜜");
         paste.setUsage("温水冲服，日 2 次，每次 15g；一料服约 30 日");
         paste.setRemark("空腹服用，忌生冷；服期间停用峻补之品");
