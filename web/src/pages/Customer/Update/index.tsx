@@ -3,7 +3,7 @@ import { updateCustomer, fetchCustomerById } from '@/services/ant-design-pro/cus
 import { queryTreatByPage } from '@/services/ant-design-pro/treat';
 import { fetchOrderSummary } from '@/services/ant-design-pro/order';
 import type { OrderSummary } from '@/services/ant-design-pro/order';
-import { issueCard, listCardsByCustomer, setCardStatus, type Card } from '@/services/ant-design-pro/card';
+import { issueCard, listCardsByCustomer, setCardStatus, listCardUsages, type Card, type CardUsage } from '@/services/ant-design-pro/card';
 import { queryItemByPage } from '@/services/ant-design-pro/item';
 import {
   PageContainer,
@@ -39,6 +39,9 @@ const Update: React.FC = () => {
   const [issueOpen, setIssueOpen] = useState(false);
   const [issuing, setIssuing] = useState(false);
   const [issueForm] = Form.useForm();
+  const [usageCard, setUsageCard] = useState<Card | null>(null);
+  const [usages, setUsages] = useState<CardUsage[]>([]);
+  const [usageLoading, setUsageLoading] = useState(false);
 
   const activeCardCount = cards.filter((c) => c.status === 1).length;
 
@@ -96,6 +99,18 @@ const Update: React.FC = () => {
       }
     } finally {
       setIssuing(false);
+    }
+  };
+
+  const openUsages = async (card: Card) => {
+    setUsageCard(card);
+    setUsages([]);
+    setUsageLoading(true);
+    try {
+      const list = card.id ? await listCardUsages(card.id) : [];
+      setUsages(list || []);
+    } finally {
+      setUsageLoading(false);
     }
   };
 
@@ -205,7 +220,7 @@ const Update: React.FC = () => {
                 <div className="cd-main">
                   <div className="cd-nm">{c.itemName || '卡项'}</div>
                   <div className="cd-sub">
-                    剩余 {c.remainingTimes ?? 0}/{c.totalTimes ?? 0} 次
+                    已用 {(c.totalTimes ?? 0) - (c.remainingTimes ?? 0)}/{c.totalTimes ?? 0} 次
                     {c.status === 0 ? ' · 已停用' : ''}
                   </div>
                   <div className="cd-bar">
@@ -216,18 +231,21 @@ const Update: React.FC = () => {
                     />
                   </div>
                 </div>
-                <Popconfirm
-                  title={c.status === 1 ? '停用后不能用于抵扣，确认停用？' : '恢复该卡为有效？'}
-                  onConfirm={async () => {
-                    if (c.id) {
-                      await setCardStatus(c.id, c.status === 1 ? 0 : 1);
-                      message.success(c.status === 1 ? '已停用' : '已恢复');
-                      await load();
-                    }
-                  }}
-                >
-                  <a>{c.status === 1 ? '停用' : '恢复'}</a>
-                </Popconfirm>
+                <div className="cd-ops">
+                  <a onClick={() => openUsages(c)}>核销记录</a>
+                  <Popconfirm
+                    title={c.status === 1 ? '停用后不能用于抵扣，确认停用？' : '恢复该卡为有效？'}
+                    onConfirm={async () => {
+                      if (c.id) {
+                        await setCardStatus(c.id, c.status === 1 ? 0 : 1);
+                        message.success(c.status === 1 ? '已停用' : '已恢复');
+                        await load();
+                      }
+                    }}
+                  >
+                    <a>{c.status === 1 ? '停用' : '恢复'}</a>
+                  </Popconfirm>
+                </div>
               </div>
             ))
           )}
@@ -256,6 +274,32 @@ const Update: React.FC = () => {
             <InputNumber min={1} precision={0} style={{ width: '100%' }} />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title={`核销记录 · ${usageCard?.itemName || '次卡'}`}
+        open={!!usageCard}
+        footer={null}
+        onCancel={() => setUsageCard(null)}
+      >
+        {usageLoading ? (
+          <div className="plan-note">加载中…</div>
+        ) : usages.length === 0 ? (
+          <div className="plan-note">
+            暂无核销记录；结算台选「次卡抵扣」收款后，每次抵扣在这里落一条。
+          </div>
+        ) : (
+          <div className="usage-list">
+            {usages.map((u) => (
+              <div className="usage-row" key={u.id}>
+                <span className="u-n">第 {u.timesUsed ?? '—'} 次</span>
+                <span className="u-t">{u.createTime ? moment(u.createTime).format('YYYY-MM-DD HH:mm') : '—'}</span>
+                <span className="u-s">{u.staffName ? `服务：${u.staffName}` : '服务：—'}</span>
+                <span className="u-o">{u.orderId ? `订单 #${u.orderId}` : '历史补录'}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </Modal>
 
       <Drawer title="编辑顾客资料" width={560} open={editOpen} onClose={() => setEditOpen(false)}>

@@ -242,4 +242,52 @@
     flex: none;
     font-size: 12px;
   }
+
+  .cd-ops {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    text-align: right;
+  }
+}
+
+/* 核销记录弹层：每次抵扣一行 */
+.usage-list {
+  .usage-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 13px;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .u-n {
+      flex: none;
+      min-width: 52px;
+      font-weight: 600;
+    }
+
+    .u-t {
+      flex: none;
+      color: var(--faint);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .u-s {
+      flex: 1;
+      color: var(--faint);
+    }
+
+    .u-o {
+      flex: none;
+      color: var(--faint);
+      font-size: 12px;
+    }
+  }
 }

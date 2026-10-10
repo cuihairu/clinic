@@ -51,3 +51,27 @@ export async function setCardStatus(
     ...(options || {}),
   });
 }
+
+/** 次卡核销记录：每次结算抵扣一条（补录口径无订单号） */
+export interface CardUsage {
+  id?: number;
+  cardId?: number;
+  orderId?: number;
+  staffId?: number;
+  /** 列表联出的展示字段 */
+  staffName?: string;
+  /** 本次是第几次消费（1 起） */
+  timesUsed?: number;
+  createTime?: string;
+}
+
+/** 按持卡查核销记录（新记录在前） */
+export async function listCardUsages(
+  id: number,
+  options?: { [key: string]: any },
+) {
+  return request<CardUsage[]>(`/api/v1/card/${id}/usages`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
