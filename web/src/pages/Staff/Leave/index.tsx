@@ -61,8 +61,9 @@ const Leave: React.FC = () => {
         staffId,
         leaveType,
         reason: reason.trim(),
-        startTime: start.format('YYYY-MM-DD HH:mm:ss'),
-        endTime: end.format('YYYY-MM-DD HH:mm:ss'),
+        // Jackson(Date) 只认 ISO-8601，空格分隔的 datetime 会被 400（与预约建单同口径）
+        startTime: start.format('YYYY-MM-DDTHH:mm:ssZ'),
+        endTime: end.format('YYYY-MM-DDTHH:mm:ssZ'),
       });
       if (created?.id) {
         message.success('请假已登记');
