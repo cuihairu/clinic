@@ -4,11 +4,14 @@ import com.sinomed.entity.PrescriptionEntity;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.repository.PrescriptionItemRepository;
 import com.sinomed.repository.StaffRepository;
+import com.sinomed.service.AllergyService;
 import com.sinomed.service.CompatibilityService;
 import com.sinomed.service.PrescriptionService;
 import com.sinomed.service.PricingService;
 import com.sinomed.vo.CompatibilityCheckView;
 import com.sinomed.vo.CompatibilityResultView;
+import com.sinomed.vo.AllergyCheckView;
+import com.sinomed.vo.AllergyResultView;
 import com.sinomed.vo.MessageView;
 import com.sinomed.vo.PageResp;
 import com.sinomed.vo.PrescriptionItemView;
@@ -48,19 +51,22 @@ public class PrescriptionController {
     private final StaffRepository staffRepository;
     private final CompatibilityService compatibilityService;
     private final PricingService pricingService;
+    private final AllergyService allergyService;
 
     public PrescriptionController(PrescriptionService prescriptionService,
                                   PrescriptionItemRepository prescriptionItemRepository,
                                   CustomerRepository customerRepository,
                                   StaffRepository staffRepository,
                                   CompatibilityService compatibilityService,
-                                  PricingService pricingService) {
+                                  PricingService pricingService,
+                                  AllergyService allergyService) {
         this.prescriptionService = prescriptionService;
         this.prescriptionItemRepository = prescriptionItemRepository;
         this.customerRepository = customerRepository;
         this.staffRepository = staffRepository;
         this.compatibilityService = compatibilityService;
         this.pricingService = pricingService;
+        this.allergyService = allergyService;
     }
 
     @Operation(summary = "开方", description = "customerId + herbs（至少 1 味：herb 药名 + weight 剂量克，special 特殊煎法可选）必填；"
@@ -118,6 +124,29 @@ public class PrescriptionController {
     public CompatibilityResultView checkCompatibility(@RequestBody CompatibilityCheckView view) {
         List<String> herbs = view == null ? null : view.getHerbs();
         return compatibilityService.check(herbs);
+    }
+
+    @Operation(summary = "过敏审方", description = "按顾客过敏史（customer_histories type=0）比对当前药味：过敏史原文包含药名"
+            + "（≥2 字）即命中（如「阿胶、蜂蜜过敏」命中「阿胶」）。findings 为空即过敏史未提到当前药味；"
+            + "提示不拦截，是否照用由医师判断",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "审方结果", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = AllergyResultView.class)
+                    )),
+                    @ApiResponse(responseCode = "400", description = "顾客不存在或药材名单为空", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageView.class)
+                    )),
+                    @ApiResponse(responseCode = "401", description = "没有权限", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageView.class)
+                    ))
+            })
+    @PostMapping("/allergy-check")
+    public AllergyResultView checkAllergy(@RequestBody AllergyCheckView view) {
+        return allergyService.check(view == null ? null : view.getCustomerId(),
+                view == null ? null : view.getHerbs());
     }
 
     @Operation(summary = "处方试算", description = "不开方只算钱：body 传 herbs（herb/weight）+ doses，按药材字典实时计价返回；"

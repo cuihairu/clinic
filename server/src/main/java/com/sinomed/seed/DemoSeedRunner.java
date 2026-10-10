@@ -484,6 +484,7 @@ public class DemoSeedRunner implements ApplicationRunner {
         record HistorySeed(String phone, int type, String content, int daysAgo) {}
         List<HistorySeed> seeds = List.of(
                 new HistorySeed("13900000001", 0, "青霉素过敏（皮试阳性）", 28),
+                new HistorySeed("13900000001", 0, "阿胶、蜂蜜过敏", 20),
                 new HistorySeed("13900000001", 1, "高血压 8 年，规律服药，血压控制平稳", 28),
                 new HistorySeed("13900000004", 0, "海鲜类食物过敏，易发风疹", 9)
         );
