@@ -30,4 +30,9 @@ public interface PrescriptionService {
      * 代煎流转：待煎(1)→可取(2)→已取(3) 顺序推进，其余拒绝
      */
     PrescriptionEntity setDecoctionStatus(Long id, Integer status);
+
+    /**
+     * 膏方领取流转：待制作(1)→可取(2)→已取(3) 顺序推进，非膏方(0)与回退/跳跃拒绝
+     */
+    PrescriptionEntity setPasteStatus(Long id, Integer status);
 }

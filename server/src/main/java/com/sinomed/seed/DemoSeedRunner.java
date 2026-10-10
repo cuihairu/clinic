@@ -476,40 +476,88 @@ public class DemoSeedRunner implements ApplicationRunner {
         record HerbSeed(String herb, double weight, String special) {}
         Long customerId = customers.get("13900000001");
         Long staffId = staffByAccount("shen");
-        if (customerId == null || prescriptionOnDayExists(customerId, -1)) {
+        if (customerId == null) {
             return;
         }
-        List<HerbSeed> herbs = List.of(
-                new HerbSeed("柴胡", 12, null),
-                new HerbSeed("白芍", 15, null),
-                new HerbSeed("当归", 10, null),
-                new HerbSeed("茯苓", 15, null),
-                new HerbSeed("白术", 12, null),
-                new HerbSeed("薄荷", 6, "后下"),
-                new HerbSeed("炙甘草", 6, null)
+        // 汤剂（代煎）：已有昨日处方即跳过
+        if (!prescriptionOnDayExists(customerId, -1)) {
+            List<HerbSeed> herbs = List.of(
+                    new HerbSeed("柴胡", 12, null),
+                    new HerbSeed("白芍", 15, null),
+                    new HerbSeed("当归", 10, null),
+                    new HerbSeed("茯苓", 15, null),
+                    new HerbSeed("白术", 12, null),
+                    new HerbSeed("薄荷", 6, "后下"),
+                    new HerbSeed("炙甘草", 6, null)
+            );
+            PrescriptionEntity prescription = new PrescriptionEntity();
+            prescription.setCustomerId(customerId);
+            prescription.setStaffId(staffId);
+            prescription.setDoses(7);
+            prescription.setPrescriptionType(0);
+            prescription.setPasteStatus(0);
+            // 昨日开方今日可取（0 无需/1 待煎/2 可取/3 已取），留给演示走「已取」流转
+            prescription.setDecoctionStatus(2);
+            prescription.setDecoctionBags(7);
+            prescription.setUsage("水煎服，日一剂，早晚温服；代煎 7 袋");
+            prescription.setRemark("复诊请带近期睡眠记录");
+            prescription = prescriptionRepository.save(prescription);
+            for (int i = 0; i < herbs.size(); i++) {
+                HerbSeed herb = herbs.get(i);
+                PrescriptionItemEntity item = new PrescriptionItemEntity();
+                item.setPrescriptionId(prescription.getId());
+                item.setHerb(herb.herb());
+                item.setWeight(herb.weight());
+                item.setSpecial(herb.special());
+                item.setSort(i);
+                prescriptionItemRepository.save(item);
+            }
+            backdateRow("prescriptions", prescription.getId(), at(-1, 10, 30)); // 回写昨日开方时间线
+        }
+        // 膏方（炼蜜收膏）：演示膏方领取流转，已有膏方即跳过
+        if (customersHasPaste(customerId)) {
+            return;
+        }
+        List<HerbSeed> pasteHerbs = List.of(
+                new HerbSeed("熟地黄", 60, null),
+                new HerbSeed("党参", 30, null),
+                new HerbSeed("白芍", 30, null),
+                new HerbSeed("茯苓", 30, null),
+                new HerbSeed("陈皮", 30, null),
+                new HerbSeed("砂仁", 10, "后下"),
+                new HerbSeed("阿胶", 20, "烊化"),
+                new HerbSeed("龟板胶", 20, "烊化"),
+                new HerbSeed("鹿角胶", 10, "烊化")
         );
-        PrescriptionEntity prescription = new PrescriptionEntity();
-        prescription.setCustomerId(customerId);
-        prescription.setStaffId(staffId);
-        prescription.setDoses(7);
-        // 昨日开方今日可取（0 无需/1 待煎/2 可取/3 已取），留给演示走「已取」流转
-        prescription.setDecoctionStatus(2);
-        prescription.setDecoctionBags(7);
-        prescription.setUsage("水煎服，日一剂，早晚温服；代煎 7 袋");
-        prescription.setRemark("复诊请带近期睡眠记录");
-        prescription = prescriptionRepository.save(prescription);
-        for (int i = 0; i < herbs.size(); i++) {
-            HerbSeed herb = herbs.get(i);
+        PrescriptionEntity paste = new PrescriptionEntity();
+        paste.setCustomerId(customerId);
+        paste.setStaffId(staffId);
+        paste.setDoses(30);
+        paste.setPrescriptionType(1);
+        paste.setPasteStatus(2); // 三日可取，留给演示走「已取」流转
+        paste.setCraft("炼蜜");
+        paste.setUsage("温水冲服，日 2 次，每次 15g；一料服约 30 日");
+        paste.setRemark("空腹服用，忌生冷；服期间停用峻补之品");
+        paste = prescriptionRepository.save(paste);
+        for (int i = 0; i < pasteHerbs.size(); i++) {
+            HerbSeed herb = pasteHerbs.get(i);
             PrescriptionItemEntity item = new PrescriptionItemEntity();
-            item.setPrescriptionId(prescription.getId());
+            item.setPrescriptionId(paste.getId());
             item.setHerb(herb.herb());
             item.setWeight(herb.weight());
             item.setSpecial(herb.special());
             item.setSort(i);
             prescriptionItemRepository.save(item);
         }
-        backdateRow("prescriptions", prescription.getId(), at(-1, 10, 30)); // 回写昨日开方时间线
+        backdateRow("prescriptions", paste.getId(), at(-3, 10, 0)); // 回写三日制膏时间线
         log.info("种子·处方：检查完成");
+    }
+
+    /** 该顾客是否已有膏方（种子幂等键） */
+    private boolean customersHasPaste(Long customerId) {
+        return prescriptionRepository.findAll().stream()
+                .anyMatch(p -> customerId.equals(p.getCustomerId())
+                        && Integer.valueOf(1).equals(p.getPrescriptionType()));
     }
 
     /** 病症处方模板：两条常见病症，开方页「套用模板」演示（按病症名幂等） */

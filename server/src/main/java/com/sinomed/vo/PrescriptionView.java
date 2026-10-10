@@ -14,7 +14,8 @@ import java.util.List;
 /**
  * 处方笺视图：字段与 prescriptions 表对齐；customerName/staffName/herbs 为列表与详情联出的展示字段，
  * pricing 为按药材字典实时算出的计价（不落库、无快照）；
- * decoction/decoctionFeeFen 为代煎领取口径（decoction 仅开方入参，费率实时算不落库）。
+ * decoction/decoctionFeeFen 为代煎领取口径（decoction 仅开方入参，费率实时算不落库）；
+ * prescriptionType/pasteStatus/craft 为膏方口径（膏方开方即落「待制作」，工艺记录收膏方式）。
  */
 @Builder
 @NoArgsConstructor
@@ -70,6 +71,15 @@ public class PrescriptionView {
     @Schema(title = "代煎服务费（分，袋数×300，实时算不落库；无需代煎为空）", example = "2100")
     private Integer decoctionFeeFen;
 
+    @Schema(title = "处方类型：0 汤剂 / 1 膏方（开方入参，默认 0）", example = "1")
+    private Integer prescriptionType;
+
+    @Schema(title = "膏方领取状态：0 非膏方 / 1 待制作 / 2 可取 / 3 已取", example = "1")
+    private Integer pasteStatus;
+
+    @Schema(title = "收膏方式（仅膏方，可空）", example = "炼蜜")
+    private String craft;
+
     @Schema(title = "开方时间", example = "2026-10-09 11:00:00")
     private Date createTime;
 
@@ -90,6 +100,9 @@ public class PrescriptionView {
                 .decoctionStatus(entity.getDecoctionStatus())
                 .decoctionBags(entity.getDecoctionBags())
                 .decoctionFeeFen(decoctionFeeFen(entity.getDecoctionBags()))
+                .prescriptionType(entity.getPrescriptionType())
+                .pasteStatus(entity.getPasteStatus())
+                .craft(entity.getCraft())
                 .createTime(entity.getCreateTime())
                 .build();
     }

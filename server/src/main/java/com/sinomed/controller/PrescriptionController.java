@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 中药处方（需登录）：处方笺开方、查询、删除、配伍审方与实时计价、代煎流转。
+ * 中药处方（需登录）：处方笺开方、查询、删除、配伍审方与实时计价、代煎流转、膏方领取流转。
  * 口径：药材名为自由文本；配伍审方（十八反/十九畏）提示不拦截；
  * 计价按药材字典（/api/v1/herb）实时算、无快照；代煎袋数=剂数、状态待煎→可取→已取、
  * 服务费=袋数×3 元实时算（提示口径，收费仍以卡项订单结算为准）；库存仍为规划功能。
@@ -64,7 +64,8 @@ public class PrescriptionController {
     }
 
     @Operation(summary = "开方", description = "customerId + herbs（至少 1 味：herb 药名 + weight 剂量克，special 特殊煎法可选）必填；"
-            + "treatId/staffId/doses（默认 7）/usage/remark 可选；decoction=true 时代煎，袋数=剂数、落「待煎」",
+            + "treatId/staffId/doses（默认 7）/usage/remark 可选；decoction=true 时代煎，袋数=剂数、落「待煎」；"
+            + "prescriptionType=1 时膏方（落「待制作」，craft 记收膏方式）",
             responses = {
                     @ApiResponse(responseCode = "200", description = "创建后的处方（含药味）", content = @Content(
                             mediaType = "application/json",
@@ -222,6 +223,32 @@ public class PrescriptionController {
             @PathVariable Long id,
             @Parameter(description = "目标状态：2 可取 / 3 已取") @RequestParam Integer status) {
         prescriptionService.setDecoctionStatus(id, status);
+        PrescriptionView view = prescriptionService.findById(id);
+        view.setPricing(pricingService.price(view.getHerbs(), view.getDoses()));
+        return view;
+    }
+
+    @Operation(summary = "膏方领取流转", description = "膏方处方领取流转：待制作(1)→可取(2)→已取(3) 顺序推进；"
+            + "非膏方(0)或回退/跳跃均报 400。回包为流转后的完整处方视图（含药味与计价）",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "流转后的处方", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PrescriptionView.class)
+                    )),
+                    @ApiResponse(responseCode = "400", description = "处方不存在 / 非膏方 / 状态无效 / 流转不合法", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageView.class)
+                    )),
+                    @ApiResponse(responseCode = "401", description = "没有权限", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageView.class)
+                    ))
+            })
+    @PutMapping("/{id}/paste")
+    public PrescriptionView setPasteStatus(
+            @PathVariable Long id,
+            @Parameter(description = "目标状态：2 可取 / 3 已取") @RequestParam Integer status) {
+        prescriptionService.setPasteStatus(id, status);
         PrescriptionView view = prescriptionService.findById(id);
         view.setPricing(pricingService.price(view.getHerbs(), view.getDoses()));
         return view;

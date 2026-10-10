@@ -27,6 +27,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     /**
      * 开方：顾客必填、至少 1 味药、剂数 ≥ 1、剂量 > 0；创建/更新时间由审计维护。
      * 代煎：view.decoction=true 时袋数=剂数、落「待煎」，否则「无需代煎」。
+     * 膏方：prescriptionType=1 时落「待制作」并记收膏方式，否则「非膏方」。
      */
     @Override
     @Transactional
@@ -43,6 +44,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             throw new IllegalArgumentException("剂数必须 ≥ 1");
         }
         boolean decoction = Boolean.TRUE.equals(view.getDecoction());
+        boolean paste = Integer.valueOf(1).equals(view.getPrescriptionType());
 
         PrescriptionEntity prescription = new PrescriptionEntity();
         prescription.setTreatId(view.getTreatId());
@@ -53,6 +55,9 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         prescription.setRemark(view.getRemark());
         prescription.setDecoctionStatus(decoction ? 1 : 0);
         prescription.setDecoctionBags(decoction ? doses : null);
+        prescription.setPrescriptionType(paste ? 1 : 0);
+        prescription.setPasteStatus(paste ? 1 : 0);
+        prescription.setCraft(paste ? view.getCraft() : null);
         prescription = prescriptionRepository.save(prescription);
 
         for (int i = 0; i < herbs.size(); i++) {
@@ -135,10 +140,44 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         return prescriptionRepository.save(prescription);
     }
 
+    /**
+     * 膏方领取流转：只允许 待制作(1)→可取(2)→已取(3) 顺序推进；
+     * 非膏方(0)不可流转，回退/跳跃不做（演示口径，加急/取药窗口同代煎）。
+     */
+    @Override
+    @Transactional
+    public PrescriptionEntity setPasteStatus(Long id, Integer status) {
+        if (status == null || status != 2 && status != 3) {
+            throw new IllegalArgumentException("膏方状态无效：只允许 2 可取 / 3 已取");
+        }
+        PrescriptionEntity prescription = prescriptionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("处方不存在：" + id));
+        Integer current = prescription.getPasteStatus();
+        if (current == null || current == 0) {
+            throw new IllegalArgumentException("该方不是膏方，无需领取流转");
+        }
+        int expected = status == 2 ? 1 : 2;
+        if (current != expected) {
+            throw new IllegalArgumentException("膏方状态流转无效：只能 待制作→可取→已取，当前为「" + pasteText(current) + "」");
+        }
+        prescription.setPasteStatus(status);
+        log.info("膏方流转：处方 {} → {}", id, pasteText(status));
+        return prescriptionRepository.save(prescription);
+    }
+
     private static String decoctionText(int status) {
         return switch (status) {
             case 0 -> "无需代煎";
             case 1 -> "待煎";
+            case 2 -> "可取";
+            default -> "已取";
+        };
+    }
+
+    private static String pasteText(int status) {
+        return switch (status) {
+            case 0 -> "非膏方";
+            case 1 -> "待制作";
             case 2 -> "可取";
             default -> "已取";
         };

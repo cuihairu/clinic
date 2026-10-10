@@ -52,6 +52,18 @@ public class PrescriptionEntity {
     @Column(name = "decoction_bags")
     private Integer decoctionBags;
 
+    /** 处方类型：0 汤剂 / 1 膏方（列默认 0） */
+    @Column(name = "prescription_type", nullable = false, columnDefinition = "integer default 0")
+    private Integer prescriptionType;
+
+    /** 膏方领取状态：0 非膏方 / 1 待制作 / 2 可取 / 3 已取（列默认 0） */
+    @Column(name = "paste_status", nullable = false, columnDefinition = "integer default 0")
+    private Integer pasteStatus;
+
+    /** 收膏方式（炼蜜 / 清膏 / 糖膏等，仅膏方；可空） */
+    @Column(name = "craft")
+    private String craft;
+
     @CreatedDate
     @Column(name = "create_time")
     private Date createTime;
