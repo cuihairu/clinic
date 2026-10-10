@@ -5,6 +5,7 @@ import com.sinomed.repository.CustomerRepository;
 import com.sinomed.service.SettlementService;
 import com.sinomed.vo.MessageView;
 import com.sinomed.vo.PageResp;
+import com.sinomed.vo.SettlementMonthReportView;
 import com.sinomed.vo.SettlementView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -100,5 +101,27 @@ public class SettlementController {
         resp.total = result.getTotalElements();
         resp.success = true;
         return resp;
+    }
+
+    @Operation(summary = "月度收费报表", description = "month=yyyy-MM 必填；按结算时间聚合当月结算单："
+            + "逐日单数/实收、支付方式构成、次卡核销单数（实收 0）",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "月度报表", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = SettlementMonthReportView.class)
+                    )),
+                    @ApiResponse(responseCode = "400", description = "月份格式无效", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageView.class)
+                    )),
+                    @ApiResponse(responseCode = "401", description = "没有权限", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageView.class)
+                    ))
+            })
+    @GetMapping("/report/month")
+    public SettlementMonthReportView monthReport(
+            @Parameter(description = "报表月份 yyyy-MM") @Validated @NotNull @RequestParam String month) {
+        return settlementService.monthReport(month);
     }
 }

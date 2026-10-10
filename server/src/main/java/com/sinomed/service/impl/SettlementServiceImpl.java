@@ -8,6 +8,9 @@ import com.sinomed.repository.RechargeRepository;
 import com.sinomed.repository.SettlementRepository;
 import com.sinomed.service.CardService;
 import com.sinomed.service.SettlementService;
+import com.sinomed.vo.SettlementMonthReportView;
+import com.sinomed.vo.SettlementMonthReportView.DayRow;
+import com.sinomed.vo.SettlementMonthReportView.PayRow;
 import com.sinomed.vo.SettlementView;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +18,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -93,5 +105,77 @@ public class SettlementServiceImpl implements SettlementService {
     @Override
     public Page<SettlementEntity> findPage(Pageable pageable) {
         return settlementRepository.findAll(pageable);
+    }
+
+    /** 报表月份格式：yyyy-MM */
+    static final Pattern MONTH_PATTERN = Pattern.compile("\\d{4}-\\d{2}");
+
+    /**
+     * 月度收费报表：按结算时间取当月结算单（[月初, 下月初)），Java 内聚合
+     * （SQLite 方言不便做日期分组）。次卡核销计入单数、实收为 0；
+     * 支付方式构成只列出现过的，按 payType 升序。
+     */
+    @Override
+    public SettlementMonthReportView monthReport(String month) {
+        if (month == null || !MONTH_PATTERN.matcher(month).matches()) {
+            throw new IllegalArgumentException("报表月份格式无效：" + month + "（应为 yyyy-MM）");
+        }
+        LocalDate firstDay;
+        try {
+            firstDay = LocalDate.parse(month + "-01");
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("报表月份无效：" + month);
+        }
+        Date start = Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date end = Date.from(firstDay.plusMonths(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        List<SettlementEntity> rows = settlementRepository.findByCreateTimeBetween(start, end);
+
+        // day -> [单数, 实收]；payType -> [单数, 实收]，TreeMap 保证升序
+        Map<String, int[]> byDay = new TreeMap<>();
+        Map<Integer, int[]> byPay = new TreeMap<>();
+        int cardCount = 0;
+        for (SettlementEntity row : rows) {
+            int money = row.getMoney() == null ? 0 : row.getMoney();
+            Date time = row.getCreateTime();
+            if (time != null) {
+                String day = LocalDate.ofInstant(time.toInstant(), ZoneId.systemDefault()).toString();
+                int[] dayAgg = byDay.computeIfAbsent(day, k -> new int[2]);
+                dayAgg[0]++;
+                dayAgg[1] += money;
+            }
+            int payType = row.getPayType() == null ? 0 : row.getPayType();
+            int[] payAgg = byPay.computeIfAbsent(payType, k -> new int[2]);
+            payAgg[0]++;
+            payAgg[1] += money;
+            if (payType == PAY_CARD) {
+                cardCount++;
+            }
+        }
+        List<DayRow> days = byDay.entrySet().stream()
+                .map(e -> DayRow.builder().day(e.getKey()).count(e.getValue()[0]).money(e.getValue()[1]).build())
+                .toList();
+        List<PayRow> payTypes = byPay.entrySet().stream()
+                .map(e -> PayRow.builder().payType(e.getKey()).payTypeText(payTypeText(e.getKey()))
+                        .count(e.getValue()[0]).money(e.getValue()[1]).build())
+                .toList();
+        return SettlementMonthReportView.builder()
+                .month(month)
+                .totalCount(rows.size())
+                .totalMoney(rows.stream().mapToInt(r -> r.getMoney() == null ? 0 : r.getMoney()).sum())
+                .cardCount(cardCount)
+                .days(days)
+                .payTypes(payTypes)
+                .build();
+    }
+
+    private static String payTypeText(int payType) {
+        return switch (payType) {
+            case PAY_STORED_VALUE -> "储值";
+            case PAY_WECHAT -> "微信";
+            case PAY_ALIPAY -> "支付宝";
+            case PAY_CASH -> "现金";
+            case PAY_CARD -> "次卡抵扣";
+            default -> "未知(" + payType + ")";
+        };
     }
 }

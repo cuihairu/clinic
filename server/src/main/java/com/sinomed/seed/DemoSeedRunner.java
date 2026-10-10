@@ -14,6 +14,7 @@ import com.sinomed.entity.RechargeEntity;
 import com.sinomed.entity.ReviewCustomerEntity;
 import com.sinomed.entity.ReviewEntity;
 import com.sinomed.entity.ReviewStaffEntity;
+import com.sinomed.entity.SettlementEntity;
 import com.sinomed.entity.SignEntity;
 import com.sinomed.entity.StaffEntity;
 import com.sinomed.entity.TreatEntity;
@@ -32,6 +33,7 @@ import com.sinomed.repository.OrderRepository;
 import com.sinomed.repository.PrescriptionItemRepository;
 import com.sinomed.repository.PrescriptionRepository;
 import com.sinomed.repository.RechargeRepository;
+import com.sinomed.repository.SettlementRepository;
 import com.sinomed.repository.ReviewCustomerRepository;
 import com.sinomed.repository.ReviewRepository;
 import com.sinomed.repository.ReviewStaffRepository;
@@ -86,6 +88,7 @@ public class DemoSeedRunner implements ApplicationRunner {
     private final PrescriptionTemplateItemRepository templateItemRepository;
     private final CustomerCardRepository cardRepository;
     private final CardUsageRepository usageRepository;
+    private final SettlementRepository settlementRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewCustomerRepository reviewCustomerRepository;
     private final ReviewStaffRepository reviewStaffRepository;
@@ -109,6 +112,7 @@ public class DemoSeedRunner implements ApplicationRunner {
             seedAppointments(customers);
             seedBilling(customers);
             seedCards(customers);
+            seedSettlements(customers);
             seedPrescriptions(customers);
             seedHistories(customers);
             log.info("演示种子数据检查完成（逐表幂等，已有数据自动跳过）；"
@@ -474,6 +478,89 @@ public class DemoSeedRunner implements ApplicationRunner {
             cardRepository.save(moxaCard);
         });
         log.info("种子·次卡：检查完成");
+    }
+
+    /** 收费月报演示数据：当月数笔已结算单（微信/支付宝/现金/储值/次卡），按日回写时间线 */
+    private void seedSettlements(Map<String, Long> customers) {
+        Long staffId = staffByAccount("shen");
+        record SettledSeed(String phone, String itemName, int dayOffset, int hour, int minute, int payType) {}
+        List<SettledSeed> seeds = List.of(
+                new SettledSeed("13900000002", "中医体质辨识（单次）", -9, 10, 10, 2),
+                new SettledSeed("13900000005", "经络推拿（10 次卡）", -7, 14, 20, 3),
+                new SettledSeed("13900000002", "艾灸温阳调理（5 次卡）", -5, 11, 0, 4),
+                new SettledSeed("13900000001", "四季膏方调理（季卡）", -3, 15, 40, 1),
+                new SettledSeed("13900000005", "经络推拿（10 次卡）", -1, 10, 30, 2),
+                new SettledSeed("13900000001", "中医体质辨识（单次）", -1, 16, 0, 4)
+        );
+        for (SettledSeed s : seeds) {
+            Long customerId = customers.get(s.phone());
+            Long itemId = itemByName(s.itemName());
+            if (customerId == null || itemId == null
+                    || kioskOrderOnDayExists(customerId, itemId, s.dayOffset())) {
+                continue;
+            }
+            insertSettledOrder(customerId, itemId, staffId, s.payType(), at(s.dayOffset(), s.hour(), s.minute()));
+        }
+
+        // 次卡核销：演示推拿卡当日核 1 次（第 4 次，带订单号），扣余次——与结算链路同口径
+        Long customerId = customers.get("13900000001");
+        Long itemId = itemByName("经络推拿（10 次卡）");
+        Long cardId = customerId == null || itemId == null ? null : cardRepository.findAll().stream()
+                .filter(c -> customerId.equals(c.getCustomerId()) && itemId.equals(c.getItemId())
+                        && Integer.valueOf(1).equals(c.getStatus()))
+                .findFirst().map(CustomerCardEntity::getId).orElse(null);
+        if (cardId == null || kioskOrderOnDayExists(customerId, itemId, 0)) {
+            return;
+        }
+        Long orderId = insertSettledOrder(customerId, itemId, staffId, 5, at(0, 9, 40));
+        int usedTimes = (int) usageRepository.findAll().stream()
+                .filter(u -> cardId.equals(u.getCardId())).count();
+        CardUsageEntity usage = new CardUsageEntity();
+        usage.setCardId(cardId);
+        usage.setOrderId(orderId);
+        usage.setStaffId(staffId);
+        usage.setTimesUsed(usedTimes + 1);
+        usageRepository.save(usage); // 当日核销，时间由审计写为今天
+        cardRepository.findById(cardId).ifPresent(card -> {
+            card.setRemainingTimes(Math.max(0, card.getRemainingTimes() - 1));
+            cardRepository.save(card);
+        });
+        log.info("种子·结算：检查完成");
+    }
+
+    /** 落一单已完结订单 + 结算单（payType 5 次卡实收 0，1 储值同口径落负数流水），按 when 回写时间线 */
+    private Long insertSettledOrder(Long customerId, Long itemId, Long staffId, int payType, Date when) {
+        ItemEntity item = itemRepository.findById(itemId).orElse(null);
+        int price = item == null || item.getPrice() == null ? 0 : item.getPrice();
+        OrderEntity order = new OrderEntity();
+        order.setUserId(customerId);
+        order.setItemId(itemId);
+        order.setStaffId(staffId);
+        order.setStatus(2); // 已完结（正常结算流转落此状态）
+        order.setPrice(price);
+        order.setCreateTime(when);
+        Long orderId = orderRepository.save(order).getId();
+        backdateRow("orders", orderId, when);
+
+        SettlementEntity settlement = new SettlementEntity();
+        settlement.setOrderId(orderId);
+        settlement.setUserId(customerId);
+        settlement.setPayType(payType);
+        settlement.setMoney(payType == 5 ? 0 : price);
+        settlement.setCreateTime(when);
+        Long settlementId = settlementRepository.save(settlement).getId();
+        backdateRow("settlements", settlementId, when);
+
+        if (payType == 1) {
+            // 储值支付扣减流水（正常结算走 SettlementServiceImpl.settle，种子直接补齐同形数据）
+            RechargeEntity deduct = new RechargeEntity();
+            deduct.setUserId(customerId);
+            deduct.setMoney(-price);
+            deduct.setCreateTime(when);
+            Long deductId = rechargeRepository.save(deduct).getId();
+            backdateRow("recharges", deductId, when);
+        }
+        return orderId;
     }
 
     /** 病史（过敏/既往）：给两位演示顾客各补几条，顾客档案「病史」栏可查 */
