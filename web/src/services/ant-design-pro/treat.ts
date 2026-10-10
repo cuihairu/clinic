@@ -11,6 +11,18 @@ export async function createTreat(body: API.Treat,options?: { [key: string]: any
   });
 }
 
+/** 编辑态全量更新：PUT /api/v1/treat/，id/customerId 必填且须存在 */
+export async function updateTreat(body: API.Treat,options?: { [key: string]: any }) {
+  return request<API.Treat>('/api/v1/treat/', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 export async function fetchTreatById(id:number|string,options?: { [key: string]: any }) {
   return request<API.Treat>(`/api/v1/treat/${id}`, {
     method: 'GET',

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   createTreat,
   fetchTreatById,
+  updateTreat,
   queryTreatByPage,
   fuzzyQueryTreatByPage,
 } from '@/services/ant-design-pro/treat';
@@ -23,6 +24,7 @@ import ScannerInput from '@/components/ScannerInput';
 import './index.less';
 
 type Treat = {
+  id?: number;
   customerId?: number;
   // line 1
   name?: string;
@@ -173,10 +175,11 @@ const Create: React.FC = () => {
           return Promise.resolve<Treat>({});
         }}
         onFinish={async (values) => {
-          const result = await createTreat(values);
+          // 带 id 为编辑态：走 PUT 全量更新；否则新建
+          const result = values.id ? await updateTreat(values) : await createTreat(values);
           if (result.id) {
             formRef.current?.setFieldsValue({ id: result.id });
-            message.success('创建成功');
+            message.success(values.id ? '更新成功' : '创建成功');
           }
           return true;
         }}
