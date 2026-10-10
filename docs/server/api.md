@@ -118,6 +118,7 @@
 | 方法 | 路径 | 功能 |
 | ---- | ---- | ---- |
 | GET | `/api/v1/print/templates` | 全部白名单模板（prescription / receipt）与内容摘要版本 `{ version, templates[{ name, content }] }`；版本为内容 SHA-256 前 16 位，内容不变则不变。模板解析：`data/printtemplates/{name}.html`（`PRINT_TEMPLATES_DIR` 可配）覆盖目录优先，缺失回落 jar 内置版式——模板更新只需改服务端文件，不发壳版本 |
+| GET | `/api/v1/print/receipt/{settlementId}` | **结算小票套打（需登录）**：按结算单填充 80mm 小票模板，直接返回可打印 HTML（`text/html`）。单号 `S+结算单id`；次卡抵扣（实收 0）金额列显示「次卡抵扣」；抬头机构名可用 `sinomed.receipt.clinic-name` 配置覆盖；顾客/员工名做 HTML 转义。结算单不存在报 400 |
 
 ## 订单 `/api/v1/order`（kiosk.md K3，需登录）
 
@@ -158,7 +159,7 @@
 | GET | `/api/v1/settlement/page` | 结算单分页（current、pageSize），联出顾客名，时间倒序 |
 
 ::: tip 收费口径
-实收金额取订单价格快照（空价格按 0 收）；微信/支付宝为演示口径——仅记录支付方式，不拉起真实收银通道；小票打印为规划功能；次卡抵扣需顾客持本单卡项的有效余次卡（多张按早发的先扣）。已结算订单的支付方式从订单分页 `payType` 联出。
+实收金额取订单价格快照（空价格按 0 收）；微信/支付宝为演示口径——仅记录支付方式，不拉起真实收银通道；小票走 `/api/v1/print/receipt/{settlementId}` 服务端套打（80mm HTML，浏览器打印）；次卡抵扣需顾客持本单卡项的有效余次卡（多张按早发的先扣）。已结算订单的支付方式从订单分页 `payType` 联出。
 :::
 
 ## 次卡 `/api/v1/card`（需登录）
