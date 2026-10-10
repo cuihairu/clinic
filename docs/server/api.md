@@ -188,8 +188,19 @@
 | GET | `/api/v1/prescription/{id}` | 处方详情（含按 sort 排序的药味） |
 | DELETE | `/api/v1/prescription/{id}` | 删除处方（连同药味；演示环境口径，无留痕） |
 
+## 病症处方模板 `/api/v1/prescription/template`（需登录）
+
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| POST | `/api/v1/prescription/template/` | 建模板：`name`（病症名，1–20 字，唯一）+ `herbs`（至少 1 味：herb + weight，special 可选）必填；`doses`（默认 7）/`decoction`（0 无需 / 1 代煎，默认 0）/`usage`/`remark`/`enabled`（默认 1）可选 |
+| PUT | `/api/v1/prescription/template/` | 按 id 全量更新（药味全量替换）；换名撞其他模板报 400 |
+| GET | `/api/v1/prescription/template/enabled` | 上架模板（enabled=1，id 升序，附药味）——开方页「套用模板」取数入口 |
+| GET | `/api/v1/prescription/template/page` | 分页（id 倒序，含停用；`name` 模糊过滤可选），联出药味 |
+| GET | `/api/v1/prescription/template/{id}` | 模板详情（含按 sort 排序的药味；不存在报 400） |
+| DELETE | `/api/v1/prescription/template/{id}` | 删除模板（连同药味；不影响已开处方；演示环境口径，无留痕） |
+
 ::: tip 处方口径
-药材名为自由文本——配伍审方（十八反/十九畏，静态规则）与计价（按药材字典实时试算）已实装；审方提示不拦截，计价无快照、随字典改价同步，未收录药名如实标「未比价」不计费；代煎领取已实装（袋数=剂数、待煎→可取→已取单向流转，无加急/回退）；库存为规划功能；剂量为单剂克数（可小数），`special` 记录先煎/后下/包煎等煎法。
+药材名为自由文本——配伍审方（十八反/十九畏，静态规则）与计价（按药材字典实时试算）已实装；审方提示不拦截，计价无快照、随字典改价同步，未收录药名如实标「未比价」不计费；代煎领取已实装（袋数=剂数、待煎→可取→已取单向流转，无加急/回退）；病症处方模板已实装（模板名唯一、只存建议值，套用后随处方自由增减不写回模板，停用不出现在开方页）；库存为规划功能；剂量为单剂克数（可小数），`special` 记录先煎/后下/包煎等煎法。
 :::
 
 ## 药材字典 `/api/v1/herb`
