@@ -83,3 +83,31 @@ export async function deletePrescription(id: number, options?: { [key: string]: 
     ...(options || {}),
   });
 }
+
+/** 配伍审方命中条目：level 禁忌（十八反）/ 慎用（十九畏） */
+export interface CompatibilityFinding {
+  level?: string;
+  rule?: string;
+  a?: string;
+  b?: string;
+  note?: string;
+}
+
+export interface CompatibilityResult {
+  /** 参与比对的药材数 */
+  checked?: number;
+  /** 空即未发现配伍禁忌 */
+  findings?: CompatibilityFinding[];
+}
+
+/** 配伍审方：经典十八反/十九畏静态规则；自由文本药名按别名包含匹配；提示不拦截 */
+export async function checkCompatibility(
+  herbs: string[],
+  options?: { [key: string]: any },
+) {
+  return request<CompatibilityResult>('/api/v1/prescription/compatibility', {
+    method: 'POST',
+    data: { herbs },
+    ...(options || {}),
+  });
+}

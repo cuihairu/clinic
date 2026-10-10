@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PageContainer } from '@ant-design/pro-components';
 import { history } from '@umijs/max';
 import { Button, Input, InputNumber, Select, message } from 'antd';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { createPrescription, type PrescriptionHerb } from '@/services/ant-design-pro/prescription';
+import { CheckCircleFilled, MinusCircleOutlined, PlusOutlined, WarningFilled } from '@ant-design/icons';
+import {
+  checkCompatibility,
+  createPrescription,
+  type CompatibilityResult,
+  type PrescriptionHerb,
+} from '@/services/ant-design-pro/prescription';
 import { fetchCustomerByPhone } from '@/services/ant-design-pro/customer';
 import { queryStaffByPage } from '@/services/ant-design-pro/staff';
 import './index.less';
@@ -24,6 +29,39 @@ const Create: React.FC = () => {
   const [usage, setUsage] = useState('');
   const [remark, setRemark] = useState('');
   const [busy, setBusy] = useState(false);
+  const [compat, setCompat] = useState<CompatibilityResult | undefined>();
+  const [checking, setChecking] = useState(false);
+  const compatSeq = useRef(0);
+
+  // 配伍审方：药名停顿 500ms 自动比对十八反/十九畏；少于两味不查
+  const namedHerbs = herbs.map((r) => (r.herb || '').trim()).filter(Boolean);
+  useEffect(() => {
+    if (namedHerbs.length < 2) {
+      setCompat(undefined);
+      setChecking(false);
+      return;
+    }
+    const seq = ++compatSeq.current;
+    setChecking(true);
+    const timer = setTimeout(async () => {
+      try {
+        const result = await checkCompatibility(namedHerbs);
+        if (seq === compatSeq.current) {
+          setCompat(result);
+        }
+      } catch {
+        if (seq === compatSeq.current) {
+          setCompat(undefined);
+        }
+      } finally {
+        if (seq === compatSeq.current) {
+          setChecking(false);
+        }
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [namedHerbs.join('|')]);
 
   const loadStaff = async () => {
     if (staffOptions.length > 0) return;
@@ -100,7 +138,7 @@ const Create: React.FC = () => {
   return (
     <PageContainer
       title="中药处方"
-      content="按手机号定位顾客 → 写药味与剂数；药材名为自由文本，暂无药材字典、计价与配伍审方（规划功能）。"
+      content="按手机号定位顾客 → 写药味与剂数；配伍审方（十八反/十九畏）随写随查、提示不拦截。药材字典与计价仍为规划功能。"
     >
       <div className="pr-create">
         <div className="pr-customer">
@@ -170,6 +208,37 @@ const Create: React.FC = () => {
             添加一味
           </Button>
 
+          <div className={`compat ${compat && (compat.findings?.length ?? 0) > 0 ? 'bad' : 'ok'}`}>
+            <h3>3 · 配伍审方</h3>
+            {namedHerbs.length < 2 ? (
+              <div className="tip">写够两味药后自动比对十八反 / 十九畏</div>
+            ) : checking ? (
+              <div className="tip">审方中…</div>
+            ) : compat && (compat.findings?.length ?? 0) > 0 ? (
+              <div className="hits">
+                <div className="head">
+                  <WarningFilled /> 发现 {compat!.findings!.length} 组配伍提示
+                </div>
+                {compat!.findings!.map((f, i) => (
+                  <div className="hit" key={i}>
+                    <span className={`lv ${f.level === '禁忌' ? 'fan' : 'wei'}`}>{f.level}</span>
+                    <span className="pair">
+                      {f.a} × {f.b}
+                    </span>
+                    <span className="rule">
+                      {f.rule} · {f.note}
+                    </span>
+                  </div>
+                ))}
+                <div className="note">提示不拦截，是否照用由医师判断</div>
+              </div>
+            ) : (
+              <div className="pass">
+                <CheckCircleFilled /> 未发现配伍禁忌（十八反 / 十九畏）
+              </div>
+            )}
+          </div>
+
           <div className="meta">
             <label>
               剂数
@@ -202,7 +271,7 @@ const Create: React.FC = () => {
             onChange={(e) => setRemark(e.target.value)}
           />
           <div className="foot">
-            <span className="hint">演示口径：药材无字典与价格，计价/库存/审方为规划功能</span>
+            <span className="hint">演示口径：药材无字典与价格，计价/库存为规划功能；审方提示不拦截</span>
             <Button type="primary" size="large" loading={busy} onClick={submit}>
               开方
             </Button>

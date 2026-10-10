@@ -167,3 +167,86 @@
     }
   }
 }
+
+/* 步 3：配伍审方（随写随查，提示不拦截） */
+.compat {
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+
+  &.ok {
+    background: var(--paper);
+  }
+  &.bad {
+    border-color: #e8b4a0;
+    background: #fdf6f2;
+  }
+
+  h3 {
+    font-family: var(--serif);
+    font-size: 13px;
+    margin: 0 0 8px;
+    color: var(--faint);
+  }
+
+  .tip {
+    font-size: 12px;
+    color: var(--faint);
+  }
+
+  .pass {
+    font-size: 13px;
+    color: #3d7a4f;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .hits {
+    .head {
+      font-size: 13px;
+      color: #a05a2c;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .hit {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      font-size: 13px;
+
+      .lv {
+        flex: none;
+        font-size: 11px;
+        border-radius: 999px;
+        padding: 1px 9px;
+        &.fan {
+          color: #fff;
+          background: #b4552d;
+        }
+        &.wei {
+          color: #a05a2c;
+          background: #f7e3d0;
+        }
+      }
+      .pair {
+        font-weight: 700;
+      }
+      .rule {
+        color: var(--faint);
+        font-size: 12px;
+      }
+    }
+
+    .note {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--faint);
+    }
+  }
+}
