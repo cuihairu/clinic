@@ -84,4 +84,4 @@
 - [x] P1-14 卡实体（次卡）与结算抵扣（81aaf5e；customer_cards + /api/v1/card 发卡/停用，payType 5 扣 1 次实收 0；顾客页持卡栏与结算台次卡选项实装）
 - [x] P1-15 结算小票打印（f57f10d/1b33703；`GET /api/v1/print/receipt/{settlementId}` 服务端套打 80mm HTML：单号 S+结算id、次卡抵扣金额列显示「次卡抵扣」、名字 HTML 转义；结算台收款成功出打印入口、最近结算可补打；模板仍可 data/printtemplates 覆盖）
 - [x] P1-16 处方代煎领取（141f295/47e4828；prescriptions +decoction_status/decoction_bags，开方 decoction=true 袋数=剂数落「待煎」；`PUT /prescription/{id}/decoction?status=` 待煎→可取→已取单向流转，回退/跳跃/未选代煎 400；服务费 ¥3/袋 实时算仅提示；开方页勾选、查询页状态列+抽屉流转按钮；加急与取药窗口不做——演示口径）
-- [ ] P1-17 处方饮片行进结算（**卡点，待域建模拍板**：设计稿把「中药饮片 8 味 × 7 剂 ¥280」与推拿并列进同一张结算单——落现域有两条路：①处方按单建「饮片订单」复用一单一结算，但 orders.price 为整数元而处方计价是分（totalFen），转元必舍入、违背「钱的事要确定」；②结算单改多行（settlement_items）动 orders/settlements 单行口径与 kiosk/tablet 全链。两者均为域级改动，不属增量可自行拍板的范围，待产品定夺后另开批实施）
+- [x] P1-17 处方饮片行进结算 —— **裁定不做**（依据仓内既有裁定「收费以卡项订单结算为准」：处方计价为试算/提示口径、不是收费来源，见 api.md 结算段、开方页 note、PrescriptionController javadoc，60e818c 起、141f295 重申）。原型 billing 的饮片行（「8 味 × 7 剂 ¥280」与推拿并列）为示意、非接口契约，与裁定冲突时以裁定为准。技术佐证：orders.price 整数元 vs 处方分单位计价，转元必舍入、违背「钱的事要确定」；多行结算（settlement_items）属域级改动。代煎费 ¥3/袋 同口径（仅提示）。
