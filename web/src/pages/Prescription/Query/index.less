@@ -108,13 +108,32 @@
 }
 
 /* 代煎状态 pill 与流转行 */
-.dc {
+.dc,
+.pc {
   display: inline-block;
   font-size: 11px;
   font-weight: 600;
   border-radius: 999px;
   padding: 2px 9px;
+}
 
+.pc {
+  &.s1 {
+    color: #6b4fa3;
+    background: #ede8f5;
+  }
+  &.s2 {
+    color: var(--brand-deep);
+    background: var(--brand-tint);
+  }
+  &.s3 {
+    color: var(--muted);
+    background: var(--paper);
+    border: 1px solid var(--line);
+  }
+}
+
+.dc {
   &.s1 {
     color: #a3542e;
     background: #f7ede4;
@@ -133,7 +152,8 @@
 .dc-line {
   align-items: center;
 
-  .dc {
+  .dc,
+  .pc {
     margin-right: 4px;
   }
   .ant-btn {

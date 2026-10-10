@@ -6,10 +6,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import moment from 'moment';
 import {
   DECOCTION_TEXT,
+  PASTE_TEXT,
   deletePrescription,
   fetchPrescription,
   queryPrescriptionPage,
   setDecoctionStatus,
+  setPasteStatus,
   type Prescription,
 } from '@/services/ant-design-pro/prescription';
 import './index.less';
@@ -40,6 +42,20 @@ export default function PrescriptionQuery() {
     setFlowing(true);
     try {
       await setDecoctionStatus(detailId, status);
+      message.success(status === 2 ? '已转可取，请顾客凭单领取' : '已登记领取');
+      await loadDetail(detailId);
+      actionRef.current?.reload();
+    } finally {
+      setFlowing(false);
+    }
+  };
+
+  /** 膏方领取流转：待制作→可取→已取，成功后刷新抽屉与列表 */
+  const flowPaste = async (status: 2 | 3) => {
+    if (detailId == null) return;
+    setFlowing(true);
+    try {
+      await setPasteStatus(detailId, status);
       message.success(status === 2 ? '已转可取，请顾客凭单领取' : '已登记领取');
       await loadDetail(detailId);
       actionRef.current?.reload();
@@ -102,6 +118,13 @@ export default function PrescriptionQuery() {
       render: (_, entity) => (entity.doses ? `${entity.doses} 付` : '-'),
     },
     {
+      title: '类型',
+      dataIndex: 'prescriptionType',
+      width: 80,
+      hideInSearch: true,
+      render: (_, entity) => (entity.prescriptionType === 1 ? <span>膏方</span> : '汤剂'),
+    },
+    {
       title: '代煎',
       dataIndex: 'decoctionStatus',
       width: 90,
@@ -111,6 +134,18 @@ export default function PrescriptionQuery() {
           <span className="faint">—</span>
         ) : (
           <span className={`dc s${entity.decoctionStatus}`}>{DECOCTION_TEXT[entity.decoctionStatus]}</span>
+        ),
+    },
+    {
+      title: '膏方',
+      dataIndex: 'pasteStatus',
+      width: 90,
+      hideInSearch: true,
+      render: (_, entity) =>
+        entity.prescriptionType === 1 && entity.pasteStatus != null ? (
+          <span className={`pc s${entity.pasteStatus}`}>{PASTE_TEXT[entity.pasteStatus]}</span>
+        ) : (
+          <span className="faint">—</span>
         ),
     },
     {
@@ -256,6 +291,25 @@ export default function PrescriptionQuery() {
                 )}
                 {detail.decoctionStatus === 2 && (
                   <Button size="small" type="primary" loading={flowing} onClick={() => flow(3)}>
+                    顾客已领取
+                  </Button>
+                )}
+              </div>
+            )}
+            {detail.prescriptionType === 1 && detail.pasteStatus !== null && (
+              <div className="field dc-line">
+                <span className="k">膏方</span>
+                <span className="v">
+                  <span className={`pc s${detail.pasteStatus}`}>{PASTE_TEXT[detail.pasteStatus ?? 0]}</span>
+                  {detail.craft ? ` · ${detail.craft}` : ''}
+                </span>
+                {detail.pasteStatus === 1 && (
+                  <Button size="small" type="primary" loading={flowing} onClick={() => flowPaste(2)}>
+                    制成 · 转可取
+                  </Button>
+                )}
+                {detail.pasteStatus === 2 && (
+                  <Button size="small" type="primary" loading={flowing} onClick={() => flowPaste(3)}>
                     顾客已领取
                   </Button>
                 )}

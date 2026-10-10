@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { PageContainer } from '@ant-design/pro-components';
 import { history } from '@umijs/max';
-import { Button, Checkbox, Input, InputNumber, Select, message } from 'antd';
+import { Button, Checkbox, Input, InputNumber, Radio, Select, message } from 'antd';
 import { CheckCircleFilled, MinusCircleOutlined, PlusOutlined, WarningFilled } from '@ant-design/icons';
 import {
   checkCompatibility,
@@ -33,6 +33,10 @@ const Create: React.FC = () => {
   const [staffId, setStaffId] = useState<number | undefined>();
   const [herbs, setHerbs] = useState<PrescriptionHerb[]>([{ herb: '', weight: undefined }]);
   const [doses, setDoses] = useState<number>(7);
+  /** 处方类型：0 汤剂 / 1 膏方（膏方开方落「待制作」，领取流转在处方查询页） */
+  const [ptype, setPtype] = useState<number>(0);
+  /** 收膏方式：仅膏方，随方记录 */
+  const [craft, setCraft] = useState<string | undefined>();
   /** 代煎：袋数=剂数，开方后落「待煎」，领取流转在处方查询页 */
   const [decoction, setDecoction] = useState(false);
   const [usage, setUsage] = useState('');
@@ -194,13 +198,18 @@ const Create: React.FC = () => {
         customerId: customer.id,
         staffId,
         doses,
-        decoction: decoction || undefined,
+        prescriptionType: ptype || undefined,
+        craft: ptype === 1 && craft ? craft : undefined,
+        decoction: ptype === 0 && decoction ? true : undefined,
         usage: usage.trim() || undefined,
         remark: remark.trim() || undefined,
         herbs: rows.map((r) => ({ herb: (r.herb || '').trim(), weight: r.weight, special: r.special || undefined })),
       });
       if (created?.id) {
-        message.success(`处方 #${created.id} 已开${decoction ? `，代煎 ${doses} 袋已转药房待煎` : ''}`);
+        message.success(
+          `处方 #${created.id} 已开` +
+            (ptype === 1 ? `，膏方${craft ? `（${craft}）` : ''}已转药房待制作` : decoction ? `，代煎 ${doses} 袋已转药房待煎` : ''),
+        );
         history.push('/prescription/query');
       }
     } finally {
@@ -350,16 +359,55 @@ const Create: React.FC = () => {
           </div>
 
           <div className="meta">
+            <label className="ttype">
+              类型
+              <Radio.Group
+                value={ptype}
+                onChange={(e) => {
+                  const t = e.target.value as number;
+                  setPtype(t);
+                  if (t === 1) {
+                    setDecoction(false);
+                  } else {
+                    setCraft(undefined);
+                  }
+                }}
+              >
+                <Radio value={0}>汤剂</Radio>
+                <Radio value={1}>膏方</Radio>
+              </Radio.Group>
+              {ptype === 1 ? (
+                <Select
+                  allowClear
+                  placeholder="收膏方式"
+                  style={{ minWidth: 120 }}
+                  value={craft}
+                  options={[
+                    { label: '炼蜜', value: '炼蜜' },
+                    { label: '清膏', value: '清膏' },
+                    { label: '糖膏', value: '糖膏' },
+                    { label: '阿胶收膏', value: '阿胶收膏' },
+                  ]}
+                  onChange={(v) => setCraft(v)}
+                />
+              ) : null}
+            </label>
             <label>
               剂数
               <InputNumber min={1} precision={0} value={doses} onChange={(v) => setDoses(v ?? 7)} /> 付
             </label>
-            <label>
-              <Checkbox checked={decoction} onChange={(e) => setDecoction(e.target.checked)}>
-                代煎 {doses} 袋
-              </Checkbox>
-              <i className="dfee">服务费 {fenToYuan(doses * 300)}（¥3/袋）仅提示，收费以卡项订单结算为准</i>
-            </label>
+            {ptype === 0 ? (
+              <label>
+                <Checkbox checked={decoction} onChange={(e) => setDecoction(e.target.checked)}>
+                  代煎 {doses} 袋
+                </Checkbox>
+                <i className="dfee">服务费 {fenToYuan(doses * 300)}（¥3/袋）仅提示，收费以卡项订单结算为准</i>
+              </label>
+            ) : (
+              <label>
+                <i className="dfee">膏方按料计，开方后转药房待制作；领取流转见处方查询页</i>
+              </label>
+            )}
             <label>
               医师
               <Select

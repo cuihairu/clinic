@@ -34,6 +34,12 @@ export interface Prescription {
   decoctionBags?: number;
   /** 代煎服务费（分，袋数×300，实时算不落库） */
   decoctionFeeFen?: number;
+  /** 处方类型：0 汤剂 / 1 膏方 */
+  prescriptionType?: number;
+  /** 膏方领取状态：0 非膏方 / 1 待制作 / 2 可取 / 3 已取 */
+  pasteStatus?: number;
+  /** 收膏方式（仅膏方） */
+  craft?: string;
   createTime?: string;
 }
 
@@ -41,6 +47,14 @@ export interface Prescription {
 export const DECOCTION_TEXT: Record<number, string> = {
   0: '无需代煎',
   1: '待煎',
+  2: '可取',
+  3: '已取',
+};
+
+/** 膏方状态文案 */
+export const PASTE_TEXT: Record<number, string> = {
+  0: '非膏方',
+  1: '待制作',
   2: '可取',
   3: '已取',
 };
@@ -59,8 +73,12 @@ export async function createPrescription(
     staffId?: number;
     treatId?: number;
     doses?: number;
-    /** 是否代煎：袋数=剂数，落「待煎」 */
+    /** 是否代煎：袋数=剂数，落「待煎」（汤剂用） */
     decoction?: boolean;
+    /** 处方类型：0 汤剂（默认）/ 1 膏方（落「待制作」） */
+    prescriptionType?: number;
+    /** 收膏方式（仅膏方：炼蜜/清膏/糖膏/阿胶收膏等） */
+    craft?: string;
     usage?: string;
     remark?: string;
     herbs: PrescriptionHerb[];
@@ -147,6 +165,18 @@ export async function setDecoctionStatus(
   options?: { [key: string]: any },
 ) {
   return request<Prescription>(`/api/v1/prescription/${id}/decoction?status=${status}`, {
+    method: 'PUT',
+    ...(options || {}),
+  });
+}
+
+/** 膏方领取流转：待制作(1)→可取(2)→已取(3) 顺序推进，非膏方与回退/跳跃 400 */
+export async function setPasteStatus(
+  id: number,
+  status: 2 | 3,
+  options?: { [key: string]: any },
+) {
+  return request<Prescription>(`/api/v1/prescription/${id}/paste?status=${status}`, {
     method: 'PUT',
     ...(options || {}),
   });
