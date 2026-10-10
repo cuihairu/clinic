@@ -13,7 +13,8 @@ import java.util.List;
 
 /**
  * 处方笺视图：字段与 prescriptions 表对齐；customerName/staffName/herbs 为列表与详情联出的展示字段，
- * pricing 为按药材字典实时算出的计价（不落库、无快照）。
+ * pricing 为按药材字典实时算出的计价（不落库、无快照）；
+ * decoction/decoctionFeeFen 为代煎领取口径（decoction 仅开方入参，费率实时算不落库）。
  */
 @Builder
 @NoArgsConstructor
@@ -21,6 +22,9 @@ import java.util.List;
 @Data
 @Schema(title = "中药处方笺")
 public class PrescriptionView {
+
+    /** 代煎服务费（分/袋）：袋数=剂数，费率实时计算不落库 */
+    public static final int DECOCTION_FEE_FEN_PER_BAG = 300;
     @Schema(title = "处方id", example = "3")
     private Long id;
 
@@ -54,8 +58,25 @@ public class PrescriptionView {
     @Schema(title = "计价（按药材字典实时算，未收录药名不计费）")
     private PricingView pricing;
 
+    @Schema(title = "开方入参：是否代煎（袋数=剂数，落库为待煎）", example = "true")
+    private Boolean decoction;
+
+    @Schema(title = "代煎状态：0 无需代煎 / 1 待煎 / 2 可取 / 3 已取", example = "1")
+    private Integer decoctionStatus;
+
+    @Schema(title = "代煎袋数（=剂数；无需代煎为空）", example = "7")
+    private Integer decoctionBags;
+
+    @Schema(title = "代煎服务费（分，袋数×300，实时算不落库；无需代煎为空）", example = "2100")
+    private Integer decoctionFeeFen;
+
     @Schema(title = "开方时间", example = "2026-10-09 11:00:00")
     private Date createTime;
+
+    /** 代煎服务费 = 袋数 × 费率（无需代煎返回 null） */
+    public static Integer decoctionFeeFen(Integer bags) {
+        return bags == null ? null : bags * DECOCTION_FEE_FEN_PER_BAG;
+    }
 
     public static PrescriptionView FromPrescriptionEntity(PrescriptionEntity entity) {
         return PrescriptionView.builder()
@@ -66,6 +87,9 @@ public class PrescriptionView {
                 .doses(entity.getDoses())
                 .usage(entity.getUsage())
                 .remark(entity.getRemark())
+                .decoctionStatus(entity.getDecoctionStatus())
+                .decoctionBags(entity.getDecoctionBags())
+                .decoctionFeeFen(decoctionFeeFen(entity.getDecoctionBags()))
                 .createTime(entity.getCreateTime())
                 .build();
     }

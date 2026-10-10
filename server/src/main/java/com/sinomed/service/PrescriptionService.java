@@ -25,4 +25,9 @@ public interface PrescriptionService {
      * 删除处方（连同药味）
      */
     void deleteById(Long id);
+
+    /**
+     * 代煎流转：待煎(1)→可取(2)→已取(3) 顺序推进，其余拒绝
+     */
+    PrescriptionEntity setDecoctionStatus(Long id, Integer status);
 }

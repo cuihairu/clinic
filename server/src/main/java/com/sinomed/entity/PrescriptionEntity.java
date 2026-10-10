@@ -44,6 +44,14 @@ public class PrescriptionEntity {
     @Column(name = "remark")
     private String remark;
 
+    /** 代煎状态：0 无需代煎 / 1 待煎 / 2 可取 / 3 已取 */
+    @Column(name = "decoction_status", nullable = false)
+    private Integer decoctionStatus;
+
+    /** 代煎袋数（=剂数；无需代煎为空） */
+    @Column(name = "decoction_bags")
+    private Integer decoctionBags;
+
     @CreatedDate
     @Column(name = "create_time")
     private Date createTime;

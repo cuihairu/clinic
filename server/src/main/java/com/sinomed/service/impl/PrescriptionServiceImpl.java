@@ -25,7 +25,8 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final PrescriptionItemRepository prescriptionItemRepository;
 
     /**
-     * 开方：顾客必填、至少 1 味药、剂数 ≥ 1、剂量 > 0；创建/更新时间由审计维护
+     * 开方：顾客必填、至少 1 味药、剂数 ≥ 1、剂量 > 0；创建/更新时间由审计维护。
+     * 代煎：view.decoction=true 时袋数=剂数、落「待煎」，否则「无需代煎」。
      */
     @Override
     @Transactional
@@ -41,6 +42,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         if (doses < 1) {
             throw new IllegalArgumentException("剂数必须 ≥ 1");
         }
+        boolean decoction = Boolean.TRUE.equals(view.getDecoction());
 
         PrescriptionEntity prescription = new PrescriptionEntity();
         prescription.setTreatId(view.getTreatId());
@@ -49,6 +51,8 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         prescription.setDoses(doses);
         prescription.setUsage(view.getUsage());
         prescription.setRemark(view.getRemark());
+        prescription.setDecoctionStatus(decoction ? 1 : 0);
+        prescription.setDecoctionBags(decoction ? doses : null);
         prescription = prescriptionRepository.save(prescription);
 
         for (int i = 0; i < herbs.size(); i++) {
@@ -104,5 +108,39 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 .orElseThrow(() -> new IllegalArgumentException("处方不存在：" + id));
         prescriptionItemRepository.deleteByPrescriptionId(id);
         prescriptionRepository.deleteById(id);
+    }
+
+    /**
+     * 代煎流转：只允许 待煎(1)→可取(2)→已取(3) 顺序推进；
+     * 未选代煎(0)不可流转，加急/回退不做（演示口径）。
+     */
+    @Override
+    @Transactional
+    public PrescriptionEntity setDecoctionStatus(Long id, Integer status) {
+        if (status == null || status != 2 && status != 3) {
+            throw new IllegalArgumentException("代煎状态无效：只允许 2 可取 / 3 已取");
+        }
+        PrescriptionEntity prescription = prescriptionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("处方不存在：" + id));
+        Integer current = prescription.getDecoctionStatus();
+        if (current == null || current == 0) {
+            throw new IllegalArgumentException("该方未选代煎，无需领取流转");
+        }
+        int expected = status == 2 ? 1 : 2;
+        if (current != expected) {
+            throw new IllegalArgumentException("代煎状态流转无效：只能 待煎→可取→已取，当前为「" + decoctionText(current) + "」");
+        }
+        prescription.setDecoctionStatus(status);
+        log.info("代煎流转：处方 {} → {}", id, decoctionText(status));
+        return prescriptionRepository.save(prescription);
+    }
+
+    private static String decoctionText(int status) {
+        return switch (status) {
+            case 0 -> "无需代煎";
+            case 1 -> "待煎";
+            case 2 -> "可取";
+            default -> "已取";
+        };
     }
 }
