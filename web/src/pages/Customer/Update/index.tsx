@@ -3,6 +3,8 @@ import { updateCustomer, fetchCustomerById } from '@/services/ant-design-pro/cus
 import { queryTreatByPage } from '@/services/ant-design-pro/treat';
 import { fetchOrderSummary } from '@/services/ant-design-pro/order';
 import type { OrderSummary } from '@/services/ant-design-pro/order';
+import { issueCard, listCardsByCustomer, setCardStatus, type Card } from '@/services/ant-design-pro/card';
+import { queryItemByPage } from '@/services/ant-design-pro/item';
 import {
   PageContainer,
   ProForm,
@@ -12,7 +14,7 @@ import {
   ProFormSelect,
   ProFormInstance,
 } from '@ant-design/pro-components';
-import { Button, Drawer, message } from 'antd';
+import { Button, Drawer, Form, InputNumber, message, Modal, Popconfirm, Select } from 'antd';
 import { history, useSearchParams } from '@umijs/max';
 import moment from 'moment';
 import './index.less';
@@ -33,6 +35,12 @@ const Update: React.FC = () => {
   const [treatTotal, setTreatTotal] = useState(0);
   const [summary, setSummary] = useState<OrderSummary>();
   const [editOpen, setEditOpen] = useState(false);
+  const [cards, setCards] = useState<Card[]>([]);
+  const [issueOpen, setIssueOpen] = useState(false);
+  const [issuing, setIssuing] = useState(false);
+  const [issueForm] = Form.useForm();
+
+  const activeCardCount = cards.filter((c) => c.status === 1).length;
 
   const load = useCallback(async () => {
     if (!customerId) return;
@@ -43,6 +51,8 @@ const Update: React.FC = () => {
     setTreatTotal(res?.total || 0);
     const s = await fetchOrderSummary(Number(customerId));
     setSummary(s);
+    const cs = await listCardsByCustomer(Number(customerId));
+    setCards(cs || []);
   }, [customerId]);
 
   useEffect(() => {
@@ -57,6 +67,36 @@ const Update: React.FC = () => {
   const openEdit = () => {
     formRef.current?.setFieldsValue(customer);
     setEditOpen(true);
+  };
+
+  const [itemOptions, setItemOptions] = useState<{ label: string; value: number }[]>([]);
+
+  const openIssue = async () => {
+    issueForm.resetFields();
+    setIssueOpen(true);
+    if (itemOptions.length === 0) {
+      const res = await queryItemByPage({ current: 1, pageSize: 100 });
+      setItemOptions((res?.data || []).map((i) => ({ label: i.name || `卡项${i.id}`, value: i.id! })));
+    }
+  };
+
+  const submitIssue = async () => {
+    const values = await issueForm.validateFields();
+    setIssuing(true);
+    try {
+      const created = await issueCard({
+        customerId: Number(customerId),
+        itemId: values.itemId,
+        totalTimes: values.totalTimes,
+      });
+      if (created?.id) {
+        message.success('已发卡');
+        setIssueOpen(false);
+        await load();
+      }
+    } finally {
+      setIssuing(false);
+    }
   };
 
   const lastVisit = treats
@@ -114,7 +154,10 @@ const Update: React.FC = () => {
         </div>
         <div className="stat">
           <div className="k">持卡卡项</div>
-          <div className="v hold">规划功能 · 无卡项持有实体</div>
+          <div className="v">
+            {activeCardCount}
+            <small>张有效</small>
+          </div>
         </div>
         <div className="stat">
           <div className="k">下次回访</div>
@@ -152,14 +195,68 @@ const Update: React.FC = () => {
         <aside className="cu-panel">
           <h3>
             持卡卡项
-            <span className="plan-pill">规划功能</span>
+            <a onClick={openIssue}>发卡</a>
           </h3>
-          <div className="plan-note">
-            卡项持有、余次与有效期管理，以及按顾客的回访提醒，属规划域（暂无卡项持有实体与按顾客回访查询接口），界面按原型
-            docs/design/mockups/admin-customer 预留，接入后在此渲染。
-          </div>
+          {cards.length === 0 ? (
+            <div className="plan-note">暂无持卡记录，可点「发卡」为顾客登记次卡（余次与结算抵扣联动）。</div>
+          ) : (
+            cards.map((c) => (
+              <div className="card-row" key={c.id}>
+                <div className="cd-main">
+                  <div className="cd-nm">{c.itemName || '卡项'}</div>
+                  <div className="cd-sub">
+                    剩余 {c.remainingTimes ?? 0}/{c.totalTimes ?? 0} 次
+                    {c.status === 0 ? ' · 已停用' : ''}
+                  </div>
+                  <div className="cd-bar">
+                    <i
+                      style={{
+                        width: `${Math.min(100, Math.round(((c.remainingTimes ?? 0) / (c.totalTimes || 1)) * 100))}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+                <Popconfirm
+                  title={c.status === 1 ? '停用后不能用于抵扣，确认停用？' : '恢复该卡为有效？'}
+                  onConfirm={async () => {
+                    if (c.id) {
+                      await setCardStatus(c.id, c.status === 1 ? 0 : 1);
+                      message.success(c.status === 1 ? '已停用' : '已恢复');
+                      await load();
+                    }
+                  }}
+                >
+                  <a>{c.status === 1 ? '停用' : '恢复'}</a>
+                </Popconfirm>
+              </div>
+            ))
+          )}
         </aside>
       </div>
+
+      <Modal
+        title="发卡"
+        open={issueOpen}
+        onOk={submitIssue}
+        confirmLoading={issuing}
+        onCancel={() => setIssueOpen(false)}
+        okText="发卡"
+        cancelText="取消"
+      >
+        <Form form={issueForm} layout="vertical">
+          <Form.Item name="itemId" label="卡项（次卡）" rules={[{ required: true, message: '请选择卡项' }]}>
+            <Select options={itemOptions} placeholder="选择卡项" />
+          </Form.Item>
+          <Form.Item
+            name="totalTimes"
+            label="总次数"
+            initialValue={10}
+            rules={[{ required: true, message: '总次数必须 ≥ 1' }]}
+          >
+            <InputNumber min={1} precision={0} style={{ width: '100%' }} />
+          </Form.Item>
+        </Form>
+      </Modal>
 
       <Drawer title="编辑顾客资料" width={560} open={editOpen} onClose={() => setEditOpen(false)}>
         <ProForm<API.Customer>

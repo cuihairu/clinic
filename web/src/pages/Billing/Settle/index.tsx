@@ -14,6 +14,7 @@ import {
   querySettlementPage,
   settleOrder,
 } from '@/services/ant-design-pro/billing';
+import { listCardsByCustomer, type Card } from '@/services/ant-design-pro/card';
 import './index.less';
 
 const maskPhone = (p?: string) => (p ? p.replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2') : '');
@@ -26,6 +27,8 @@ const Settle: React.FC = () => {
   const [payType, setPayType] = useState<number>(PAY_TYPE.STORED_VALUE);
   const [rechargeAmount, setRechargeAmount] = useState<number>();
   const [busy, setBusy] = useState(false);
+  /** 选中订单的顾客对该订单卡项的有效余次（无卡/停用为 0） */
+  const [cardRest, setCardRest] = useState<number | undefined>();
 
   const loadQueue = async () => {
     const [queue, recent] = await Promise.all([
@@ -43,11 +46,17 @@ const Settle: React.FC = () => {
   const choose = async (order: Order) => {
     setSelected(order);
     setRechargeAmount(undefined);
+    setCardRest(undefined);
     if (order.customerId) {
       const b = await fetchRechargeBalance(order.customerId);
       setBalance(b?.balance ?? 0);
+      const cards: Card[] = (await listCardsByCustomer(order.customerId)) || [];
+      const hit = cards.find(
+        (c) => c.itemId === order.itemId && c.status === 1 && (c.remainingTimes ?? 0) > 0,
+      );
+      setCardRest(hit?.remainingTimes ?? 0);
     } else {
-      setBalance(undefined);
+      setCardRest(0);
     }
   };
 
@@ -93,7 +102,7 @@ const Settle: React.FC = () => {
   return (
     <PageContainer
       title="结算台"
-      content="左侧为待结算队列（自助机/前台单据），选单后选支付方式收款；储值支付自动扣减余额，余额不足可先充值再收款。"
+      content="左侧为待结算队列（自助机/前台单据），选单后选支付方式收款；储值支付自动扣减余额；次卡抵扣需顾客持本单卡项的有效余次卡。"
     >
       <div className="bl-grid">
         <div className="bl-left">
@@ -170,7 +179,7 @@ const Settle: React.FC = () => {
                 <div className="total">¥{price}</div>
 
                 <div className="pays">
-                  {[PAY_TYPE.STORED_VALUE, PAY_TYPE.WECHAT, PAY_TYPE.ALIPAY, PAY_TYPE.CASH].map((t) => (
+                  {[PAY_TYPE.STORED_VALUE, PAY_TYPE.WECHAT, PAY_TYPE.ALIPAY, PAY_TYPE.CASH, PAY_TYPE.CARD].map((t) => (
                     <div
                       key={t}
                       className={`pay ${payType === t ? 'on' : ''} ${t === PAY_TYPE.STORED_VALUE && storedShort ? 'short' : ''}`}
@@ -186,7 +195,13 @@ const Settle: React.FC = () => {
                               : '查询中'
                             : t === PAY_TYPE.CASH
                               ? '收银找零'
-                              : '记录支付方式'}
+                              : t === PAY_TYPE.CARD
+                                ? cardRest === undefined
+                                  ? '查询中'
+                                  : cardRest > 0
+                                    ? `扣 1 次 · 余 ${cardRest} 次`
+                                    : '无有效次卡'
+                                : '记录支付方式'}
                         </div>
                       </div>
                       <span className="ck" />
@@ -222,7 +237,7 @@ const Settle: React.FC = () => {
                 <Button type="primary" className="btn-pay" loading={busy} onClick={pay}>
                   {storedShort ? `充值 ¥${rechargeAmount ?? need} 并收款 ¥${price}` : `收款 ¥${price}`}
                 </Button>
-                <div className="note">演示口径：微信/支付宝仅记录支付方式；小票打印与卡项次卡抵扣为规划功能。</div>
+                <div className="note">演示口径：微信/支付宝仅记录支付方式；次卡抵扣扣 1 次、实收记 0（需顾客持本单卡项的有效余次卡）；小票打印为规划功能。</div>
               </>
             )}
           </section>

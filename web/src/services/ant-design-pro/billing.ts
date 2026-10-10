@@ -1,11 +1,12 @@
 import { request } from '@umijs/max';
 
-/** 支付方式：1 储值 / 2 微信 / 3 支付宝 / 4 现金（微信/支付宝为演示口径：仅记录方式） */
+/** 支付方式：1 储值 / 2 微信 / 3 支付宝 / 4 现金 / 5 次卡抵扣（微信/支付宝为演示口径：仅记录方式） */
 export const PAY_TYPE = {
   STORED_VALUE: 1,
   WECHAT: 2,
   ALIPAY: 3,
   CASH: 4,
+  CARD: 5,
 } as const;
 
 export const PAY_TYPE_TEXT: Record<number, string> = {
@@ -13,6 +14,7 @@ export const PAY_TYPE_TEXT: Record<number, string> = {
   2: '微信',
   3: '支付宝',
   4: '现金',
+  5: '次卡',
 };
 
 export interface Recharge {
