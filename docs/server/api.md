@@ -48,7 +48,7 @@
 | GET | `/api/v1/treat/customer/name/{name}` | 按顾客姓名查询（姓名需唯一） |
 | GET | `/api/v1/treat/history` | 分页查询某顾客的诊疗历史（`customerId` 必填，按创建时间倒序） |
 | GET | `/api/v1/treat/fuzzy` | 模糊检索（传 `id` 单查；否则按 `name` / `age` / `phone` 圈定顾客后分页） |
-| PUT | `/api/v1/treat/` | 更新（占位实现，实际使用请以创建新单 + 删除旧单的流程为准） |
+| PUT | `/api/v1/treat/` | 按 id 全量更新接诊单：id/customerId 必填且须存在，字段以请求体为准，回包含顾客姓名/年龄/性别（更新后驱逐 findById 缓存） |
 | DELETE | `/api/v1/treat/{id}` | 删除诊疗单 |
 
 字段含义见[数据模型 · treats 表](/server/data-model#treats-诊疗单)。
@@ -67,8 +67,8 @@
 | POST | `/api/v1/review/customer/bulk` | 批量保存顾客回访 |
 | DELETE | `/api/v1/review/staff/{id}` | 删除员工复盘 |
 | DELETE | `/api/v1/review/customer/{id}` | 删除顾客回访 |
-| GET | `/api/v1/review/{id}` | 按 id 查询（占位） |
-| DELETE | `/api/v1/review/{id}` | 删除每日总结（占位，删除请用 id 查询后再操作） |
+| GET | `/api/v1/review/{id}` | 按 id 查询每日复盘总结（不存在报 400） |
+| DELETE | `/api/v1/review/{id}` | 按 id 删除每日复盘总结（不存在报 400；演示环境口径，无留痕） |
 
 ## 卡项 `/api/v1/item`
 
@@ -90,7 +90,7 @@
 | GET | `/api/v1/staff/page` | 分页查询员工 |
 | GET | `/api/v1/staff/{id}` | 按 id 查询 |
 | GET | `/api/v1/staff/name/{name}` | 按姓名查询（值取自查询参数） |
-| GET | `/api/v1/staff/phone/{phone}` | 按手机号查询（当前实现按姓名匹配，待修） |
+| GET | `/api/v1/staff/phone/{phone}` | 按手机号查询（与按姓名查询互不串，StaffLookupTest 锁死） |
 | DELETE | `/api/v1/staff/{id}` | 删除员工 |
 | POST | `/api/v1/staff/sign` | 签到 / 签退（`signType`：1 上班、0 下班） |
 | GET | `/api/v1/staff/timesheet/today` | 本人今日考勤（打卡明细与总时长） |
