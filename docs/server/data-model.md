@@ -80,11 +80,25 @@
 | id | Long | 主键（结算单号，时间倒序展示） |
 | order_id | Long | 订单 id（非空，唯一索引——一单一结算，防重复收款） |
 | user_id | Long | 顾客 id（非空，冗余自订单便于按顾客对账） |
-| pay_type | Integer | 支付方式：`1` 储值 / `2` 微信 / `3` 支付宝 / `4` 现金 |
-| money | Integer | 实收金额（元，取订单价格快照） |
+| pay_type | Integer | 支付方式：`1` 储值 / `2` 微信 / `3` 支付宝 / `4` 现金 / `5` 次卡抵扣 |
+| money | Integer | 实收金额（元，取订单价格快照；次卡抵扣记 0） |
 | create_time / update_time | Date | 审计时间 |
 
-索引：`order_id`（唯一）、`user_id`。结算动作把订单 `0/1 → 2` 已完成；储值支付同时在 `recharges` 落一条负数流水。微信/支付宝为演示口径（仅记录方式，无真实收银通道），见 [api](/server/api) 收费组。
+索引：`order_id`（唯一）、`user_id`。结算动作把订单 `0/1 → 2` 已完成；储值支付同时在 `recharges` 落一条负数流水；次卡抵扣扣 `customer_cards` 余 1 次。微信/支付宝为演示口径（仅记录方式，无真实收银通道），见 [api](/server/api) 收费组。
+
+## customer_cards — 顾客持卡（次卡）
+
+| 字段 | 类型 | 含义 |
+| ---- | ---- | ---- |
+| id | Long | 主键 |
+| customer_id | Long | 顾客 id（非空，索引，customers.id） |
+| item_id | Long | 卡项 id（非空，items.id） |
+| total_times / remaining_times | Integer | 总次数 / 剩余次数（发卡=全量，抵扣减余次） |
+| status | Integer | `1` 有效 / `0` 停用（列默认 1；停用卡不参与抵扣） |
+| source_order_id | Long | 发卡来源订单（可空，前台手工发卡为空） |
+| create_time / update_time | Date | 审计时间 |
+
+索引：顾客。抵扣按「同顾客 + 同卡项、有效且有余次」取**最早一张**扣 1 次；暂无有效期（规划）。接口见 [api](/server/api) 次卡组。
 
 ## appointments — 预约（前台/馆长建约、小程序自助约期 → 到店接待 → 转接诊）
 

@@ -24,7 +24,7 @@
 | # | 屏（原型） | 现状 | 主要差距 | 数据支撑 | 级别 |
 |---|---|---|---|---|---|
 | 1 | 全局壳 + 主题（appearance 原型口径） | ProLayout `mix` 布局、antd 蓝、白底 | **配色**：主色/选中态/链接全换 `--brand` 系；**布局**：`mix`→纯侧栏（`layout: 'side'`），侧栏白底圆角选中块；**组件**：logo 位换「养」字方标+宋体馆名；**文案**：`Youngs.fun`→馆名副标题 | ✅ | **P0** |
-| 2 | 顾客档案（admin-customer） | `Customer/Update` 裸 ProForm 7 字段纵排 | **布局**：整页重排 = 头卡(头像/姓名/等级chip/元信息+操作) + 4 统计卡 + 左「诊疗记录」时间线 + 右「持卡卡项」栏；**组件**：宋体姓名/衬线数字、等级金棕 chip、时间线日期块、余次进度条、回访提醒注记块；**文案**：「年纪」→「年龄」等 | 姓名/性别/年龄/手机/等级/生日 ✅；诊疗记录 ✅ `queryTreatByPage({customerId})`；累计消费 ✅ `GET /api/v1/order/summary`（fetchOrderSummary，已完成订单价格合计）；持卡卡项/余次 ❌ 无卡实体→「规划」占位；下次回访 ❌ 无按顾客查询→「规划」占位 | **P0** |
+| 2 | 顾客档案（admin-customer） | `Customer/Update` 裸 ProForm 7 字段纵排 | **布局**：整页重排 = 头卡(头像/姓名/等级chip/元信息+操作) + 4 统计卡 + 左「诊疗记录」时间线 + 右「持卡卡项」栏；**组件**：宋体姓名/衬线数字、等级金棕 chip、时间线日期块、余次进度条、回访提醒注记块；**文案**：「年纪」→「年龄」等 | 姓名/性别/年龄/手机/等级/生日 ✅；诊疗记录 ✅ `queryTreatByPage({customerId})`；累计消费 ✅ `GET /api/v1/order/summary`（fetchOrderSummary，已完成订单价格合计）；持卡卡项/余次 ✅ 已实装（`customer_cards` + `/api/v1/card`，顾客页渲染余次进度条）；下次回访 ❌ 无按顾客查询→「规划」占位 | **P0** |
 | 3 | 接诊开单 = 桌面工作站（desktop-workstation） | `Treat/Create` 单列长 ProForm（四诊全宽 textarea、五行 ProCard 嵌套） | **布局**：患者头卡 + 四诊 2×2 + 脉象左右手寸关尺格 + 取穴左右 + 诊断(证型+疗程) + 五行图示 + 调理方案条目 + 右栏（历史调阅/打印处方笺入口）；**配色/组件**：panel 卡片化、标签 chip、宋体节标题；**文案**：标签对齐原型（主诉/问诊/望诊/切诊/脉象/取穴/诊断/调理方案） | 全部 Treat 字段 ✅；顾客头卡 ✅ `fetchCustomerById`；历史调阅 ✅ `queryTreatByPage`；打印处方笺 ⚠️ 有 print 模板链路（D7）可挂；开单区/卡项抵扣 ❌ 无订单创建接口于接诊流→「规划」占位；扫码进单 ✅ 既有 ScannerInput/scan 流程 | **P0** |
 | 4 | 每日报表（admin-dash-day） | `Dashboard/Day` 三张 ProCard 表格 | **布局**：顶部 4 统计卡 + 左员工总结表 + 右近 7 日柱状 + 今日回访/今日总结；**配色/组件**：状态 pill（已提交/未填写）、提醒按钮、宋体数字；**文案**：标题带日期 + ‹前一天› 导航 | 员工总结/今日回访/今日总结 ✅ 三接口已在用；在岗/接诊/新客统计 ❌ 无聚合接口→暂缓或「规划」；近 7 日 ⚠️ 按 treat 按日查询聚合（接口参数支持 startTime/endTime） | P1 |
 | 5 | 卡项管理（admin-items） | `Item/Query` ProTable（名称/价格/描述/时间） | **布局**：提示条 + 封面列 + 上架开关列 + 排序列 + 分页；**组件**：首字封面 chip；**文案**：tip 同原型 | 名称/价格/描述 ✅；封面/上架/排序 ✅ 实体已有（ItemEntity cover/enabled/sort，ItemView 落库默认 enabled=1/sort=0；仅 web typings.d.ts 未同步）→ P1 可真实做开关/排序/封面，无需占位 | P1 |
@@ -80,3 +80,5 @@
 - [x] P1-10 tablet 展示屏对齐（2caa81f；tokens.css 同源拷入；石墨底 --ink、纸色圆角 slide 卡 + 真实素材内嵌、pager 圆点真实进度、叫号全屏覆盖改原型底部横条=金棕 label+号码脱敏+宋体诊室，15s 自动收回）
 - [x] P1-11 app 小程序首页对齐（9566fdb；mobile-home 版式：品牌头/预约横幅/今日宜养/我的卡项/养生贴士/白标自检页底；宫格实拉上架项目，预约与卡项余次如实「规划功能」pill+note；tokens.css 同源引入，--brand-color 白标注入保留）
 - [x] P1-12 desktop 壳引导页对齐（5e656b7；五端散色残留 grep 复核零命中，--brand-color 白标注入机制保留）
+- [x] P1-13 处方配伍审方 + 药材字典/计价（8e3402f/0144ba0；十八反/十九畏静态规则提示不拦截；herbs 字典 + 处方实时试算，未收录药名不计费）
+- [x] P1-14 卡实体（次卡）与结算抵扣（81aaf5e；customer_cards + /api/v1/card 发卡/停用，payType 5 扣 1 次实收 0；顾客页持卡栏与结算台次卡选项实装）

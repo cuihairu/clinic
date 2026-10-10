@@ -9,7 +9,7 @@
 | 文件 | 端 | 状态 | 说明 |
 |---|---|---|---|
 | `tokens.css` | 全端 | **设计系统内核** | CSS 变量四主题、色板、字体、间距、圆角、阴影 |
-| `admin-customer.html` | web | ✅ 已实现功能 | 顾客档案：建档/查询/更新/诊断历史/回访计划 |
+| `admin-customer.html` | web | ✅ 已实现功能 | 顾客档案：建档/查询/更新/诊断历史/回访计划/持卡卡项（次卡发卡与余次） |
 | `admin-diagnosis.html` | web | ✅ 已实现功能 | 接诊诊疗单：四诊/脉象/五行/取穴/诊断/方案 |
 | `admin-dash-day.html` | web | ✅ 已实现功能 | 每日报表：员工总结/今日回访/今日总结/近7日接诊柱状图 |
 | `admin-items.html` | web | ✅ 已实现功能 | 卡项管理：封面/上架/排序/编辑/删除/分页 |
@@ -18,7 +18,7 @@
 | `admin-appearance.html` | web | ✅ 已实现功能 | 外观设置：四主题卡即时切换 + 实时预览网格 |
 | `admin-booking.html` | web | ◐ **部分实现** | 预约排班：待到店列表/建约/到店接待转接诊与医师×时段排班网格（`/appointment/schedule`）已实装；小程序自助约期已实装（`POST /api/v1/kiosk/appointments` + 小程序 `pages/booking`） |
 | `admin-herbprescription.html` | web | ◐ **部分实现** | 中药处方：处方笺开方/查询已实装（`/prescription/create`、`/prescription/query`，药材自由文本）+ 配伍审方已实装（`POST /prescription/compatibility` 十八反/十九畏静态规则）+ 计价已实装（`/api/v1/herb` 字典 + `POST /prescription/price` 试算，开方页随写随查，未收录药名不计费）；原型里的代煎领取仍为设计稿 |
-| `admin-billing.html` | web | ◐ **部分实现** | 收费结算：待结算队列/储值支付与充值/微信·支付宝·现金（记录口径）已实装（`/billing/settle`，结算台形态）；原型里的处方饮片行、次卡抵扣与小票打印仍为设计稿 |
+| `admin-billing.html` | web | ◐ **部分实现** | 收费结算：待结算队列/储值支付与充值/微信·支付宝·现金（记录口径）已实装（`/billing/settle`，结算台形态）+ 次卡抵扣已实装（payType 5，扣 1 次实收 0）；原型里的处方饮片行与小票打印仍为设计稿 |
 | `desktop-workstation.html` | desktop | ✅ 已实现功能 | 接诊开单 + 打印/扫码外设状态 |
 | `mobile-home.html` | app | ✅ 已实现功能 | 小程序首页：品牌头/预约横幅（入口 → 自助约期 `pages/booking`）/今日宜养（宫格实拉）/我的卡项/养生贴士/白标自检页底（卡项余次无接口，界面如实「规划功能」占位） |
 | `kiosk-menu.html` | kiosk | ✅ 已实现功能 | 选服务下单：卡项网格/购物篮/手机号下单/回执 |
