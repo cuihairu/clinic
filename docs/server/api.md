@@ -95,7 +95,9 @@
 | POST | `/api/v1/staff/sign` | 签到 / 签退（`signType`：1 上班、0 下班） |
 | GET | `/api/v1/staff/timesheet/today` | 本人今日考勤（打卡明细与总时长） |
 | GET | `/api/v1/staff/timesheet/month?month=` | 按月全员考勤统计（1-12，仅当年） |
-| POST | `/api/v1/staff/leave` | 请假（占位实现，返回空对象） |
+| POST | `/api/v1/staff/leave/` | 提交请假：`staffId` + `leaveType`（0 病假 / 1 事假）+ `reason` + `startTime`/`endTime` 必填，结束不早于起始；回包含联出员工名。记录口径：不改员工登录状态、无审批流 |
+| GET | `/api/v1/staff/leave/page` | 请假分页（current、pageSize、staffId 可空），联出员工名，id 倒序 |
+| DELETE | `/api/v1/staff/leave/{id}` | 删除请假记录（演示环境口径，无留痕） |
 
 ::: tip 考勤口径
 时长按整小时统计，不足 1 小时不显示；同日多次上班卡取最早、下班卡取最晚；未打下班卡但已上班的按当前时间计算。详见[管理端](/web)页面说明。

@@ -165,6 +165,19 @@
 
 考勤统计在查询时实时计算（无定时任务）：同日多次上班卡取最早、下班卡取最晚，时长按整小时计。
 
+## staff_leaves — 员工请假（诊所运营）
+
+| 字段 | 类型 | 含义 |
+| ---- | ---- | ---- |
+| id | Long | 主键 |
+| staff_id | Long | 员工 id（staffs.id） |
+| leave_type | Integer | 类型：0 病假、1 事假 |
+| reason | String | 事由（非空） |
+| start_time / end_time | Date | 起止时间（结束不早于起始） |
+| create_time / update_time | Date | 审计时间 |
+
+索引：员工 id。口径：请假为记录性质，不改员工登录状态、无审批流（演示口径）。
+
 ## ad_materials / ad_screens / ad_schedules — 广告投屏（平板展示）
 
 配套 [tablet/](/design/tablet) Kiosk 端，设计见[平板展示设计](/design/tablet)。文件本体不上库：素材上传落盘 `data/ads/yyyyMM/`（`sinomed.ads.upload-dir` 可改），表里存相对 url。

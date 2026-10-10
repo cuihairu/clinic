@@ -101,7 +101,7 @@ pnpm dev     # dev 模式：MOCK=none，代理到本机服务端
 | `/staff/query` | 员工查询 | 分页检索与删除员工 | 仅 `canAdmin` |
 | `/staff/update` | 员工更新 | 回填并保存 | - |
 | `/staff/sign`、`/staff/sign/timesheet/today`、`/staff/timesheet/list` | 签到 / 今日考勤 / 考勤列表 | 上 / 下班打卡、本人今日时长、按月全员考勤矩阵 | 已登录 / - |
-| `/staff/leave` | 员工请假 | 请假表单（注意：当前提交调用的是创建员工接口，功能未完成） | - |
+| `/staff/leave` | 员工请假 | 左侧登记表单（员工选择/类型 病假·事假/起止时间/事由）+ 右侧近期请假记录（可删除）；接口 `POST /api/v1/staff/leave/`，记录口径不改登录状态、无审批流 | 已登录 |
 
 ### 订单系统（/order）
 
