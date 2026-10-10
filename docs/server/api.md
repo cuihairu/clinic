@@ -165,6 +165,7 @@
 
 | 方法 | 路径 | 功能 |
 | ---- | ---- | ---- |
+| POST | `/api/v1/prescription/price` | 处方试算（不开方只算钱）：body 传 `herbs`（herb/weight）+ `doses`，按药材字典实时计价返回 `{ totalFen, perDoseFen, doses, herbCount, pricedHerbCount, unknownHerbs[] }`；未收录药名不计费 |
 | POST | `/api/v1/prescription/compatibility` | 配伍审方：body `{ herbs: ["药名", …] }`，按经典十八反（禁忌）/十九畏（慎用）比对；自由文本药名按别名包含匹配（「法半夏」命中「半夏」）；返回 `{ checked, findings[] }`（`findings` 空即未发现配伍禁忌）；提示不拦截，是否照用由医师判断 |
 | POST | `/api/v1/prescription/` | 开方：`customerId` + `herbs`（至少 1 味：`herb` 药名 + `weight` 剂量克，`special` 特殊煎法可选）必填；`treatId`/`staffId`/`doses`（默认 7）/`usage`/`remark` 可选；返回创建后的处方（含药味） |
 | GET | `/api/v1/prescription/page` | 分页（current、pageSize、customerId 可空），联出顾客名、医师名与药味，id 倒序 |
@@ -172,8 +173,19 @@
 | DELETE | `/api/v1/prescription/{id}` | 删除处方（连同药味；演示环境口径，无留痕） |
 
 ::: tip 处方口径
-药材名为自由文本——无药材字典、库存与计价，代煎领取为规划功能；配伍审方（十八反/十九畏）已实装、提示不拦截；剂量为单剂克数（可小数），`special` 记录先煎/后下/包煎等煎法。
+药材名为自由文本——配伍审方（十八反/十九畏，静态规则）与计价（按药材字典实时试算）已实装；审方提示不拦截，计价无快照、随字典改价同步，未收录药名如实标「未比价」不计费；库存与代煎领取为规划功能；剂量为单剂克数（可小数），`special` 记录先煎/后下/包煎等煎法。
 :::
+
+## 药材字典 `/api/v1/herb`
+
+需登录；处方计价的比价依据。药材名唯一、与处方药名**精确同名匹配**（「炙甘草」不匹配「甘草」）；价格为每克分价（int），计价 = Σ round(分价 × 单剂克数) × 剂数。
+
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| POST | `/api/v1/herb/` | 收录药材（name 唯一，price 每克分价 >0；重名报「药材已收录」） |
+| PUT | `/api/v1/herb/` | 更新药材（改价/改名，名称查重不含自身） |
+| DELETE | `/api/v1/herb/{id}` | 删除药材（演示口径无引用检查，删后相关药味转「未比价」） |
+| GET | `/api/v1/herb/page` | 分页（current、pageSize、keyword 名称包含过滤），名称升序 |
 
 ## 广告投屏 `/api/v1/ads`（tablet.md T1/T2）
 
