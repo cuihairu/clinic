@@ -19,4 +19,10 @@ public interface ReviewService {
 
     boolean deleteStaffViewById(Long id);
     boolean deleteCustomerViewById(Long id);
+
+    /** 按 id 查每日复盘总结 */
+    Optional<ReviewEntity> findViewById(Long id);
+
+    /** 按 id 删除每日复盘总结（含联出的员工/顾客复盘，调用方保证存在） */
+    void deleteViewById(Long id);
 }

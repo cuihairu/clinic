@@ -20,6 +20,11 @@ public interface TreatService {
      * 保存治疗
      * */
     TreatEntity save(TreatEntity treatEntity);
+
+    /**
+     * 按 id 全量更新接诊单：id 必填且须存在，字段以请求体为准；更新后驱逐 findById 缓存
+     */
+    TreatEntity update(com.sinomed.vo.TreatView view);
     /**
      * 根据治疗的id删除治疗
      * */

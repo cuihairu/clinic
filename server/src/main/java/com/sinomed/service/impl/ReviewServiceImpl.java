@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -125,5 +126,18 @@ public class ReviewServiceImpl implements ReviewService {
     public boolean deleteCustomerViewById(Long id) {
         reviewCustomerRepository.deleteById(id);
         return true;
+    }
+
+    @Override
+    public Optional<ReviewEntity> findViewById(Long id) {
+        return reviewRepository.findById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteViewById(Long id) {
+        reviewRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("复盘总结不存在：" + id));
+        reviewRepository.deleteById(id);
     }
 }

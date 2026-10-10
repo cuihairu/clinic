@@ -8,7 +8,9 @@ import com.sinomed.util.DateUtil;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +46,18 @@ public class TreatServiceImpl implements TreatService {
     @Cacheable("TreatEntity")
     public Optional<TreatEntity> findById(Long id) {
         return treatRepository.findById(id);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "TreatEntity", key = "#view.id")
+    public TreatEntity update(com.sinomed.vo.TreatView view) {
+        if (view.getId() == null) {
+            throw new IllegalArgumentException("接诊单id不能为空");
+        }
+        treatRepository.findById(view.getId())
+                .orElseThrow(() -> new IllegalArgumentException("接诊单不存在：" + view.getId()));
+        return treatRepository.save(view.ToTreatEntity());
     }
 
     @Override

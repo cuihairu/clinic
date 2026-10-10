@@ -240,7 +240,7 @@ public class TreatController {
         return treatView;
     }
 
-    @Operation(summary = "修改疗程表", description = "修改已有的疗程表", responses = {
+    @Operation(summary = "修改疗程表", description = "按 id 全量更新接诊单（id/customerId 必填且须存在；字段以请求体为准），回包含顾客姓名/年龄/性别", responses = {
             @ApiResponse(responseCode = "200", description = "疗程表", content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = TreatView.class)
@@ -260,10 +260,16 @@ public class TreatController {
     })
     @PutMapping("/")
     public TreatView updateTreat(@Validated @RequestBody TreatView treat) {
-        TreatEntity entity = new TreatEntity();
-        entity.setId(treat.getId());
-        treatService.save(entity);
-        return TreatView.builder().build();
+        customerService.findById(treat.getCustomerId())
+                .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
+        TreatEntity saved = treatService.update(treat);
+        TreatView treatView = TreatView.FromTreatEntity(saved);
+        customerService.findById(saved.getCustomerId()).ifPresent((user) -> {
+            treatView.setName(user.getName());
+            treatView.setAge(user.getAge());
+            treatView.setGender(user.getGender());
+        });
+        return treatView;
     }
 
     @Operation(summary = "创建疗程表", description = "创建新的疗程表", responses = {

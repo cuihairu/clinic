@@ -235,7 +235,7 @@ public class StaffController {
     })
     @GetMapping("/phone/{phone}")
     public StaffView findStaffByPhone(String phone) {
-        StaffEntity staffEntity = staffService.findByName(phone).orElseThrow(() -> new IllegalArgumentException("员工不存在"));
+        StaffEntity staffEntity = staffService.findByPhone(phone).orElseThrow(() -> new IllegalArgumentException("员工不存在"));
         return StaffView.fromStaffEntity(staffEntity);
     }
 

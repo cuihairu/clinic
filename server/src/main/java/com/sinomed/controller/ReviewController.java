@@ -76,8 +76,10 @@ public class ReviewController {
                     ))
             })
     @GetMapping("/{id}")
-    public ReviewView findOrderById(Long id){
-        return ReviewView.builder().build();
+    public ReviewView findViewById(@PathVariable Long id){
+        ReviewEntity entity = reviewService.findViewById(id)
+                .orElseThrow(() -> new IllegalArgumentException("复盘总结不存在：" + id));
+        return ReviewView.fromReviewEntity(entity);
     }
 
     @Operation(summary = "根据日期查询复盘总结",description = "根据日期查询复盘总结",
@@ -128,8 +130,9 @@ public class ReviewController {
                     ))
             })
     @DeleteMapping("/{id}")
-    public ReviewView deleteView(Long id){
-        return ReviewView.builder().build();
+    public MessageView deleteView(@PathVariable Long id){
+        reviewService.deleteViewById(id);
+        return MessageView.builder().message("已删除复盘总结 " + id).build();
     }
 
 
