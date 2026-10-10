@@ -10,4 +10,7 @@ public interface PrintTemplateService {
 
     /** 当前生效的全部模板与内容摘要版本 */
     PrintTemplatesView list();
+
+    /** 按白名单名取单个模板内容（服务端套打填充用，如结算小票） */
+    String template(String name);
 }

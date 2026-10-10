@@ -39,6 +39,11 @@ public class PrintTemplateServiceImpl implements PrintTemplateService {
         return new PrintTemplatesView(version(templates), templates);
     }
 
+    @Override
+    public String template(String name) {
+        return readTemplate(name);
+    }
+
     /** 单个模板解析：覆盖目录优先，缺失或读失败回落内置（内置缺失属装配错误，直接抛出） */
     private String readTemplate(String name) {
         Path override = overrideDir.resolve(name + ".html");
