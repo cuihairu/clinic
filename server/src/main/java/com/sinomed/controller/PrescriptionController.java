@@ -4,7 +4,10 @@ import com.sinomed.entity.PrescriptionEntity;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.repository.PrescriptionItemRepository;
 import com.sinomed.repository.StaffRepository;
+import com.sinomed.service.CompatibilityService;
 import com.sinomed.service.PrescriptionService;
+import com.sinomed.vo.CompatibilityCheckView;
+import com.sinomed.vo.CompatibilityResultView;
 import com.sinomed.vo.MessageView;
 import com.sinomed.vo.PageResp;
 import com.sinomed.vo.PrescriptionItemView;
@@ -27,8 +30,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 中药处方（需登录）：处方笺开方、查询与删除。
- * MVP 口径：药材名为自由文本，无药材字典/库存/配伍审方/计价（均为规划功能）。
+ * 中药处方（需登录）：处方笺开方、查询、删除与配伍审方。
+ * 口径：药材名为自由文本；配伍审方（十八反/十九畏）提示不拦截；
+ * 药材字典/库存/计价仍为规划功能。
  */
 @Tag(name = "处方", description = "中药处方API")
 @RestController
@@ -39,15 +43,18 @@ public class PrescriptionController {
     private final PrescriptionItemRepository prescriptionItemRepository;
     private final CustomerRepository customerRepository;
     private final StaffRepository staffRepository;
+    private final CompatibilityService compatibilityService;
 
     public PrescriptionController(PrescriptionService prescriptionService,
                                   PrescriptionItemRepository prescriptionItemRepository,
                                   CustomerRepository customerRepository,
-                                  StaffRepository staffRepository) {
+                                  StaffRepository staffRepository,
+                                  CompatibilityService compatibilityService) {
         this.prescriptionService = prescriptionService;
         this.prescriptionItemRepository = prescriptionItemRepository;
         this.customerRepository = customerRepository;
         this.staffRepository = staffRepository;
+        this.compatibilityService = compatibilityService;
     }
 
     @Operation(summary = "开方", description = "customerId + herbs（至少 1 味：herb 药名 + weight 剂量克，special 特殊煎法可选）必填；"
@@ -80,6 +87,28 @@ public class PrescriptionController {
         PrescriptionEntity saved = prescriptionService.save(view);
         // 重查一遍带出审计时间与药味，回包完整
         return prescriptionService.findById(saved.getId());
+    }
+
+    @Operation(summary = "配伍审方", description = "按经典十八反（禁忌）/十九畏（慎用）比对药材名；自由文本药名按别名包含匹配"
+            + "（如「法半夏」命中「半夏」）。findings 为空即未发现配伍禁忌；提示不拦截，是否照用由医师判断",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "审方结果", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CompatibilityResultView.class)
+                    )),
+                    @ApiResponse(responseCode = "400", description = "药材名单为空", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageView.class)
+                    )),
+                    @ApiResponse(responseCode = "401", description = "没有权限", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageView.class)
+                    ))
+            })
+    @PostMapping("/compatibility")
+    public CompatibilityResultView checkCompatibility(@RequestBody CompatibilityCheckView view) {
+        List<String> herbs = view == null ? null : view.getHerbs();
+        return compatibilityService.check(herbs);
     }
 
     @Operation(summary = "处方分页", description = "管理端列表：联出顾客名、医师名与药味（herbs）；customerId 可选过滤，id 倒序",
