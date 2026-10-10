@@ -138,6 +138,11 @@ append-only：每次结算抵扣（`payType=5`）在同一事务落一条，随�
 | customer_id | Long | 顾客 id（非空，customers.id） |
 | staff_id | Long | 开方医师 id（可空，staffs.id） |
 | doses | Integer | 剂数（几付，非空，默认 7） |
+| decoction_status | Integer | 代煎状态：0 无需代煎 / 1 待煎 / 2 可取 / 3 已取（勾代煎开方落 1，流转 待煎→可取→已取 单向推进） |
+| decoction_bags | Integer | 代煎袋数（=剂数；无需代煎为空） |
+| prescription_type | Integer | 处方类型：0 汤剂（默认）/ 1 膏方 |
+| paste_status | Integer | 膏方领取状态：0 非膏方 / 1 待制作 / 2 可取 / 3 已取（开膏方落 1，流转 待制作→可取→已取 单向推进） |
+| craft | String | 收膏方式（仅膏方：炼蜜/清膏/糖膏/阿胶收膏等，可空；汤剂恒空） |
 | usage | String | 用法：煎服法/频次/代煎说明 |
 | remark | String | 备注 |
 | create_time / update_time | Date | 审计时间 |
@@ -146,7 +151,7 @@ append-only：每次结算抵扣（`payType=5`）在同一事务落一条，随�
 
 `herbs`（药材字典）：`name`（唯一，与处方药名精确同名比价）、`price`（每克分价，int，>0）、审计时间。处方计价按字典**实时试算**（不落库、无快照，未收录药名不计费）。
 
-索引：`prescriptions` 顾客、接诊单；`prescription_items` 处方。库存与代煎领取为规划功能；配伍审方（十八反/十九畏）为静态规则比对（不落表），见 [api](/server/api) 处方组。
+索引：`prescriptions` 顾客、接诊单；`prescription_items` 处方。代煎领取与膏方领取流转已实装（两条独立单向链：待煎→可取→已取；待制作→可取→已取）；库存为规划功能；配伍审方（十八反/十九畏）为静态规则比对（不落表），见 [api](/server/api) 处方组。
 
 ## staffs — 员工（登录主体，诊所运营）
 
