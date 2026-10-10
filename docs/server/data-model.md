@@ -100,6 +100,19 @@
 
 索引：顾客。抵扣按「同顾客 + 同卡项、有效且有余次」取**最早一张**扣 1 次；暂无有效期（规划）。接口见 [api](/server/api) 次卡组。
 
+## card_usages — 次卡核销流水
+
+| 字段 | 类型 | 含义 |
+| ---- | ---- | ---- |
+| id | Long | 主键 |
+| card_id | Long | 持卡 id（非空，索引，customer_cards.id） |
+| order_id | Long | 触发抵扣的订单（可空——老卡补录/历史迁移无单据） |
+| staff_id | Long | 服务/操作员工（可空，取订单 staffId） |
+| times_used | Integer | 本次是第几次消费（1 起 = 总次数 − 扣后余次） |
+| create_time / update_time | Date | 审计时间 |
+
+append-only：每次结算抵扣（`payType=5`）在同一事务落一条，随结算回滚；不做手工划扣。种子数据为演示卡片补了历史核销（无订单号）。接口见 [api](/server/api) 次卡组。
+
 ## appointments — 预约（前台/馆长建约、小程序自助约期 → 到店接待 → 转接诊）
 
 | 字段 | 类型 | 含义 |

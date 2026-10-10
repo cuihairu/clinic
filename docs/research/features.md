@@ -27,7 +27,7 @@
 | 辨证论治记录 | Yukang(四诊+辨证+医嘱病历结构)、his_mvp(辨证开方) | 部分 | 诊疗单含五行生克(本/克/难经/比率)、脉象(左右手)、诊断字段,可支撑辨证记录;无标准证型字典 |
 | 中药饮片/方剂 | Yukang(中药饮片/中成药/颗粒分类)、his_mvp(方剂库+拼音输入)、herb-ms-ssm、chinese_medicine_store_cos | 部分 | 剂量模型已随中药处方上线（`prescription_items.weight` 克/剂 + `special` 煎法）；饮片目录、方剂库、拼音检索与计价未做 |
 | 针灸/取穴记录 | Yukang(外治/贴敷处方)、his_mvp(含经络穴位课程体系) | 部分 | 诊疗单含 `acupoint_left/right` 取穴字段;无穴位字典与针灸处方 |
-| 推拿/艾灸疗程 | 仲正堂门店业态(推拿、关元灸;未见其 App 功能清单) | 未实现 | 疗程卡管理在源码中无对应物;卡项(item)仅记录名称/价格 |
+| 推拿/艾灸疗程 | 仲正堂门店业态(推拿、关元灸;未见其 App 功能清单) | 部分 | 疗程卡口径已随次卡落地：推拿/艾灸疗程卡 = 卡项(次卡) + `customer_cards` 持卡，结算台次卡抵扣划次；核销流水已实装（`card_usages` 每次抵扣落「第几次/服务员工/订单」，顾客档案持卡栏可查，服务员工取订单 staffId）；无疗程卡营销(赠次/转卡/期限) |
 | 病症处方模板 | chinese_medicine_store_cos(病症处方模板库) | 已实现 | 病症模板库已实装（`prescription_templates` + items 两表；`/api/v1/prescription/template/*` CRUD + 上架过滤；开方页「套用模板」一键带出药味/剂数/用法，模板只存建议值不写回；**界面：[处方 · 病症模板](/screenshots/admin-herbprescription.png)**） |
 | 配伍禁忌审方 | Yukang(AI 审方:过敏/配伍禁忌/相互作用) | 部分 | 十八反/十九畏静态规则已实装（`POST /api/v1/prescription/compatibility`，别名包含匹配、提示不拦截；见 CompatibilityServiceImplTest）；AI 审方（过敏史/相互作用）未做 |
 | 膏方/代煎 | 调研项目中未见 | 部分 | 代煎已实装（开方勾选落「待煎」，查询页流转 待煎→可取→已取，袋数=剂数）；膏方未做 |
