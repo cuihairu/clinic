@@ -28,7 +28,7 @@ features:
       src: /icons/report-analytics.svg
       alt: 复盘
     title: 复盘与回访
-    details: 每日总结按天沉淀，员工复盘与顾客回访按日汇总；回访到期待办自动出现在每日报表。
+    details: 每日总结按天沉淀，员工复盘与顾客回访按日汇总；回访到期待办自动出现在每日报表；月度收费报表按结算时间聚合逐日单数/实收与支付方式构成。
   - icon:
       src: /icons/prescription.svg
       alt: 规划

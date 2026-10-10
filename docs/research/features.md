@@ -17,7 +17,7 @@
 | 收费结算 | Yukang(现金/微信/支付宝/银行卡/医保)、OpenHIS(划价收费)、openhis-clinic | 部分 | `settlements` 结算单 + `/api/v1/settlement`（订单 0/1→2 收款，一单一结算）+ `/api/v1/recharge` 储值流水（余额=合计），管理端 `/billing/settle` 结算台；微信/支付宝仅记录方式，无退费/日对账/发票，处方饮片行与卡项次卡抵扣未做。**界面：[收费结算台](/screenshots/admin-billing.png)** |
 | 患者会员 | TANGKUO/HIS(患者管理)、Yukang(连锁分店)、chinese_medicine_store_cos(会员购买/订单) | 部分 | `customers.level` 会员等级字段存在；储值充值/扣减流水已接线（`recharges`），无折扣/套餐/跨店消费 |
 | 排班 | 调研项目中未见明确实现的排班模块 | 部分 | `signs` 考勤仍是上下班打卡；预约排班已实装——`/appointment/schedule` 医师×时段日网格（占用/空档/格内接待），周期性员工班表未做。**界面：[预约排班](/screenshots/admin-booking.png)** |
-| 报表统计 | Yukang(经营统计/处方量趋势)、OpenHIS(图表统计)、openhis-clinic(报表查询) | 部分 | 已有每日报表(总结/复盘/回访)与按月考勤统计;无经营/收费类报表 |
+| 报表统计 | Yukang(经营统计/处方量趋势)、OpenHIS(图表统计)、openhis-clinic(报表查询) | 部分 | 已有每日报表(总结/复盘/回访)与按月考勤统计；月度收费报表已实装（`GET /api/v1/settlement/report/month` 逐日与支付方式构成、次卡核销单列；见 SettlementReportHttpTest）；无经营趋势分析与图表 |
 | 多门店/连锁 | Yukang(总店聚合/分店独立库)、chinese_medicine_store_cos(多门店) | 未实现 | 单店模型 |
 
 ## 二、中医特色
