@@ -78,7 +78,7 @@
 | PUT | `/api/v1/item/` | 更新卡项 |
 | GET | `/api/v1/item/page` | 分页查询（当前实现未按条件过滤，返回全部） |
 | GET | `/api/v1/item/{id}` | 按 id 查询 |
-| GET | `/api/v1/item/name/{name}` | 按名称查询（值取自查询参数） |
+| GET | `/api/v1/item/name/{name}` | 按名称查询（`{name}` 为路径变量；PathLookupHttpTest 锁死） |
 | DELETE | `/api/v1/item/{id}` | 删除，返回删除前的卡项 |
 
 ## 员工与考勤（诊所运营） `/api/v1/staff`
@@ -89,8 +89,8 @@
 | PUT | `/api/v1/staff/` | 更新员工（携带 `password` 则同步改密） |
 | GET | `/api/v1/staff/page` | 分页查询员工 |
 | GET | `/api/v1/staff/{id}` | 按 id 查询 |
-| GET | `/api/v1/staff/name/{name}` | 按姓名查询（值取自查询参数） |
-| GET | `/api/v1/staff/phone/{phone}` | 按手机号查询（与按姓名查询互不串，StaffLookupTest 锁死） |
+| GET | `/api/v1/staff/name/{name}` | 按姓名查询（`{name}` 为路径变量；PathLookupHttpTest 锁死） |
+| GET | `/api/v1/staff/phone/{phone}` | 按手机号查询（`{phone}` 为路径变量，与按姓名查询互不串；StaffLookupTest + PathLookupHttpTest 锁死） |
 | DELETE | `/api/v1/staff/{id}` | 删除员工 |
 | POST | `/api/v1/staff/sign` | 签到 / 签退（`signType`：1 上班、0 下班） |
 | GET | `/api/v1/staff/timesheet/today` | 本人今日考勤（打卡明细与总时长） |
