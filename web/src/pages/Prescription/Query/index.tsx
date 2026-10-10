@@ -1,13 +1,15 @@
 import { PageContainer, ProTable } from '@ant-design/pro-components';
 import type { ProColumns } from '@ant-design/pro-components';
 import type { ActionType } from '@ant-design/pro-components';
-import { Drawer, Popconfirm, message } from 'antd';
+import { Button, Drawer, Popconfirm, message } from 'antd';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import moment from 'moment';
 import {
+  DECOCTION_TEXT,
   deletePrescription,
   fetchPrescription,
   queryPrescriptionPage,
+  setDecoctionStatus,
   type Prescription,
 } from '@/services/ant-design-pro/prescription';
 import './index.less';
@@ -20,6 +22,8 @@ export default function PrescriptionQuery() {
   const [detailId, setDetailId] = useState<number | undefined>();
   const [detail, setDetail] = useState<Prescription | undefined>();
   const [detailLoading, setDetailLoading] = useState(false);
+  /** 代煎流转按钮忙态 */
+  const [flowing, setFlowing] = useState(false);
 
   const loadDetail = useCallback(async (id: number) => {
     setDetailLoading(true);
@@ -29,6 +33,20 @@ export default function PrescriptionQuery() {
       setDetailLoading(false);
     }
   }, []);
+
+  /** 代煎流转：待煎→可取→已取，成功后刷新抽屉与列表 */
+  const flow = async (status: 2 | 3) => {
+    if (detailId == null) return;
+    setFlowing(true);
+    try {
+      await setDecoctionStatus(detailId, status);
+      message.success(status === 2 ? '已转可取，请顾客凭单领取' : '已登记领取');
+      await loadDetail(detailId);
+      actionRef.current?.reload();
+    } finally {
+      setFlowing(false);
+    }
+  };
 
   useEffect(() => {
     if (detailId != null) loadDetail(detailId);
@@ -84,6 +102,18 @@ export default function PrescriptionQuery() {
       render: (_, entity) => (entity.doses ? `${entity.doses} 付` : '-'),
     },
     {
+      title: '代煎',
+      dataIndex: 'decoctionStatus',
+      width: 90,
+      hideInSearch: true,
+      render: (_, entity) =>
+        entity.decoctionStatus == null || entity.decoctionStatus === 0 ? (
+          <span className="faint">—</span>
+        ) : (
+          <span className={`dc s${entity.decoctionStatus}`}>{DECOCTION_TEXT[entity.decoctionStatus]}</span>
+        ),
+    },
+    {
       title: '用法',
       dataIndex: 'usage',
       ellipsis: true,
@@ -128,7 +158,7 @@ export default function PrescriptionQuery() {
   return (
     <PageContainer
       title="处方查询"
-      content="已开处方笺一览；点「详情」看整方药味。配伍审方、计价与代煎领取为规划功能。"
+      content="已开处方笺一览；点「详情」看整方药味、实时计价，代煎处方在此流转领取（待煎→可取→已取）。"
     >
       <ProTable<Prescription>
         rowKey="id"
@@ -211,7 +241,27 @@ export default function PrescriptionQuery() {
                 </span>
               </div>
             ) : null}
-            <div className="hint">演示口径：计价按药材字典实时试算、无快照（随改价同步），库存为规划功能</div>
+            {detail.decoctionStatus != null && detail.decoctionStatus > 0 && (
+              <div className="field dc-line">
+                <span className="k">代煎</span>
+                <span className="v">
+                  <span className={`dc s${detail.decoctionStatus}`}>{DECOCTION_TEXT[detail.decoctionStatus ?? 0]}</span>
+                  {detail.decoctionBags ? ` ${detail.decoctionBags} 袋` : ''}
+                  {detail.decoctionFeeFen ? ` · 服务费 ¥${(detail.decoctionFeeFen / 100).toFixed(2)}（提示口径）` : ''}
+                </span>
+                {detail.decoctionStatus === 1 && (
+                  <Button size="small" type="primary" loading={flowing} onClick={() => flow(2)}>
+                    制作完成 · 转可取
+                  </Button>
+                )}
+                {detail.decoctionStatus === 2 && (
+                  <Button size="small" type="primary" loading={flowing} onClick={() => flow(3)}>
+                    顾客已领取
+                  </Button>
+                )}
+              </div>
+            )}
+            <div className="hint">演示口径：计价按药材字典实时试算、无快照（随改价同步），代煎费仅提示不收费，库存为规划功能</div>
           </div>
         ) : null}
       </Drawer>

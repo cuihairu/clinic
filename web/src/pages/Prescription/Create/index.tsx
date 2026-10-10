@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { PageContainer } from '@ant-design/pro-components';
 import { history } from '@umijs/max';
-import { Button, Input, InputNumber, Select, message } from 'antd';
+import { Button, Checkbox, Input, InputNumber, Select, message } from 'antd';
 import { CheckCircleFilled, MinusCircleOutlined, PlusOutlined, WarningFilled } from '@ant-design/icons';
 import {
   checkCompatibility,
@@ -31,6 +31,8 @@ const Create: React.FC = () => {
   const [staffId, setStaffId] = useState<number | undefined>();
   const [herbs, setHerbs] = useState<PrescriptionHerb[]>([{ herb: '', weight: undefined }]);
   const [doses, setDoses] = useState<number>(7);
+  /** 代煎：袋数=剂数，开方后落「待煎」，领取流转在处方查询页 */
+  const [decoction, setDecoction] = useState(false);
   const [usage, setUsage] = useState('');
   const [remark, setRemark] = useState('');
   const [busy, setBusy] = useState(false);
@@ -155,12 +157,13 @@ const Create: React.FC = () => {
         customerId: customer.id,
         staffId,
         doses,
+        decoction: decoction || undefined,
         usage: usage.trim() || undefined,
         remark: remark.trim() || undefined,
         herbs: rows.map((r) => ({ herb: (r.herb || '').trim(), weight: r.weight, special: r.special || undefined })),
       });
       if (created?.id) {
-        message.success(`处方 #${created.id} 已开`);
+        message.success(`处方 #${created.id} 已开${decoction ? `，代煎 ${doses} 袋已转药房待煎` : ''}`);
         history.push('/prescription/query');
       }
     } finally {
@@ -299,6 +302,12 @@ const Create: React.FC = () => {
               <InputNumber min={1} precision={0} value={doses} onChange={(v) => setDoses(v ?? 7)} /> 付
             </label>
             <label>
+              <Checkbox checked={decoction} onChange={(e) => setDecoction(e.target.checked)}>
+                代煎 {doses} 袋
+              </Checkbox>
+              <i className="dfee">服务费 {fenToYuan(doses * 300)}（¥3/袋）仅提示，收费以卡项订单结算为准</i>
+            </label>
+            <label>
               医师
               <Select
                 allowClear
@@ -325,7 +334,7 @@ const Create: React.FC = () => {
             onChange={(e) => setRemark(e.target.value)}
           />
           <div className="foot">
-            <span className="hint">演示口径：计价按药材字典实时试算（无快照），库存为规划功能；审方提示不拦截</span>
+            <span className="hint">演示口径：计价按药材字典实时试算（无快照），库存为规划功能；代煎费仅提示、领取流转见处方查询；审方提示不拦截</span>
             <Button type="primary" size="large" loading={busy} onClick={submit}>
               开方
             </Button>

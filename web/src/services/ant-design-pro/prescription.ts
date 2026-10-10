@@ -28,8 +28,22 @@ export interface Prescription {
   herbs?: PrescriptionHerb[];
   /** 按药材字典实时算出的计价（无快照） */
   pricing?: Pricing;
+  /** 代煎状态：0 无需代煎 / 1 待煎 / 2 可取 / 3 已取 */
+  decoctionStatus?: number;
+  /** 代煎袋数（=剂数；无需代煎为空） */
+  decoctionBags?: number;
+  /** 代煎服务费（分，袋数×300，实时算不落库） */
+  decoctionFeeFen?: number;
   createTime?: string;
 }
+
+/** 代煎状态文案 */
+export const DECOCTION_TEXT: Record<number, string> = {
+  0: '无需代煎',
+  1: '待煎',
+  2: '可取',
+  3: '已取',
+};
 
 export interface PrescriptionPageResult {
   data?: Prescription[];
@@ -45,6 +59,8 @@ export async function createPrescription(
     staffId?: number;
     treatId?: number;
     doses?: number;
+    /** 是否代煎：袋数=剂数，落「待煎」 */
+    decoction?: boolean;
     usage?: string;
     remark?: string;
     herbs: PrescriptionHerb[];
@@ -122,6 +138,18 @@ export interface Pricing {
   herbCount?: number;
   pricedHerbCount?: number;
   unknownHerbs?: string[];
+}
+
+/** 代煎流转：待煎(1)→可取(2)→已取(3) 顺序推进，其余 400 */
+export async function setDecoctionStatus(
+  id: number,
+  status: 2 | 3,
+  options?: { [key: string]: any },
+) {
+  return request<Prescription>(`/api/v1/prescription/${id}/decoction?status=${status}`, {
+    method: 'PUT',
+    ...(options || {}),
+  });
 }
 
 /** 处方试算：不开方只算钱；未收录药名计入 unknownHerbs 不计费 */
