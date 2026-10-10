@@ -37,6 +37,9 @@
 | POST | `/api/v1/customer/` | 建档（性别必填；手机号可选、唯一、大陆号段格式） |
 | PUT | `/api/v1/customer/` | 更新顾客信息 |
 | DELETE | `/api/v1/customer/{id}` | 删除顾客 |
+| GET | `/api/v1/customer/{id}/history` | 病史列表（过敏史/既往史逐条记录，新记录在前；顾客不存在报 400） |
+| POST | `/api/v1/customer/{id}/history` | 记病史：body `{ type, content }`，`type` 0 过敏 / 1 既往，`content` 非空且 ≤200 字（自动 trim）；顾客不存在/类型无效报 400 |
+| DELETE | `/api/v1/customer/history/{historyId}` | 删除一条病史记录（不存在报 400；演示环境口径，无留痕） |
 
 ## 诊疗单 `/api/v1/treat`
 

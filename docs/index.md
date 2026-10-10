@@ -18,7 +18,7 @@ features:
       src: /icons/stethoscope.svg
       alt: 诊疗
     title: 顾客与诊疗记录
-    details: 顾客建档、查询、更新；诊疗单覆盖主诉、望闻问切、脉象（左右手）、五行生克、取穴、诊断与调理方案，复诊可调阅历史。
+    details: 顾客建档、查询、更新（含过敏史/既往史逐条记录）；诊疗单覆盖主诉、望闻问切、脉象（左右手）、五行生克、取穴、诊断与调理方案，复诊可调阅历史。
   - icon:
       src: /icons/receipt-yuan.svg
       alt: 卡项
