@@ -1,9 +1,11 @@
 package com.sinomed;
 
+import com.sinomed.entity.CardUsageEntity;
 import com.sinomed.entity.CustomerCardEntity;
 import com.sinomed.entity.CustomerEntity;
 import com.sinomed.entity.ItemEntity;
 import com.sinomed.entity.OrderEntity;
+import com.sinomed.repository.CardUsageRepository;
 import com.sinomed.repository.CustomerCardRepository;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.repository.ItemRepository;
@@ -16,6 +18,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -47,6 +51,9 @@ class SettlementCardTest {
 
     @Autowired
     private CustomerCardRepository cardRepository;
+
+    @Autowired
+    private CardUsageRepository usageRepository;
 
     private static Long itemId;
 
@@ -93,6 +100,11 @@ class SettlementCardTest {
         var cards = cardRepository.findByCustomerIdOrderByIdDesc(customer);
         assertEquals(1, cards.size());
         assertEquals(9, cards.get(0).getRemainingTimes());
+        // 抵扣落核销流水：第 1 次、关联订单
+        List<CardUsageEntity> usages = usageRepository.findByCardIdOrderByIdDesc(cards.get(0).getId());
+        assertEquals(1, usages.size());
+        assertEquals(1, usages.get(0).getTimesUsed());
+        assertEquals(orderId, usages.get(0).getOrderId());
     }
 
     @Test
@@ -112,9 +124,11 @@ class SettlementCardTest {
         Long orderId = newOrder(customer, 680);
         cardService.issue(CardView.builder().customerId(customer).itemId(itemId).totalTimes(10).build());
         settlementService.settle(SettlementView.builder().orderId(orderId).payType(5).build());
-        // 同单再结算被拦（完结/已结算校验），不会二次扣卡
+        // 同单再结算被拦（完结/已结算校验），不会二次扣卡、不重复落核销
         assertThrows(IllegalArgumentException.class,
                 () -> settlementService.settle(SettlementView.builder().orderId(orderId).payType(5).build()));
         assertEquals(9, cardRepository.findByCustomerIdOrderByIdDesc(customer).get(0).getRemainingTimes());
+        Long cardId = cardRepository.findByCustomerIdOrderByIdDesc(customer).get(0).getId();
+        assertEquals(1, usageRepository.findByCardIdOrderByIdDesc(cardId).size());
     }
 }

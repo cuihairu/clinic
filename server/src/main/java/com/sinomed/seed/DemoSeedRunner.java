@@ -1,6 +1,7 @@
 package com.sinomed.seed;
 
 import com.sinomed.entity.AppointmentEntity;
+import com.sinomed.entity.CardUsageEntity;
 import com.sinomed.entity.CustomerEntity;
 import com.sinomed.entity.ItemEntity;
 import com.sinomed.entity.OrderEntity;
@@ -16,6 +17,7 @@ import com.sinomed.entity.SignEntity;
 import com.sinomed.entity.StaffEntity;
 import com.sinomed.entity.TreatEntity;
 import com.sinomed.repository.AppointmentRepository;
+import com.sinomed.repository.CardUsageRepository;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.repository.ItemRepository;
 import com.sinomed.repository.PrescriptionTemplateItemRepository;
@@ -47,6 +49,7 @@ import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +82,7 @@ public class DemoSeedRunner implements ApplicationRunner {
     private final PrescriptionTemplateRepository templateRepository;
     private final PrescriptionTemplateItemRepository templateItemRepository;
     private final CustomerCardRepository cardRepository;
+    private final CardUsageRepository usageRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewCustomerRepository reviewCustomerRepository;
     private final ReviewStaffRepository reviewStaffRepository;
@@ -441,6 +445,30 @@ public class DemoSeedRunner implements ApplicationRunner {
         card.setRemainingTimes(7);
         card.setStatus(1);
         cardRepository.save(card);
+        // 历史核销：余 7/10 ↔ 已用 3 次（老卡补录口径，无订单号），演示核销记录查询
+        Long staffId = staffByAccount("shen");
+        Calendar cal = Calendar.getInstance();
+        for (int i = 1; i <= 3; i++) {
+            CardUsageEntity usage = new CardUsageEntity();
+            usage.setCardId(card.getId());
+            usage.setStaffId(staffId);
+            usage.setTimesUsed(i);
+            usage = usageRepository.save(usage);
+            // 第 1 次 30 天前 → 第 3 次 10 天前
+            cal.setTime(new Date());
+            cal.add(Calendar.DAY_OF_MONTH, i * 10 - 40);
+            backdateRow("card_usages", usage.getId(), cal.getTime());
+        }
+        // 艾灸疗程卡：满卡未消费
+        itemRepository.findByName("艾灸温阳调理（5 次卡）").ifPresent(moxa -> {
+            CustomerCardEntity moxaCard = new CustomerCardEntity();
+            moxaCard.setCustomerId(customerId);
+            moxaCard.setItemId(moxa.getId());
+            moxaCard.setTotalTimes(5);
+            moxaCard.setRemainingTimes(5);
+            moxaCard.setStatus(1);
+            cardRepository.save(moxaCard);
+        });
         log.info("种子·次卡：检查完成");
     }
 

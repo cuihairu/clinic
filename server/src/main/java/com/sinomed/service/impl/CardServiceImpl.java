@@ -1,6 +1,9 @@
 package com.sinomed.service.impl;
 
+import com.sinomed.entity.CardUsageEntity;
 import com.sinomed.entity.CustomerCardEntity;
+import com.sinomed.entity.OrderEntity;
+import com.sinomed.repository.CardUsageRepository;
 import com.sinomed.repository.CustomerCardRepository;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.repository.ItemRepository;
@@ -15,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 次卡实现：发卡全量次数、抵扣按「早发的先扣」；无有效期（口径见文档）。
+ * 次卡/疗程卡实现：发卡全量次数、抵扣按「早发的先扣」并落核销流水；无有效期（口径见文档）。
  */
 @Slf4j
 @Service
@@ -25,6 +28,7 @@ public class CardServiceImpl implements CardService {
     private static final int STATUS_ACTIVE = 1;
 
     private final CustomerCardRepository cardRepository;
+    private final CardUsageRepository usageRepository;
     private final CustomerRepository customerRepository;
     private final ItemRepository itemRepository;
     private final OrderRepository orderRepository;
@@ -82,7 +86,7 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional
-    public CustomerCardEntity deduct(Long customerId, Long itemId) {
+    public CustomerCardEntity deduct(Long customerId, Long itemId, Long orderId) {
         List<CustomerCardEntity> candidates = cardRepository
                 .findByCustomerIdAndItemIdAndStatusAndRemainingTimesGreaterThanOrderByIdAsc(
                         customerId, itemId, STATUS_ACTIVE, 0);
@@ -92,7 +96,26 @@ public class CardServiceImpl implements CardService {
         CustomerCardEntity card = candidates.get(0);
         card.setRemainingTimes(card.getRemainingTimes() - 1);
         card = cardRepository.save(card);
-        log.info("次卡抵扣：card={} 剩余 {} 次", card.getId(), card.getRemainingTimes());
+
+        OrderEntity order = orderId == null ? null
+                : orderRepository.findById(orderId).orElse(null);
+        CardUsageEntity usage = new CardUsageEntity();
+        usage.setCardId(card.getId());
+        usage.setOrderId(orderId);
+        usage.setStaffId(order == null ? null : order.getStaffId());
+        usage.setTimesUsed(card.getTotalTimes() - card.getRemainingTimes());
+        usageRepository.save(usage);
+        log.info("次卡抵扣：card={} 第 {} 次，剩余 {} 次", card.getId(), usage.getTimesUsed(), card.getRemainingTimes());
         return card;
+    }
+
+    @Override
+    public List<CardUsageEntity> listUsages(Long cardId) {
+        if (cardId == null) {
+            throw new IllegalArgumentException("持卡id不能为空");
+        }
+        cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("持卡不存在：" + cardId));
+        return usageRepository.findByCardIdOrderByIdDesc(cardId);
     }
 }

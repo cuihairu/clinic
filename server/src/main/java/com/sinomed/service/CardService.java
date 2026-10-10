@@ -1,12 +1,13 @@
 package com.sinomed.service;
 
+import com.sinomed.entity.CardUsageEntity;
 import com.sinomed.entity.CustomerCardEntity;
 import com.sinomed.vo.CardView;
 
 import java.util.List;
 
 /**
- * 顾客持卡（次卡）：发卡、按顾客查询、停用/恢复、结算抵扣。
+ * 顾客持卡（次卡/疗程卡）：发卡、按顾客查询、停用/恢复、结算抵扣（落核销流水）。
  */
 public interface CardService {
 
@@ -20,8 +21,11 @@ public interface CardService {
     CustomerCardEntity setStatus(Long id, Integer status);
 
     /**
-     * 结算抵扣：按顾客 + 卡项找有效且有余次的最早一张卡扣 1 次；
-     * 无可抵扣卡抛 IllegalArgumentException（转 400）。
+     * 结算抵扣：按顾客 + 卡项找有效且有余次的最早一张卡扣 1 次，并落一条核销流水
+     * （times_used=第几次，staffId 取订单）；无可抵扣卡抛 IllegalArgumentException（转 400）。
      */
-    CustomerCardEntity deduct(Long customerId, Long itemId);
+    CustomerCardEntity deduct(Long customerId, Long itemId, Long orderId);
+
+    /** 按持卡查核销记录（新记录在前）；持卡不存在抛 IllegalArgumentException（转 400） */
+    List<CardUsageEntity> listUsages(Long cardId);
 }

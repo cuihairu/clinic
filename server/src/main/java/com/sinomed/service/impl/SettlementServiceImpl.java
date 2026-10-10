@@ -71,7 +71,7 @@ public class SettlementServiceImpl implements SettlementService {
             deduct.setMoney(-price);
             rechargeRepository.save(deduct);
         } else if (payType == PAY_CARD) {
-            cardService.deduct(order.getUserId(), order.getItemId());
+            cardService.deduct(order.getUserId(), order.getItemId(), order.getId());
             paid = 0;
         }
 

@@ -1,9 +1,12 @@
 package com.sinomed.controller;
 
+import com.sinomed.entity.CardUsageEntity;
 import com.sinomed.entity.CustomerCardEntity;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.repository.ItemRepository;
+import com.sinomed.repository.StaffRepository;
 import com.sinomed.service.CardService;
+import com.sinomed.vo.CardUsageView;
 import com.sinomed.vo.CardView;
 import com.sinomed.vo.MessageView;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,8 +30,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 顾客持卡（次卡，需登录）：发卡、按顾客查询、停用/恢复。
- * 结算抵扣由 /api/v1/settlement 的支付方式 5 触发（见 SettlementController）。
+ * 顾客持卡（次卡/疗程卡，需登录）：发卡、按顾客查询、停用/恢复、核销记录查询。
+ * 结算抵扣由 /api/v1/settlement 的支付方式 5 触发（见 SettlementController），抵扣即落核销流水。
  */
 @Tag(name = "次卡", description = "顾客持卡（次卡）API")
 @RestController
@@ -38,13 +41,16 @@ public class CardController {
     private final CardService cardService;
     private final CustomerRepository customerRepository;
     private final ItemRepository itemRepository;
+    private final StaffRepository staffRepository;
 
     public CardController(CardService cardService,
                           CustomerRepository customerRepository,
-                          ItemRepository itemRepository) {
+                          ItemRepository itemRepository,
+                          StaffRepository staffRepository) {
         this.cardService = cardService;
         this.customerRepository = customerRepository;
         this.itemRepository = itemRepository;
+        this.staffRepository = staffRepository;
     }
 
     @Operation(summary = "发卡", description = "customerId + itemId + totalTimes（≥1）必填；sourceOrderId 可空（溯源购卡订单）",
@@ -85,6 +91,21 @@ public class CardController {
         return decorate(cardService.setStatus(id, status));
     }
 
+    @Operation(summary = "按持卡查核销记录", description = "每次结算抵扣一条（第几次/时间/服务员工/订单）；新记录在前",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "核销记录列表（可空）", content = @Content(
+                            mediaType = "application/json", schema = @Schema(implementation = CardUsageView.class))),
+                    @ApiResponse(responseCode = "400", description = "持卡id缺失或不存在", content = @Content(
+                            mediaType = "application/json", schema = @Schema(implementation = MessageView.class)))
+            })
+    @GetMapping("/{id}/usages")
+    public List<CardUsageView> usages(
+            @Parameter(description = "持卡id") @PathVariable @NotNull Long id) {
+        return cardService.listUsages(id).stream()
+                .map(this::decorateUsage)
+                .collect(Collectors.toList());
+    }
+
     /** 联出顾客名与卡项名 */
     private CardView decorate(CustomerCardEntity card) {
         CardView view = CardView.FromEntity(card);
@@ -92,6 +113,16 @@ public class CardController {
                 .ifPresent(c -> view.setCustomerName(c.getName()));
         itemRepository.findById(card.getItemId())
                 .ifPresent(i -> view.setItemName(i.getName()));
+        return view;
+    }
+
+    /** 联出服务员工名 */
+    private CardUsageView decorateUsage(CardUsageEntity usage) {
+        CardUsageView view = CardUsageView.FromEntity(usage);
+        if (usage.getStaffId() != null) {
+            staffRepository.findById(usage.getStaffId())
+                    .ifPresent(s -> view.setStaffName(s.getName()));
+        }
         return view;
     }
 }

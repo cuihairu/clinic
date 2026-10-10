@@ -117,11 +117,11 @@ class CardServiceTest {
         Long customer = newCustomer("13900005016");
         var older = cardService.issue(view(customer, itemId, 10));
         var newer = cardService.issue(view(customer, itemId, 10));
-        var deducted = cardService.deduct(customer, itemId);
+        var deducted = cardService.deduct(customer, itemId, null);
         assertEquals(older.getId(), deducted.getId());
         assertEquals(9, deducted.getRemainingTimes());
         // 再扣仍是最老那张（余 9 > 0）
-        assertEquals(older.getId(), cardService.deduct(customer, itemId).getId());
+        assertEquals(older.getId(), cardService.deduct(customer, itemId, null).getId());
         assertEquals(8, cardRepository.findById(older.getId()).orElseThrow().getRemainingTimes());
         assertEquals(10, cardRepository.findById(newer.getId()).orElseThrow().getRemainingTimes());
     }
@@ -132,16 +132,16 @@ class CardServiceTest {
         var disabled = cardService.issue(view(customer, itemId, 10));
         cardService.setStatus(disabled.getId(), 0);
         var single = cardService.issue(view(customer, itemId, 1));
-        cardService.deduct(customer, itemId); // 把余 1 扣光
+        cardService.deduct(customer, itemId, null); // 把余 1 扣光
         assertEquals(0, cardRepository.findById(single.getId()).orElseThrow().getRemainingTimes());
-        var e = assertThrows(IllegalArgumentException.class, () -> cardService.deduct(customer, itemId));
+        var e = assertThrows(IllegalArgumentException.class, () -> cardService.deduct(customer, itemId, null));
         assertTrue(e.getMessage().contains("无可抵扣次卡"));
     }
 
     @Test
     void deductRejectsNoCardAtAll() {
         Long customer = newCustomer("13900005018");
-        var e = assertThrows(IllegalArgumentException.class, () -> cardService.deduct(customer, itemId));
+        var e = assertThrows(IllegalArgumentException.class, () -> cardService.deduct(customer, itemId, null));
         assertTrue(e.getMessage().contains("无可抵扣次卡"));
     }
 }
