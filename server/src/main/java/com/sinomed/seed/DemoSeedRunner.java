@@ -116,7 +116,7 @@ public class DemoSeedRunner implements ApplicationRunner {
             seedPrescriptions(customers);
             seedHistories(customers);
             log.info("演示种子数据检查完成（逐表幂等，已有数据自动跳过）；"
-                    + "广告素材模块源码未实现，无种子数据");
+                    + "广告素材/排期/屏幕为运营自建数据，无种子");
         } catch (Exception e) {
             // 播种失败不阻断启动：演示站优先可用，下次启动按自然键补齐缺项
             log.error("演示种子数据失败（服务继续启动）", e);
