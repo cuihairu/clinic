@@ -46,13 +46,22 @@
 
 | 模块 | Controller | 现状 |
 | ---- | ---------- | ---- |
-| 顾客（建档 / 查询 / 更新 / 删除） | `CustomerController` | 可用 |
+| 顾客（建档 / 查询 / 更新 / 删除 / 病史） | `CustomerController` | 可用 |
 | 诊疗单（中医四诊记录） | `TreatController` | 可用 |
+| 预约（建约 / 排班网格 / 到店接待） | `AppointmentController` | 可用 |
 | 反馈（每日总结 / 员工复盘 / 顾客回访） | `ReviewController` | 可用 |
 | 卡项 | `ItemController` | 可用 |
 | 用户认证（登录 / 注册 / 当前用户） | `UserController` | 可用 |
-| 员工与考勤（诊所运营） | `StaffController` | 可用（请假已实装） |
+| 员工与考勤（诊所运营） | `StaffController`、`StaffLeaveController` | 可用（请假已实装） |
 | 订单（自助机下单 / 前台建单 / 状态流转） | `OrderController` | 可用 |
+| 中药处方（开方 / 代煎与膏方流转 / 实时计价 / 配伍与过敏审方） | `PrescriptionController` | 可用 |
+| 病症处方模板 | `PrescriptionTemplateController` | 可用 |
+| 药材字典（开方比价取数） | `HerbController` | 可用 |
+| 收费结算与储值（收款 / 充值流水） | `SettlementController`、`RechargeController` | 可用 |
+| 次卡（发卡 / 停用 / 核销流水） | `CardController` | 可用 |
+| 结算小票套打（80mm HTML，模板可覆盖） | `ReceiptPrintController`、`PrintTemplateController` | 可用 |
+| 自助机（免登录下单 / 自助约期） | `KioskController` | 可用 |
+| 广告屏与叫号 | `AdsController`、`CallController` | 可用 |
 | 前端错误上报 | `TraceController` | 简单日志记录 |
 
 ::: warning 阅读接口文档时注意
