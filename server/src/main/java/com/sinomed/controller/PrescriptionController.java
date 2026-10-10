@@ -6,12 +6,14 @@ import com.sinomed.repository.PrescriptionItemRepository;
 import com.sinomed.repository.StaffRepository;
 import com.sinomed.service.CompatibilityService;
 import com.sinomed.service.PrescriptionService;
+import com.sinomed.service.PricingService;
 import com.sinomed.vo.CompatibilityCheckView;
 import com.sinomed.vo.CompatibilityResultView;
 import com.sinomed.vo.MessageView;
 import com.sinomed.vo.PageResp;
 import com.sinomed.vo.PrescriptionItemView;
 import com.sinomed.vo.PrescriptionView;
+import com.sinomed.vo.PricingView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,9 +32,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 中药处方（需登录）：处方笺开方、查询、删除与配伍审方。
+ * 中药处方（需登录）：处方笺开方、查询、删除、配伍审方与实时计价。
  * 口径：药材名为自由文本；配伍审方（十八反/十九畏）提示不拦截；
- * 药材字典/库存/计价仍为规划功能。
+ * 计价按药材字典（/api/v1/herb）实时算、无快照；库存与代煎领取仍为规划功能。
  */
 @Tag(name = "处方", description = "中药处方API")
 @RestController
@@ -44,17 +46,20 @@ public class PrescriptionController {
     private final CustomerRepository customerRepository;
     private final StaffRepository staffRepository;
     private final CompatibilityService compatibilityService;
+    private final PricingService pricingService;
 
     public PrescriptionController(PrescriptionService prescriptionService,
                                   PrescriptionItemRepository prescriptionItemRepository,
                                   CustomerRepository customerRepository,
                                   StaffRepository staffRepository,
-                                  CompatibilityService compatibilityService) {
+                                  CompatibilityService compatibilityService,
+                                  PricingService pricingService) {
         this.prescriptionService = prescriptionService;
         this.prescriptionItemRepository = prescriptionItemRepository;
         this.customerRepository = customerRepository;
         this.staffRepository = staffRepository;
         this.compatibilityService = compatibilityService;
+        this.pricingService = pricingService;
     }
 
     @Operation(summary = "开方", description = "customerId + herbs（至少 1 味：herb 药名 + weight 剂量克，special 特殊煎法可选）必填；"
@@ -85,8 +90,10 @@ public class PrescriptionController {
                     .orElseThrow(() -> new IllegalArgumentException("员工不存在：" + view.getStaffId()));
         }
         PrescriptionEntity saved = prescriptionService.save(view);
-        // 重查一遍带出审计时间与药味，回包完整
-        return prescriptionService.findById(saved.getId());
+        // 重查一遍带出审计时间与药味，回包完整（含实时计价）
+        PrescriptionView result = prescriptionService.findById(saved.getId());
+        result.setPricing(pricingService.price(result.getHerbs(), result.getDoses()));
+        return result;
     }
 
     @Operation(summary = "配伍审方", description = "按经典十八反（禁忌）/十九畏（慎用）比对药材名；自由文本药名按别名包含匹配"
@@ -109,6 +116,19 @@ public class PrescriptionController {
     public CompatibilityResultView checkCompatibility(@RequestBody CompatibilityCheckView view) {
         List<String> herbs = view == null ? null : view.getHerbs();
         return compatibilityService.check(herbs);
+    }
+
+    @Operation(summary = "处方试算", description = "不开方只算钱：body 传 herbs（herb/weight）+ doses，按药材字典实时计价返回；"
+            + "未收录药名计入 unknownHerbs 不计费",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "计价结果", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PricingView.class)
+                    ))
+            })
+    @PostMapping("/price")
+    public PricingView price(@RequestBody PrescriptionView view) {
+        return pricingService.price(view == null ? null : view.getHerbs(), view == null ? null : view.getDoses());
     }
 
     @Operation(summary = "处方分页", description = "管理端列表：联出顾客名、医师名与药味（herbs）；customerId 可选过滤，id 倒序",
@@ -147,6 +167,7 @@ public class PrescriptionController {
             view.setCustomerName(customerNames.get(prescription.getCustomerId()));
             view.setStaffName(staffNames.get(prescription.getStaffId()));
             view.setHerbs(herbs.get(prescription.getId()));
+            view.setPricing(pricingService.price(view.getHerbs(), view.getDoses()));
             return view;
         }).getContent();
         PageResp<PrescriptionView> resp = new PageResp<>();
@@ -174,7 +195,9 @@ public class PrescriptionController {
             })
     @GetMapping("/{id}")
     public PrescriptionView findById(@PathVariable Long id) {
-        return prescriptionService.findById(id);
+        PrescriptionView view = prescriptionService.findById(id);
+        view.setPricing(pricingService.price(view.getHerbs(), view.getDoses()));
+        return view;
     }
 
     @Operation(summary = "删除处方", description = "连同药味一并删除（演示环境口径，无留痕）",

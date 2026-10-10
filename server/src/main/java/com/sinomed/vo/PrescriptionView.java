@@ -12,8 +12,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 处方笺视图：字段与 prescriptions 表对齐；customerName/staffName/herbs 为列表与详情联出的展示字段。
- * MVP 无配伍审方与计价（药材无字典无价格），均为规划功能。
+ * 处方笺视图：字段与 prescriptions 表对齐；customerName/staffName/herbs 为列表与详情联出的展示字段，
+ * pricing 为按药材字典实时算出的计价（不落库、无快照）。
  */
 @Builder
 @NoArgsConstructor
@@ -50,6 +50,9 @@ public class PrescriptionView {
 
     @Schema(title = "药味列表（详情联出）")
     private List<PrescriptionItemView> herbs;
+
+    @Schema(title = "计价（按药材字典实时算，未收录药名不计费）")
+    private PricingView pricing;
 
     @Schema(title = "开方时间", example = "2026-10-09 11:00:00")
     private Date createTime;

@@ -16,6 +16,8 @@ import com.sinomed.entity.TreatEntity;
 import com.sinomed.repository.AppointmentRepository;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.repository.ItemRepository;
+import com.sinomed.repository.HerbRepository;
+import com.sinomed.entity.HerbEntity;
 import com.sinomed.repository.OrderRepository;
 import com.sinomed.repository.PrescriptionItemRepository;
 import com.sinomed.repository.PrescriptionRepository;
@@ -67,6 +69,7 @@ public class DemoSeedRunner implements ApplicationRunner {
     private final CustomerRepository customerRepository;
     private final TreatRepository treatRepository;
     private final ItemRepository itemRepository;
+    private final HerbRepository herbRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewCustomerRepository reviewCustomerRepository;
     private final ReviewStaffRepository reviewStaffRepository;
@@ -79,6 +82,7 @@ public class DemoSeedRunner implements ApplicationRunner {
         try {
             seedStaff();
             seedItems();
+            seedHerbs();
             Map<String, Long> customers = seedCustomers();
             seedTreats(customers);
             seedReviews();
@@ -385,6 +389,30 @@ public class DemoSeedRunner implements ApplicationRunner {
     }
 
     /** 中药处方演示数据：王慕清昨日一张逍遥散化裁（药材名为自由文本，虚构演示） */
+    /** 药材字典：覆盖种子处方 7 味与常用饮片，价格（分/克）为虚构演示值 */
+    private void seedHerbs() {
+        record HerbPrice(String name, int pricePerGram) {}
+        List<HerbPrice> herbs = List.of(
+                new HerbPrice("柴胡", 8), new HerbPrice("白芍", 5), new HerbPrice("当归", 12),
+                new HerbPrice("茯苓", 4), new HerbPrice("白术", 6), new HerbPrice("薄荷", 3),
+                new HerbPrice("炙甘草", 2), new HerbPrice("甘草", 2), new HerbPrice("黄芪", 6),
+                new HerbPrice("丹参", 8), new HerbPrice("半夏", 9), new HerbPrice("陈皮", 3),
+                new HerbPrice("川芎", 7), new HerbPrice("地黄", 8), new HerbPrice("麦冬", 10));
+        if (herbRepository.existsByName(herbs.get(0).name())) {
+            return;
+        }
+        for (HerbPrice herb : herbs) {
+            if (herbRepository.existsByName(herb.name())) {
+                continue;
+            }
+            HerbEntity entity = new HerbEntity();
+            entity.setName(herb.name());
+            entity.setPrice(herb.pricePerGram());
+            herbRepository.save(entity);
+        }
+        log.info("种子·药材字典：检查完成");
+    }
+
     private void seedPrescriptions(Map<String, Long> customers) {
         record HerbSeed(String herb, double weight, String special) {}
         Long customerId = customers.get("13900000001");

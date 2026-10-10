@@ -1,0 +1,45 @@
+package com.sinomed.vo;
+
+import com.sinomed.entity.HerbEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.Date;
+
+/**
+ * 药材字典条目：处方计价比价依据；价格单位为每克多少分。
+ */
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Schema(title = "药材字典条目")
+public class HerbView {
+    @Schema(title = "药材id", example = "1")
+    private Long id;
+
+    @NotBlank
+    @Schema(title = "药材名（唯一，与处方药名精确比对）", example = "甘草", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String name;
+
+    @NotNull
+    @Schema(title = "每克价格（分）", example = "5", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer price;
+
+    @Schema(title = "收录时间", example = "2026-10-10 10:00:00")
+    private Date createTime;
+
+    public static HerbView FromEntity(HerbEntity entity) {
+        return HerbView.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .price(entity.getPrice())
+                .createTime(entity.getCreateTime())
+                .build();
+    }
+}
