@@ -457,6 +457,9 @@ public class DemoSeedRunner implements ApplicationRunner {
         prescription.setCustomerId(customerId);
         prescription.setStaffId(staffId);
         prescription.setDoses(7);
+        // 昨日开方今日可取（0 无需/1 待煎/2 可取/3 已取），留给演示走「已取」流转
+        prescription.setDecoctionStatus(2);
+        prescription.setDecoctionBags(7);
         prescription.setUsage("水煎服，日一剂，早晚温服；代煎 7 袋");
         prescription.setRemark("复诊请带近期睡眠记录");
         prescription = prescriptionRepository.save(prescription);
