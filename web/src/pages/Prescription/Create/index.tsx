@@ -4,10 +4,12 @@ import { history } from '@umijs/max';
 import { Button, Checkbox, Input, InputNumber, Radio, Select, message } from 'antd';
 import { CheckCircleFilled, MinusCircleOutlined, PlusOutlined, WarningFilled } from '@ant-design/icons';
 import {
+  checkAllergy,
   checkCompatibility,
   createPrescription,
   pricePrescription,
   queryEnabledTemplates,
+  type AllergyResult,
   type CompatibilityResult,
   type PrescriptionHerb,
   type PrescriptionTemplate,
@@ -45,6 +47,9 @@ const Create: React.FC = () => {
   const [compat, setCompat] = useState<CompatibilityResult | undefined>();
   const [checking, setChecking] = useState(false);
   const compatSeq = useRef(0);
+  /** 过敏审方：按顾客过敏史比对药味（提示不拦截），定位顾客后随写随查 */
+  const [allergy, setAllergy] = useState<AllergyResult | undefined>();
+  const allergySeq = useRef(0);
   const [pricing, setPricing] = useState<Pricing | undefined>();
   const priceSeq = useRef(0);
   /** 病症处方模板：套用后只填当前开方单，不写回模板 */
@@ -112,6 +117,29 @@ const Create: React.FC = () => {
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [namedHerbs.join('|')]);
+
+  // 过敏审方：定位顾客后按过敏史比对药味；未定位顾客或无药名即清空
+  useEffect(() => {
+    if (!customer?.id || namedHerbs.length < 1) {
+      setAllergy(undefined);
+      return;
+    }
+    const seq = ++allergySeq.current;
+    const timer = setTimeout(async () => {
+      try {
+        const result = await checkAllergy(customer.id!, namedHerbs);
+        if (seq === allergySeq.current) {
+          setAllergy(result);
+        }
+      } catch {
+        if (seq === allergySeq.current) {
+          setAllergy(undefined);
+        }
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [namedHerbs.join('|'), customer?.id]);
 
   // 计价：同款防抖，按药材字典实时试算；无药名即清空
   useEffect(() => {
@@ -336,6 +364,21 @@ const Create: React.FC = () => {
               </div>
             )}
           </div>
+
+          {allergy && (allergy.findings?.length ?? 0) > 0 ? (
+            <div className="allergy">
+              <div className="ahead">
+                <WarningFilled /> 过敏提示 · 顾客过敏史提到 {allergy!.findings!.length} 味当前药方
+              </div>
+              {allergy!.findings!.map((f, i) => (
+                <div className="hit" key={i}>
+                  <span className="pair">{f.herb}</span>
+                  <span className="rule">{f.content}</span>
+                </div>
+              ))}
+              <div className="note">按顾客过敏史记录原文匹配（提示不拦截，是否照用由医师判断）</div>
+            </div>
+          ) : null}
 
           <div className="pricing">
             <h3>4 · 计价</h3>

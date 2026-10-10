@@ -267,6 +267,49 @@
   }
 }
 
+/* 过敏提示（按顾客过敏史比对，命中才出现） */
+.allergy {
+  margin-top: 14px;
+  border: 1px solid #e8b4a0;
+  background: #fdf6f2;
+  border-radius: 10px;
+  padding: 12px 14px;
+
+  .ahead {
+    font-size: 13px;
+    color: #a05a2c;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .hit {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 4px 0;
+    font-size: 13px;
+
+    .pair {
+      flex: none;
+      font-weight: 700;
+      color: #b4552d;
+    }
+
+    .rule {
+      color: var(--faint);
+      font-size: 12px;
+    }
+  }
+
+  .note {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--faint);
+  }
+}
+
 /* 步 4：计价（按药材字典实时试算） */
 .pricing {
   margin-top: 12px;

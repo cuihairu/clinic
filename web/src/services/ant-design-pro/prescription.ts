@@ -148,6 +148,34 @@ export async function checkCompatibility(
   });
 }
 
+/** 过敏审方命中条目：命中药味 + 顾客过敏史原文 */
+export interface AllergyFinding {
+  herb?: string;
+  historyId?: number;
+  content?: string;
+}
+
+export interface AllergyResult {
+  customerId?: number;
+  /** 参与比对的药材数 */
+  checked?: number;
+  /** 空即顾客过敏史未提到当前药味 */
+  findings?: AllergyFinding[];
+}
+
+/** 过敏审方：按顾客过敏史（customer_histories type=0）比对，原文包含药名即命中；提示不拦截 */
+export async function checkAllergy(
+  customerId: number,
+  herbs: string[],
+  options?: { [key: string]: any },
+) {
+  return request<AllergyResult>('/api/v1/prescription/allergy-check', {
+    method: 'POST',
+    data: { customerId, herbs },
+    ...(options || {}),
+  });
+}
+
 /** 处方计价：按药材字典实时试算；totalFen 仅含已比价药味，分单位 */
 export interface Pricing {
   totalFen?: number;
