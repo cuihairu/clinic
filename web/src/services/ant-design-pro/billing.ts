@@ -112,5 +112,5 @@ export async function querySettlementPage(
   });
 }
 
-/** 结算小票打印地址：80mm HTML（服务端按结算单填充，浏览器打印即可） */
+/** 结算小票打印地址：80mm HTML（需登录；页面须带 token 拉取后写入新窗口，见 Settle 页 openReceipt） */
 export const receiptPrintUrl = (settlementId: number) => `/api/v1/print/receipt/${settlementId}`;

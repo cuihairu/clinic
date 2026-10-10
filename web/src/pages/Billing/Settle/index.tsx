@@ -20,6 +20,29 @@ import './index.less';
 
 const maskPhone = (p?: string) => (p ? p.replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2') : '');
 
+/**
+ * 小票接口需登录（api.md 口径），window.open 裸开新窗口带不上 Bearer；
+ * 改为点击时先开窗口（避开弹窗拦截），再带 token 拉 HTML 写入。
+ */
+const openReceipt = async (id: number) => {
+  const win = window.open('', '_blank');
+  if (!win) return;
+  try {
+    const token = localStorage.getItem('jwt');
+    const res = await fetch(receiptPrintUrl(id), {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const html = await res.text();
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+  } catch {
+    win.close();
+    message.error('小票加载失败，请重试');
+  }
+};
+
 const Settle: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [settlements, setSettlements] = useState<Settlement[]>([]);
@@ -155,7 +178,7 @@ const Settle: React.FC = () => {
                   className="s-print"
                   icon={<PrinterOutlined />}
                   title="补打小票"
-                  onClick={() => window.open(receiptPrintUrl(s.id ?? 0), '_blank')}
+                  onClick={() => openReceipt(s.id ?? 0)}
                 />
               </div>
             ))}
@@ -171,7 +194,7 @@ const Settle: React.FC = () => {
                 <div className="op">
                   <Button
                     icon={<PrinterOutlined />}
-                    onClick={() => window.open(receiptPrintUrl(done.id), '_blank')}
+                    onClick={() => openReceipt(done.id)}
                   >
                     打印小票
                   </Button>
