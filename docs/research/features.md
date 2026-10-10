@@ -29,7 +29,7 @@
 | 针灸/取穴记录 | Yukang(外治/贴敷处方)、his_mvp(含经络穴位课程体系) | 部分 | 诊疗单含 `acupoint_left/right` 取穴字段;无穴位字典与针灸处方 |
 | 推拿/艾灸疗程 | 仲正堂门店业态(推拿、关元灸;未见其 App 功能清单) | 部分 | 疗程卡口径已随次卡落地：推拿/艾灸疗程卡 = 卡项(次卡) + `customer_cards` 持卡，结算台次卡抵扣划次；核销流水已实装（`card_usages` 每次抵扣落「第几次/服务员工/订单」，顾客档案持卡栏可查，服务员工取订单 staffId）；无疗程卡营销(赠次/转卡/期限) |
 | 病症处方模板 | chinese_medicine_store_cos(病症处方模板库) | 已实现 | 病症模板库已实装（`prescription_templates` + items 两表；`/api/v1/prescription/template/*` CRUD + 上架过滤；开方页「套用模板」一键带出药味/剂数/用法，模板只存建议值不写回；**界面：[处方 · 病症模板](/screenshots/admin-herbprescription.png)**） |
-| 配伍禁忌审方 | Yukang(AI 审方:过敏/配伍禁忌/相互作用) | 部分 | 十八反/十九畏静态规则已实装（`POST /api/v1/prescription/compatibility`，别名包含匹配、提示不拦截；见 CompatibilityServiceImplTest）；AI 审方（过敏史/相互作用）未做 |
+| 配伍禁忌审方 | Yukang(AI 审方:过敏/配伍禁忌/相互作用) | 部分 | 十八反/十九畏静态规则已实装（`POST /api/v1/prescription/compatibility`，别名包含匹配、提示不拦截；见 CompatibilityServiceImplTest）；过敏史静态审方已实装（`POST /api/v1/prescription/allergy-check`，按顾客过敏史原文包含匹配、提示不拦截；见 PrescriptionAllergyHttpTest）；相互作用比对与 AI 审方未做 |
 | 膏方/代煎 | 调研项目中未见 | 已实现 | 代煎与膏方两条独立领取链均已实装：代煎（开方勾选落「待煎」，流转 待煎→可取→已取，袋数=剂数，服务费仅提示）；膏方（`prescription_type=1` 开方落「待制作」，`craft` 记收膏方式，按料计不走袋数，流转 待制作→可取→已取，非膏方/跳跃报 400；与代煎互不影响） |
 | 名医排班 | 调研项目中未见 | 未实现 | - |
 

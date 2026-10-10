@@ -186,6 +186,7 @@
 | ---- | ---- | ---- |
 | POST | `/api/v1/prescription/price` | 处方试算（不开方只算钱）：body 传 `herbs`（herb/weight）+ `doses`，按药材字典实时计价返回 `{ totalFen, perDoseFen, doses, herbCount, pricedHerbCount, unknownHerbs[] }`；未收录药名不计费 |
 | POST | `/api/v1/prescription/compatibility` | 配伍审方：body `{ herbs: ["药名", …] }`，按经典十八反（禁忌）/十九畏（慎用）比对；自由文本药名按别名包含匹配（「法半夏」命中「半夏」）；返回 `{ checked, findings[] }`（`findings` 空即未发现配伍禁忌）；提示不拦截，是否照用由医师判断 |
+| POST | `/api/v1/prescription/allergy-check` | 过敏审方：body `{ customerId, herbs: ["药名", …] }`，按顾客过敏史（`customer_histories` type=0）比对，记录原文包含药名（≥2 字，单字如「参」不参与防误报）即命中；返回 `{ customerId, checked, findings[] }`（finding 含 `herb`/`historyId`/`content` 史原文；同味命中多条史各报一条；`findings` 空即未命中）；既往史不参与；未知顾客/空白名单 400；提示不拦截，是否照用由医师判断 |
 | POST | `/api/v1/prescription/` | 开方：`customerId` + `herbs`（至少 1 味：`herb` 药名 + `weight` 剂量克，`special` 特殊煎法可选）必填；`treatId`/`staffId`/`doses`（默认 7）/`usage`/`remark` 可选；`prescriptionType=1` 为膏方（落「待制作」，`craft` 记收膏方式如 炼蜜/清膏/糖膏/阿胶收膏，不计袋数）；`prescriptionType=0`（默认）且 `decoction=true` 时代煎（袋数=剂数，落「待煎」）；返回创建后的处方（含药味） |
 | PUT | `/api/v1/prescription/{id}/decoction?status=` | 代煎流转（汤剂专用）：只允许 待煎(1)→可取(2)→已取(3) 顺序推进；未选代煎(0)/回退/跳跃报 400；回包为流转后的完整处方视图。代煎袋数=剂数，服务费=袋数×3 元（300 分/袋）实时算不落库、`decoctionFeeFen` 随视图返回（提示口径，收费仍以卡项订单结算为准） |
 | PUT | `/api/v1/prescription/{id}/paste?status=` | 膏方领取流转：只允许 待制作(1)→可取(2)→已取(3) 顺序推进；非膏方（`prescriptionType=0`）报 400「不是膏方」；回退/跳跃报 400「流转无效」；回包为流转后的完整处方视图 |
@@ -205,7 +206,7 @@
 | DELETE | `/api/v1/prescription/template/{id}` | 删除模板（连同药味；不影响已开处方；演示环境口径，无留痕） |
 
 ::: tip 处方口径
-药材名为自由文本——配伍审方（十八反/十九畏，静态规则）与计价（按药材字典实时试算）已实装；审方提示不拦截，计价无快照、随字典改价同步，未收录药名如实标「未比价」不计费；代煎领取已实装（袋数=剂数、待煎→可取→已取单向流转，无加急/回退）；膏方已实装（`prescriptionType=1`，开方落「待制作」，`craft` 记收膏方式，按料计不走代煎袋数，领取流转 待制作→可取→已取 单向推进，与代煎各自独立互不影响）；病症处方模板已实装（模板名唯一、只存建议值，套用后随处方自由增减不写回模板，停用不出现在开方页）；库存为规划功能；剂量为单剂克数（可小数），`special` 记录先煎/后下/包煎等煎法。
+药材名为自由文本——配伍审方（十八反/十九畏，静态规则）、过敏审方（按顾客过敏史原文匹配）与计价（按药材字典实时试算）已实装；审方提示不拦截，计价无快照、随字典改价同步，未收录药名如实标「未比价」不计费；代煎领取已实装（袋数=剂数、待煎→可取→已取单向流转，无加急/回退）；膏方已实装（`prescriptionType=1`，开方落「待制作」，`craft` 记收膏方式，按料计不走代煎袋数，领取流转 待制作→可取→已取 单向推进，与代煎各自独立互不影响）；病症处方模板已实装（模板名唯一、只存建议值，套用后随处方自由增减不写回模板，停用不出现在开方页）；库存为规划功能；剂量为单剂克数（可小数），`special` 记录先煎/后下/包煎等煎法。
 :::
 
 ## 药材字典 `/api/v1/herb`
