@@ -117,7 +117,7 @@
 
 `prescription_items`（药味）：`prescription_id`（非空，索引）、`herb`（药名，非空，自由文本）、`weight`（单剂克数，Double，非空）、`special`（特殊煎法，可空）、`sort`（顺序，非空）。
 
-索引：`prescriptions` 顾客、接诊单；`prescription_items` 处方。药材无字典/库存/计价，配伍审方与代煎领取为规划功能，见 [api](/server/api) 处方组。
+索引：`prescriptions` 顾客、接诊单；`prescription_items` 处方。药材无字典/库存/计价，代煎领取为规划功能；配伍审方（十八反/十九畏）为静态规则比对（不落表），见 [api](/server/api) 处方组。
 
 ## staffs — 员工（登录主体，诊所运营）
 

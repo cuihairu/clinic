@@ -165,13 +165,14 @@
 
 | 方法 | 路径 | 功能 |
 | ---- | ---- | ---- |
+| POST | `/api/v1/prescription/compatibility` | 配伍审方：body `{ herbs: ["药名", …] }`，按经典十八反（禁忌）/十九畏（慎用）比对；自由文本药名按别名包含匹配（「法半夏」命中「半夏」）；返回 `{ checked, findings[] }`（`findings` 空即未发现配伍禁忌）；提示不拦截，是否照用由医师判断 |
 | POST | `/api/v1/prescription/` | 开方：`customerId` + `herbs`（至少 1 味：`herb` 药名 + `weight` 剂量克，`special` 特殊煎法可选）必填；`treatId`/`staffId`/`doses`（默认 7）/`usage`/`remark` 可选；返回创建后的处方（含药味） |
 | GET | `/api/v1/prescription/page` | 分页（current、pageSize、customerId 可空），联出顾客名、医师名与药味，id 倒序 |
 | GET | `/api/v1/prescription/{id}` | 处方详情（含按 sort 排序的药味） |
 | DELETE | `/api/v1/prescription/{id}` | 删除处方（连同药味；演示环境口径，无留痕） |
 
 ::: tip 处方口径
-药材名为自由文本——MVP 无药材字典、库存与计价，配伍审方与代煎领取为规划功能；剂量为单剂克数（可小数），`special` 记录先煎/后下/包煎等煎法。
+药材名为自由文本——无药材字典、库存与计价，代煎领取为规划功能；配伍审方（十八反/十九畏）已实装、提示不拦截；剂量为单剂克数（可小数），`special` 记录先煎/后下/包煎等煎法。
 :::
 
 ## 广告投屏 `/api/v1/ads`（tablet.md T1/T2）
