@@ -32,7 +32,7 @@
 | 7 | 广告屏（admin-ads） | `Ads/Materials|Schedules|Screens|Calls` 四个 ProTable 页 | **布局**：原型为单页 4 tab + 右栏屏幕状态/快捷叫号；逐页对齐卡片化与 pill；**文案**：脱敏 `王*` 已在展示屏口径 | 素材/排期/屏幕/叫号四组接口 ✅ | P1 |
 | 8 | 复盘回访 / 员工 / 登录 | 无专属原型 | 仅随全局壳主题（#1）被动对齐，不单独排屏 | ✅ | P1（被动） |
 | 9 | 外观设置（admin-appearance） | 无此页 | 新建「系统/外观设置」页：4 主题卡选择 → 写 localStorage → `data-theme` + antd token 运行时切换 + 实时预览区 | 纯前端 ✅ | P1 |
-| 10 | 预约排班 / 中药处方 / 收费结算 | 无→预约/结算已建域 | 预约排班已实装（5910aee/f04cf62：`appointments` 表 + `/api/v1/appointment` + `/appointment/*` 列表工作台 + `/appointment/schedule` 医师×时段排班网格）；收费结算已实装（26d6419/9d1e018：`settlements` 表 + 储值流水扣减 + `/api/v1/settlement`、`/api/v1/recharge` + `/billing/settle` 结算台；次卡抵扣 81aaf5e、小票打印 f57f10d 已实装，处方饮片行仍为设计稿）；中药处方已实装（f91add1/0ee1d1d：`prescriptions`/`prescription_items` 表 + `/api/v1/prescription` + `/prescription/*` 开方与查询，药材自由文本；配伍审方/计价/代煎领取仍为设计稿） | 预约 ✅ / 处方 ✅ / 收费 ✅ | 三者均已实现；处方无药材字典与计价（规划） |
+| 10 | 预约排班 / 中药处方 / 收费结算 | 无→预约/结算已建域 | 预约排班已实装（5910aee/f04cf62：`appointments` 表 + `/api/v1/appointment` + `/appointment/*` 列表工作台 + `/appointment/schedule` 医师×时段排班网格）；收费结算已实装（26d6419/9d1e018：`settlements` 表 + 储值流水扣减 + `/api/v1/settlement`、`/api/v1/recharge` + `/billing/settle` 结算台；次卡抵扣 81aaf5e、小票打印 f57f10d 已实装，处方饮片行仍为设计稿）；中药处方已实装（f91add1/0ee1d1d：`prescriptions`/`prescription_items` 表 + `/api/v1/prescription` + `/prescription/*` 开方与查询，药材自由文本；配伍审方 7100355、计价 60e818c、代煎领取 141f295 已实装） | 预约 ✅ / 处方 ✅ / 收费 ✅ | 三者均已实现；处方库存（饮片出入库）为规划 |
 
 ## 二、桌面工作站（desktop 壳）
 
@@ -83,3 +83,4 @@
 - [x] P1-13 处方配伍审方 + 药材字典/计价（8e3402f/0144ba0；十八反/十九畏静态规则提示不拦截；herbs 字典 + 处方实时试算，未收录药名不计费）
 - [x] P1-14 卡实体（次卡）与结算抵扣（81aaf5e；customer_cards + /api/v1/card 发卡/停用，payType 5 扣 1 次实收 0；顾客页持卡栏与结算台次卡选项实装）
 - [x] P1-15 结算小票打印（f57f10d/1b33703；`GET /api/v1/print/receipt/{settlementId}` 服务端套打 80mm HTML：单号 S+结算id、次卡抵扣金额列显示「次卡抵扣」、名字 HTML 转义；结算台收款成功出打印入口、最近结算可补打；模板仍可 data/printtemplates 覆盖）
+- [x] P1-16 处方代煎领取（141f295/47e4828；prescriptions +decoction_status/decoction_bags，开方 decoction=true 袋数=剂数落「待煎」；`PUT /prescription/{id}/decoction?status=` 待煎→可取→已取单向流转，回退/跳跃/未选代煎 400；服务费 ¥3/袋 实时算仅提示；开方页勾选、查询页状态列+抽屉流转按钮；加急与取药窗口不做——演示口径）

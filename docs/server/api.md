@@ -180,13 +180,14 @@
 | ---- | ---- | ---- |
 | POST | `/api/v1/prescription/price` | 处方试算（不开方只算钱）：body 传 `herbs`（herb/weight）+ `doses`，按药材字典实时计价返回 `{ totalFen, perDoseFen, doses, herbCount, pricedHerbCount, unknownHerbs[] }`；未收录药名不计费 |
 | POST | `/api/v1/prescription/compatibility` | 配伍审方：body `{ herbs: ["药名", …] }`，按经典十八反（禁忌）/十九畏（慎用）比对；自由文本药名按别名包含匹配（「法半夏」命中「半夏」）；返回 `{ checked, findings[] }`（`findings` 空即未发现配伍禁忌）；提示不拦截，是否照用由医师判断 |
-| POST | `/api/v1/prescription/` | 开方：`customerId` + `herbs`（至少 1 味：`herb` 药名 + `weight` 剂量克，`special` 特殊煎法可选）必填；`treatId`/`staffId`/`doses`（默认 7）/`usage`/`remark` 可选；返回创建后的处方（含药味） |
+| POST | `/api/v1/prescription/` | 开方：`customerId` + `herbs`（至少 1 味：`herb` 药名 + `weight` 剂量克，`special` 特殊煎法可选）必填；`treatId`/`staffId`/`doses`（默认 7）/`usage`/`remark` 可选；`decoction=true` 时代煎（袋数=剂数，落「待煎」）；返回创建后的处方（含药味） |
+| PUT | `/api/v1/prescription/{id}/decoction?status=` | 代煎流转：只允许 待煎(1)→可取(2)→已取(3) 顺序推进；未选代煎(0)/回退/跳跃报 400；回包为流转后的完整处方视图。代煎袋数=剂数，服务费=袋数×3 元（300 分/袋）实时算不落库、`decoctionFeeFen` 随视图返回（提示口径，收费仍以卡项订单结算为准） |
 | GET | `/api/v1/prescription/page` | 分页（current、pageSize、customerId 可空），联出顾客名、医师名与药味，id 倒序 |
 | GET | `/api/v1/prescription/{id}` | 处方详情（含按 sort 排序的药味） |
 | DELETE | `/api/v1/prescription/{id}` | 删除处方（连同药味；演示环境口径，无留痕） |
 
 ::: tip 处方口径
-药材名为自由文本——配伍审方（十八反/十九畏，静态规则）与计价（按药材字典实时试算）已实装；审方提示不拦截，计价无快照、随字典改价同步，未收录药名如实标「未比价」不计费；库存与代煎领取为规划功能；剂量为单剂克数（可小数），`special` 记录先煎/后下/包煎等煎法。
+药材名为自由文本——配伍审方（十八反/十九畏，静态规则）与计价（按药材字典实时试算）已实装；审方提示不拦截，计价无快照、随字典改价同步，未收录药名如实标「未比价」不计费；代煎领取已实装（袋数=剂数、待煎→可取→已取单向流转，无加急/回退）；库存为规划功能；剂量为单剂克数（可小数），`special` 记录先煎/后下/包煎等煎法。
 :::
 
 ## 药材字典 `/api/v1/herb`
