@@ -41,4 +41,15 @@ public class PrescriptionItemView {
                 .sort(entity.getSort())
                 .build();
     }
+
+    /** 模板药味 → 处方药味视图（两表同构：herb/weight/special/sort） */
+    public static PrescriptionItemView FromTemplateItemEntity(com.sinomed.entity.PrescriptionTemplateItemEntity entity) {
+        return PrescriptionItemView.builder()
+                .id(entity.getId())
+                .herb(entity.getHerb())
+                .weight(entity.getWeight())
+                .special(entity.getSpecial())
+                .sort(entity.getSort())
+                .build();
+    }
 }

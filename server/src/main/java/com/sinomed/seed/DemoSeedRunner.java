@@ -6,6 +6,8 @@ import com.sinomed.entity.ItemEntity;
 import com.sinomed.entity.OrderEntity;
 import com.sinomed.entity.PrescriptionEntity;
 import com.sinomed.entity.PrescriptionItemEntity;
+import com.sinomed.entity.PrescriptionTemplateEntity;
+import com.sinomed.entity.PrescriptionTemplateItemEntity;
 import com.sinomed.entity.RechargeEntity;
 import com.sinomed.entity.ReviewCustomerEntity;
 import com.sinomed.entity.ReviewEntity;
@@ -16,6 +18,8 @@ import com.sinomed.entity.TreatEntity;
 import com.sinomed.repository.AppointmentRepository;
 import com.sinomed.repository.CustomerRepository;
 import com.sinomed.repository.ItemRepository;
+import com.sinomed.repository.PrescriptionTemplateItemRepository;
+import com.sinomed.repository.PrescriptionTemplateRepository;
 import com.sinomed.repository.HerbRepository;
 import com.sinomed.entity.HerbEntity;
 import com.sinomed.repository.CustomerCardRepository;
@@ -72,6 +76,8 @@ public class DemoSeedRunner implements ApplicationRunner {
     private final TreatRepository treatRepository;
     private final ItemRepository itemRepository;
     private final HerbRepository herbRepository;
+    private final PrescriptionTemplateRepository templateRepository;
+    private final PrescriptionTemplateItemRepository templateItemRepository;
     private final CustomerCardRepository cardRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewCustomerRepository reviewCustomerRepository;
@@ -86,6 +92,7 @@ public class DemoSeedRunner implements ApplicationRunner {
             seedStaff();
             seedItems();
             seedHerbs();
+            seedTemplates();
             Map<String, Long> customers = seedCustomers();
             seedTreats(customers);
             seedReviews();
@@ -475,6 +482,40 @@ public class DemoSeedRunner implements ApplicationRunner {
         }
         backdateRow("prescriptions", prescription.getId(), at(-1, 10, 30)); // 回写昨日开方时间线
         log.info("种子·处方：检查完成");
+    }
+
+    /** 病症处方模板：两条常见病症，开方页「套用模板」演示（按病症名幂等） */
+    private void seedTemplates() {
+        record TemplateSeed(String name, int doses, int decoction, String usage, String remark,
+                            List<String[]> herbs) {}
+        List<TemplateSeed> seeds = List.of(
+                new TemplateSeed("风寒感冒", 7, 0, "水煎服，日一剂，早晚温服", "避风寒，多饮温水",
+                        List.of(new String[]{"荆芥", "10"}, new String[]{"防风", "10"}, new String[]{"紫苏叶", "9"})),
+                new TemplateSeed("脾胃虚弱", 14, 1, "水煎服，日一剂，早晚温服；代煎", "忌生冷油腻",
+                        List.of(new String[]{"白术", "12"}, new String[]{"茯苓", "15"}, new String[]{"炙甘草", "6"})));
+        for (TemplateSeed seed : seeds) {
+            if (templateRepository.findByName(seed.name()).isPresent()) {
+                continue;
+            }
+            PrescriptionTemplateEntity template = new PrescriptionTemplateEntity();
+            template.setName(seed.name());
+            template.setDoses(seed.doses());
+            template.setDecoction(seed.decoction());
+            template.setUsage(seed.usage());
+            template.setRemark(seed.remark());
+            template.setEnabled(1);
+            template = templateRepository.save(template);
+            List<String[]> herbs = seed.herbs();
+            for (int i = 0; i < herbs.size(); i++) {
+                PrescriptionTemplateItemEntity item = new PrescriptionTemplateItemEntity();
+                item.setTemplateId(template.getId());
+                item.setHerb(herbs.get(i)[0]);
+                item.setWeight(Double.parseDouble(herbs.get(i)[1]));
+                item.setSort(i);
+                templateItemRepository.save(item);
+            }
+        }
+        log.info("种子·病症处方模板：检查完成");
     }
 
     private void seedSigns() {
