@@ -2,6 +2,7 @@ export default {
   'menu.welcome': '欢迎',
   'menu.dashboard':'工作台',
   'menu.dashboard.day':'每日报表',
+  'menu.dashboard.month':'月度收费报表',
   'menu.more-blocks': '更多区块',
   'menu.home': '首页',
   'menu.admin': '管理页',

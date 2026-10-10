@@ -112,5 +112,43 @@ export async function querySettlementPage(
   });
 }
 
+/** 月度收费报表·单日聚合 */
+export interface ReportDayRow {
+  day?: string;
+  count?: number;
+  money?: number;
+}
+
+/** 月度收费报表·支付方式聚合 */
+export interface ReportPayRow {
+  payType?: number;
+  payTypeText?: string;
+  count?: number;
+  money?: number;
+}
+
+/** 月度收费报表：按结算时间聚合当月结算单；次卡核销实收 0，cardCount 单列 */
+export interface SettlementMonthReport {
+  month?: string;
+  totalCount?: number;
+  /** 实收合计（元） */
+  totalMoney?: number;
+  cardCount?: number;
+  days?: ReportDayRow[];
+  payTypes?: ReportPayRow[];
+}
+
+/** 月度收费报表：month=yyyy-MM */
+export async function fetchSettlementMonthReport(
+  month: string,
+  options?: { [key: string]: any },
+) {
+  return request<SettlementMonthReport>('/api/v1/settlement/report/month', {
+    method: 'GET',
+    params: { month },
+    ...(options || {}),
+  });
+}
+
 /** 结算小票打印地址：80mm HTML（需登录；页面须带 token 拉取后写入新窗口，见 Settle 页 openReceipt） */
 export const receiptPrintUrl = (settlementId: number) => `/api/v1/print/receipt/${settlementId}`;

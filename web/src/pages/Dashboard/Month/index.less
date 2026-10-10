@@ -1,0 +1,141 @@
+// 月度收费报表 —— 石墨×古金 tokens（统计卡/面板同每日报表）
+@import '@/tokens.css';
+
+.mo-report {
+  max-width: 860px;
+}
+
+.pick {
+  margin-bottom: 14px;
+}
+
+/* 顶部 3 统计卡 */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .k {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .v {
+      font-family: var(--serif);
+      font-size: 23px;
+      font-weight: 700;
+
+      small {
+        font-size: 12px;
+        color: var(--faint);
+        font-family: var(--sans);
+        font-weight: 400;
+        margin-left: 3px;
+      }
+      &.amber {
+        color: var(--amber-deep);
+      }
+    }
+  }
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 17px 20px;
+  margin-bottom: 14px;
+
+  h3 {
+    font-size: 14.5px;
+    margin: 0 0 10px;
+  }
+
+  .empty {
+    color: var(--faint);
+    font-size: 13px;
+  }
+}
+
+/* 支付方式构成 */
+.pays {
+  display: flex;
+  flex-direction: column;
+
+  .pay {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 7px 0;
+    font-size: 13.5px;
+    border-bottom: 1px dashed var(--line);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .tag {
+      font-size: 11px;
+      color: var(--brand-deep);
+      background: var(--brand-tint);
+      border-radius: 999px;
+      padding: 2px 10px;
+    }
+    .num {
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .cnt {
+      color: var(--faint);
+      font-size: 12px;
+      margin-left: auto;
+    }
+  }
+}
+
+/* 逐日明细 */
+.days {
+  display: flex;
+  flex-direction: column;
+
+  .day {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 7px 0;
+    font-size: 13.5px;
+    border-bottom: 1px dashed var(--line);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .d {
+      font-family: var(--serif);
+      font-weight: 700;
+    }
+    .c {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .m {
+      margin-left: auto;
+      font-weight: 700;
+    }
+  }
+}
+
+.note {
+  color: var(--faint);
+  font-size: 12px;
+}

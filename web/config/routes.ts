@@ -21,6 +21,11 @@ export default [
         path: '/dash/day',
         component: './Dashboard/Day',
       },
+      {
+        name: 'month',
+        path: '/dash/month',
+        component: './Dashboard/Month',
+      },
     ],
   },
   {

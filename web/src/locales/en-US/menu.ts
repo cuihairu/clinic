@@ -9,6 +9,7 @@ export default {
   'menu.register-result': 'Register Result',
   'menu.dashboard': 'Dashboard',
   'menu.dashboard.day': 'Daily Report',
+  'menu.dashboard.month': 'Monthly Billing Report',
   'menu.customer': 'Customers',
   'menu.customer.customer-create': 'New Customer',
   'menu.customer.customer-query': 'Customer Query',
