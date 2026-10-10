@@ -162,6 +162,11 @@ export default [
         component: './Prescription/Query',
       },
       {
+        name: 'prescription-templates',
+        path: '/prescription/templates',
+        component: './Prescription/Template',
+      },
+      {
         name: 'prescription-herbs',
         path: '/prescription/herbs',
         component: './Herb/Query',

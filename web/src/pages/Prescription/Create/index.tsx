@@ -7,8 +7,10 @@ import {
   checkCompatibility,
   createPrescription,
   pricePrescription,
+  queryEnabledTemplates,
   type CompatibilityResult,
   type PrescriptionHerb,
+  type PrescriptionTemplate,
   type Pricing,
 } from '@/services/ant-design-pro/prescription';
 import { fetchCustomerByPhone } from '@/services/ant-design-pro/customer';
@@ -41,6 +43,41 @@ const Create: React.FC = () => {
   const compatSeq = useRef(0);
   const [pricing, setPricing] = useState<Pricing | undefined>();
   const priceSeq = useRef(0);
+  /** 病症处方模板：套用后只填当前开方单，不写回模板 */
+  const [templates, setTemplates] = useState<PrescriptionTemplate[]>([]);
+  const [templateId, setTemplateId] = useState<number | undefined>();
+  const [applying, setApplying] = useState(false);
+
+  const loadTemplates = async () => {
+    if (templates.length > 0) return;
+    const list = await queryEnabledTemplates();
+    setTemplates(list || []);
+  };
+
+  const applyTemplate = async (id: number) => {
+    setTemplateId(id);
+    const tpl = templates.find((t) => t.id === id);
+    if (!tpl) return;
+    if (tpl.herbs && tpl.herbs.length > 0) {
+      setApplying(true);
+      try {
+        setHerbs(tpl.herbs.map((h) => ({ herb: h.herb || '', weight: h.weight, special: h.special || undefined })));
+        if (tpl.doses && tpl.doses > 0) {
+          setDoses(tpl.doses);
+        }
+        setDecoction(tpl.decoction === 1);
+        if (tpl.usage) {
+          setUsage(tpl.usage);
+        }
+        if (tpl.remark) {
+          setRemark(tpl.remark);
+        }
+        message.success(`已套用模板「${tpl.name}」，可继续增减药味`);
+      } finally {
+        setApplying(false);
+      }
+    }
+  };
 
   // 配伍审方：药名停顿 500ms 自动比对十八反/十九畏；少于两味不查
   const namedHerbs = herbs.map((r) => (r.herb || '').trim()).filter(Boolean);
@@ -204,7 +241,23 @@ const Create: React.FC = () => {
         </div>
 
         <div className="pr-sheet">
-          <h3>2 · 处方笺</h3>
+          <h3>
+            2 · 处方笺
+            <Select
+              className="tpl-apply"
+              showSearch
+              optionFilterProp="label"
+              allowClear
+              placeholder="套用模板（按病症带出药味）"
+              style={{ minWidth: 260, marginLeft: 12 }}
+              options={templates.map((t) => ({ label: `${t.name}（${t.doses ?? 7} 付）`, value: t.id! }))}
+              value={templateId}
+              onDropdownVisibleChange={loadTemplates}
+              onFocus={loadTemplates}
+              loading={applying}
+              onChange={(v) => (v == null ? setTemplateId(undefined) : applyTemplate(v))}
+            />
+          </h3>
           <div className="rows">
             {herbs.map((row, i) => (
               <div className="row" key={i}>

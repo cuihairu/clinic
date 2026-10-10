@@ -163,3 +163,85 @@ export async function pricePrescription(
     ...(options || {}),
   });
 }
+
+/** 病症处方模板：模板只存建议值，套用后随开方单自由改（不改回模板） */
+export interface PrescriptionTemplate {
+  id?: number;
+  /** 病症名（唯一，1–20 字） */
+  name?: string;
+  /** 建议剂数（默认 7） */
+  doses?: number;
+  /** 建议代煎：0 无需 / 1 代煎 */
+  decoction?: number;
+  usage?: string;
+  remark?: string;
+  /** 上架：0 停用 / 1 启用 */
+  enabled?: number;
+  herbs?: PrescriptionHerb[];
+  createTime?: string;
+  updateTime?: string;
+}
+
+export interface TemplatePageResult {
+  data?: PrescriptionTemplate[];
+  total?: number;
+  pages?: number;
+  success?: boolean;
+}
+
+/** 建模板：name + herbs（至少 1 味）必填；doses 默认 7、enabled 默认 1；病症名唯一 */
+export async function createTemplate(
+  body: PrescriptionTemplate,
+  options?: { [key: string]: any },
+) {
+  return request<PrescriptionTemplate>('/api/v1/prescription/template/', {
+    method: 'POST',
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 更新模板：按 id 全量更新，药味全量替换；换名撞其他模板报 400 */
+export async function updateTemplate(
+  body: PrescriptionTemplate,
+  options?: { [key: string]: any },
+) {
+  return request<PrescriptionTemplate>('/api/v1/prescription/template/', {
+    method: 'PUT',
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 模板分页：id 倒序；name 模糊过滤可选（含停用，管理端口径） */
+export async function queryTemplatePage(
+  params: { current?: number; pageSize?: number; name?: string },
+  options?: { [key: string]: any },
+) {
+  return request<TemplatePageResult>('/api/v1/prescription/template/page', {
+    method: 'GET',
+    params,
+    ...(options || {}),
+  });
+}
+
+/** 上架模板（enabled=1，id 升序，附药味）：开方页「套用模板」取数入口 */
+export async function queryEnabledTemplates(
+  options?: { [key: string]: any },
+) {
+  return request<PrescriptionTemplate[]>('/api/v1/prescription/template/enabled', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 删除模板（连同药味；演示环境口径，无留痕） */
+export async function deleteTemplate(
+  id: number,
+  options?: { [key: string]: any },
+) {
+  return request<{ message?: string }>(`/api/v1/prescription/template/${id}`, {
+    method: 'DELETE',
+    ...(options || {}),
+  });
+}
