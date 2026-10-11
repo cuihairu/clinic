@@ -211,6 +211,18 @@ append-only：每次结算抵扣（`payType=5`）在同一事务落一条，随�
 
 索引：员工 id。口径：请假为记录性质，不改员工登录状态、无审批流（演示口径）。
 
+## staff_shifts — 员工周期班表（诊所运营）
+
+| 字段 | 类型 | 含义 |
+| ---- | ---- | ---- |
+| id | Long | 主键 |
+| staff_id | Long | 员工 id（staffs.id） |
+| weekday | Integer | 星期（1 周一 … 7 周日） |
+| start_time / end_time | String | HH:mm 时段（start < end） |
+| create_time / update_time | Date | 审计时间 |
+
+索引：员工 id、星期。口径：同一员工同一星期仅一条班次，按周循环；班表只做排班参考，考勤打卡仍以 signs 为准（不回写打卡记录）。
+
 ## ad_materials / ad_screens / ad_schedules — 广告投屏（平板展示）
 
 配套 [tablet/](/design/tablet) Kiosk 端，设计见[平板展示设计](/design/tablet)。文件本体不上库：素材上传落盘 `data/ads/yyyyMM/`（`sinomed.ads.upload-dir` 可改），表里存相对 url。

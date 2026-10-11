@@ -54,6 +54,7 @@
 | 卡项 | `ItemController` | 可用 |
 | 用户认证（登录 / 注册 / 当前用户） | `UserController` | 可用 |
 | 员工与考勤（诊所运营） | `StaffController`、`StaffLeaveController` | 可用（请假已实装） |
+| 员工周期班表（员工×星期班次参考） | `StaffShiftController` | 可用 |
 | 订单（自助机下单 / 前台建单 / 状态流转） | `OrderController` | 可用 |
 | 中药处方（开方 / 代煎与膏方流转 / 实时计价 / 配伍与过敏审方） | `PrescriptionController` | 可用 |
 | 病症处方模板 | `PrescriptionTemplateController` | 可用 |
