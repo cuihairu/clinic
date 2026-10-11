@@ -21,6 +21,7 @@ export default {
   'menu.staff.staff-leave': 'Staff Leave',
   'menu.staff.staff-today-timesheet': "Today's Timesheet",
   'menu.staff.timesheet-list': 'Timesheet List',
+  'menu.staff.timesheet-week': 'Week Timesheet',
   'menu.treat': 'Consultation',
   'menu.treat.treat-create': 'New Consultation',
   'menu.treat.treat-query': 'Consultation Query',

@@ -25,6 +25,7 @@ export default {
   'menu.staff.staff-leave':'员工请假',
   'menu.staff.staff-today-timesheet':'今日考勤',
   'menu.staff.timesheet-list':'考勤列表',
+  'menu.staff.timesheet-week':'周班次对照',
   'menu.customer.customer-create':'新建顾客',
   'menu.customer.customer-query':'顾客查询',
   'menu.customer.customer-update':'更新顾客',

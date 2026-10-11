@@ -77,6 +77,19 @@ export async function fetchMouthTimesheet( month:number|string|undefined,options
     ...(options || {}),
   });
 }
+
+export async function fetchWeekTimesheet( weekDate?: string,options?: { [key: string]: any }) {
+  return request<API.WeekTimesheet>('/api/v1/staff/timesheet/week', {
+    method: 'GET',
+    params: {
+      weekDate: weekDate || undefined,
+    },
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...(options || {}),
+  });
+}
 export async function queryStaffByPage(params: API.QueryCustomerParams,options?: { [key: string]: any }) {
   return request<API.QueryCustomerResult>('/api/v1/staff/page', {
     method: 'GET',

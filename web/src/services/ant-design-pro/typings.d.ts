@@ -280,6 +280,25 @@ declare namespace API {
     month?: number;
     data?:StaffTimesheet[];
   }
+  type WeekTimesheetDay = {
+    date?: string;
+    weekday?: number;
+    weekdayText?: string;
+    planStart?: string;
+    planEnd?: string;
+    signStart?: string;
+    signEnd?: string;
+    hours?: number;
+  }
+  type WeekTimesheetStaff = {
+    staffId?: number;
+    name?: string;
+    days?: WeekTimesheetDay[];
+  }
+  type WeekTimesheet = {
+    weekStart?: string;
+    staffs?: WeekTimesheetStaff[];
+  }
   type Review = {
     id?: number;
     day?: Date;

@@ -110,6 +110,12 @@ export default [
         path: '/staff/timesheet/list',
         component: './Staff/Timesheet/List',
       },
+      {
+        access: 'canAdmin',
+        name: 'timesheet-week',
+        path: '/staff/timesheet/week',
+        component: './Staff/Timesheet/Week',
+      },
     ]
   },
   {
