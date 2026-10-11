@@ -105,6 +105,7 @@ pnpm dev     # dev 模式：MOCK=none，代理到本机服务端
 | `/staff/sign`、`/staff/sign/timesheet/today`、`/staff/timesheet/list` | 签到 / 今日考勤 / 考勤列表 | 上 / 下班打卡、本人今日时长、按月全员考勤矩阵 | 已登录 / - |
 | `/staff/leave` | 员工请假 | 左侧登记表单（员工选择/类型 病假·事假/起止时间/事由）+ 右侧近期请假记录（可删除）；接口 `POST /api/v1/staff/leave/`，记录口径不改登录状态、无审批流 | 已登录 |
 | `/staff/shifts` | 员工班表 | 周期班表周矩阵（行=员工、列=周一~周日，格内 `HH:mm–HH:mm` 班次）；「加排班」弹层选员工/星期/时段（30 分钟步进，下班须晚于上班），点击时段调整、`✕` 删除；同员工同星期仅一条班次，考勤打卡仍以签到记录为准；接口 `/api/v1/shift` | 仅 `canAdmin` |
+| `/staff/timesheet/week` | 周班次对照 | 员工 × 7 天（周一至周日）：「应」= 班表计划、「实」= 当日打卡（最早上班/最晚下班、整小时）；选日期看所在周，「本周」一键回当前；接口 `/api/v1/staff/timesheet/week` | 仅 `canAdmin` |
 
 ### 订单系统（/order）
 

@@ -98,6 +98,7 @@
 | POST | `/api/v1/staff/sign` | 签到 / 签退（`signType`：1 上班、0 下班） |
 | GET | `/api/v1/staff/timesheet/today` | 本人今日考勤（打卡明细与总时长） |
 | GET | `/api/v1/staff/timesheet/month?month=` | 按月全员考勤统计（1-12，仅当年） |
+| GET | `/api/v1/staff/timesheet/week?weekDate=` | 周班次对照：`weekDate` 所在周（周一至周日）员工 × 7 天，计划班次（`staff_shifts` 按星期）对照实际打卡（同日最早上班/最晚下班、整小时取整，历史日缺下班卡计 0）；`weekDate` 空取当周，非法格式 400 |
 | POST | `/api/v1/staff/leave/` | 提交请假：`staffId` + `leaveType`（0 病假 / 1 事假）+ `reason` + `startTime`/`endTime` 必填，结束不早于起始；回包含联出员工名。记录口径：不改员工登录状态、无审批流 |
 | GET | `/api/v1/staff/leave/page` | 请假分页（current、pageSize、staffId 可空），联出员工名，id 倒序 |
 | DELETE | `/api/v1/staff/leave/{id}` | 删除请假记录（演示环境口径，无留痕） |
