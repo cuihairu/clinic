@@ -1,0 +1,68 @@
+/* 方剂库 · 管理页样式（跟随病症模板页的口径：药品 chip 化展示） */
+.fm-tip {
+  font-size: 13px;
+  color: var(--ant-color-text-secondary, rgba(0, 0, 0, 0.65));
+
+  b {
+    color: var(--ant-color-warning, #d48806);
+  }
+
+  code {
+    padding: 0 4px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 4px;
+  }
+}
+
+.fm-nm {
+  font-weight: 600;
+
+  .fm-py {
+    display: block;
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.45);
+  }
+}
+
+.fm-herbs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+}
+
+.fm-herb {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.045);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.fm-form {
+  .fm-meta {
+    display: flex;
+    gap: 16px;
+
+    > .ant-form-item {
+      flex: 1;
+    }
+  }
+
+  .fm-herb-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+
+    .fm-del {
+      color: rgba(0, 0, 0, 0.45);
+
+      &:hover {
+        color: #ff4d4f;
+      }
+    }
+  }
+}

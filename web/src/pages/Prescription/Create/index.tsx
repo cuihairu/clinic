@@ -16,6 +16,7 @@ import {
   type Pricing,
 } from '@/services/ant-design-pro/prescription';
 import { fetchCustomerByPhone } from '@/services/ant-design-pro/customer';
+import { queryFormulaPage, type Formula } from '@/services/ant-design-pro/formula';
 import { queryStaffByPage } from '@/services/ant-design-pro/staff';
 import './index.less';
 
@@ -56,6 +57,9 @@ const Create: React.FC = () => {
   const [templates, setTemplates] = useState<PrescriptionTemplate[]>([]);
   const [templateId, setTemplateId] = useState<number | undefined>();
   const [applying, setApplying] = useState(false);
+  /** 方剂库：按方名/拼音检索带出全方，不写回方剂库 */
+  const [formulas, setFormulas] = useState<Formula[]>([]);
+  const [formulaId, setFormulaId] = useState<number | undefined>();
 
   const loadTemplates = async () => {
     if (templates.length > 0) return;
@@ -86,6 +90,20 @@ const Create: React.FC = () => {
         setApplying(false);
       }
     }
+  };
+
+  const loadFormulas = async () => {
+    if (formulas.length > 0) return;
+    const page = await queryFormulaPage({ current: 1, pageSize: 50 });
+    setFormulas(page?.data || []);
+  };
+
+  const applyFormula = (id: number) => {
+    setFormulaId(id);
+    const fml = formulas.find((f) => f.id === id);
+    if (!fml || !fml.herbs || fml.herbs.length === 0) return;
+    setHerbs(fml.herbs.map((h) => ({ herb: h.herb || '', weight: h.weight, special: h.special || undefined })));
+    message.success(`已按方剂「${fml.name}」带出全方 ${fml.herbs.length} 味，可继续增减`);
   };
 
   // 配伍审方：药名停顿 500ms 自动比对十八反/十九畏；少于两味不查
@@ -293,6 +311,19 @@ const Create: React.FC = () => {
               onFocus={loadTemplates}
               loading={applying}
               onChange={(v) => (v == null ? setTemplateId(undefined) : applyTemplate(v))}
+            />
+            <Select
+              className="fml-apply"
+              showSearch
+              optionFilterProp="label"
+              allowClear
+              placeholder="方剂库（按方名/拼音带出全方）"
+              style={{ minWidth: 260, marginLeft: 12 }}
+              options={formulas.map((f) => ({ label: `${f.name} ${f.pinyin} · ${f.herbs?.length ?? 0} 味`, value: f.id! }))}
+              value={formulaId}
+              onDropdownVisibleChange={loadFormulas}
+              onFocus={loadFormulas}
+              onChange={(v) => (v == null ? setFormulaId(undefined) : applyFormula(v))}
             />
           </h3>
           <div className="rows">

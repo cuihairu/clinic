@@ -172,6 +172,11 @@ export default [
         component: './Prescription/Template',
       },
       {
+        name: 'prescription-formulas',
+        path: '/prescription/formulas',
+        component: './Prescription/Formula',
+      },
+      {
         name: 'prescription-herbs',
         path: '/prescription/herbs',
         component: './Herb/Query',
