@@ -215,6 +215,10 @@ declare namespace API {
     fiveAuxRight?: string;
     acupointLeft?: string;
     acupointRight?: string;
+    acuMethod?: string;
+    retentionMinutes?: number;
+    manipulation?: string;
+    acuCourse?: string;
     diagnose?: string;
     plan?: string;
     diet?: string;

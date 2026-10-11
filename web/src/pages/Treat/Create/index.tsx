@@ -12,6 +12,7 @@ import {
   ProForm,
   ProFormSelect,
   ProFormText,
+  ProFormDigit,
   ProFormDatePicker,
   ProFormTextArea,
   ProCard,
@@ -379,6 +380,23 @@ const Create: React.FC = () => {
                 </div>
               </div>
               <div className="tc-ap-note">穴位字典：按穴名/拼音检索（如 足三 / zusanli），选中即追加；维护见「接诊 → 穴位字典」</div>
+            </section>
+
+            <section className="tc-panel">
+              <h3>针灸处方</h3>
+              <div className="tc-row cols-3">
+                <ProFormText name="acuMethod" label="针法" placeholder="如 毫针、电针、温针、耳针" />
+                <ProFormDigit
+                  name="retentionMinutes"
+                  label="留针（分钟）"
+                  placeholder="如 25"
+                  min={1}
+                  max={240}
+                  fieldProps={{ precision: 0 }}
+                />
+                <ProFormText name="manipulation" label="手法" placeholder="如 平补平泻、提插捻转、补法" />
+              </div>
+              <ProFormTextArea name="acuCourse" label="疗程/频次" placeholder="如 每周 2 次 × 4 周" rows={2} />
             </section>
 
             <section className="tc-panel">
