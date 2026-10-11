@@ -12,6 +12,8 @@ import com.sinomed.entity.PrescriptionTemplateEntity;
 import com.sinomed.entity.PrescriptionTemplateItemEntity;
 import com.sinomed.entity.RechargeEntity;
 import com.sinomed.entity.ReviewCustomerEntity;
+import com.sinomed.entity.FormulaEntity;
+import com.sinomed.entity.FormulaItemEntity;
 import com.sinomed.entity.ReviewEntity;
 import com.sinomed.entity.ReviewStaffEntity;
 import com.sinomed.entity.SettlementEntity;
@@ -34,6 +36,8 @@ import com.sinomed.repository.PrescriptionItemRepository;
 import com.sinomed.repository.PrescriptionRepository;
 import com.sinomed.repository.RechargeRepository;
 import com.sinomed.repository.SettlementRepository;
+import com.sinomed.repository.FormulaRepository;
+import com.sinomed.repository.FormulaItemRepository;
 import com.sinomed.repository.ReviewCustomerRepository;
 import com.sinomed.repository.ReviewRepository;
 import com.sinomed.repository.ReviewStaffRepository;
@@ -89,6 +93,8 @@ public class DemoSeedRunner implements ApplicationRunner {
     private final CustomerCardRepository cardRepository;
     private final CardUsageRepository usageRepository;
     private final SettlementRepository settlementRepository;
+    private final FormulaRepository formulaRepository;
+    private final FormulaItemRepository formulaItemRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewCustomerRepository reviewCustomerRepository;
     private final ReviewStaffRepository reviewStaffRepository;
@@ -103,6 +109,7 @@ public class DemoSeedRunner implements ApplicationRunner {
             seedItems();
             seedHerbs();
             seedTemplates();
+            seedFormulas();
             Map<String, Long> customers = seedCustomers();
             seedTreats(customers);
             seedReviews();
@@ -420,10 +427,12 @@ public class DemoSeedRunner implements ApplicationRunner {
                 new HerbPrice("茯苓", 4), new HerbPrice("白术", 6), new HerbPrice("薄荷", 3),
                 new HerbPrice("炙甘草", 2), new HerbPrice("甘草", 2), new HerbPrice("黄芪", 6),
                 new HerbPrice("丹参", 8), new HerbPrice("半夏", 9), new HerbPrice("陈皮", 3),
-                new HerbPrice("川芎", 7), new HerbPrice("地黄", 8), new HerbPrice("麦冬", 10));
-        if (herbRepository.existsByName(herbs.get(0).name())) {
-            return;
-        }
+                new HerbPrice("川芎", 7), new HerbPrice("地黄", 8), new HerbPrice("麦冬", 10),
+                // 方剂库补常用饮片（逐条判重，老库缺项自动补齐）
+                new HerbPrice("人参", 25), new HerbPrice("熟地黄", 10), new HerbPrice("山药", 5),
+                new HerbPrice("泽泻", 4), new HerbPrice("牡丹皮", 6), new HerbPrice("苍术", 5),
+                new HerbPrice("厚朴", 4), new HerbPrice("升麻", 5), new HerbPrice("生姜", 2),
+                new HerbPrice("山茱萸", 12));
         for (HerbPrice herb : herbs) {
             if (herbRepository.existsByName(herb.name())) {
                 continue;
@@ -434,6 +443,71 @@ public class DemoSeedRunner implements ApplicationRunner {
             herbRepository.save(entity);
         }
         log.info("种子·药材字典：检查完成");
+    }
+
+    /** 方剂库演示数据：经典方剂与药味组成（公版方剂文献口径），供开方页「方剂库」按方名/拼音检索带出 */
+    private void seedFormulas() {
+        if (formulaRepository.count() > 0) {
+            return;
+        }
+        record HerbComp(String herb, double weight, String special) {}
+        record FormulaSeed(String name, String pinyin, String source, String indication, List<HerbComp> herbs) {}
+        List<FormulaSeed> seeds = List.of(
+                new FormulaSeed("四君子汤", "sijunzitang", "太平惠民和剂局方", "补气健脾，用于脾胃虚弱、食少便溏",
+                        List.of(new HerbComp("人参", 9, null), new HerbComp("白术", 9, null),
+                                new HerbComp("茯苓", 9, null), new HerbComp("甘草", 6, null))),
+                new FormulaSeed("四物汤", "siwutang", "太平惠民和剂局方", "补血调血，用于血虚萎黄、月经不调",
+                        List.of(new HerbComp("熟地黄", 12, null), new HerbComp("当归", 9, null),
+                                new HerbComp("白芍", 9, null), new HerbComp("川芎", 6, null))),
+                new FormulaSeed("逍遥散", "xiaoyaosan", "太平惠民和剂局方", "疏肝健脾养血，用于肝郁血虚脾弱",
+                        List.of(new HerbComp("柴胡", 9, null), new HerbComp("当归", 9, null),
+                                new HerbComp("白芍", 9, null), new HerbComp("白术", 9, null),
+                                new HerbComp("茯苓", 9, null), new HerbComp("薄荷", 6, "后下"),
+                                new HerbComp("生姜", 9, null), new HerbComp("甘草", 6, null))),
+                new FormulaSeed("补中益气汤", "buzhongyiqitang", "内外伤辨惑论", "补中益气升阳，用于脾虚气陷、少气懒言",
+                        List.of(new HerbComp("黄芪", 15, null), new HerbComp("人参", 9, null),
+                                new HerbComp("白术", 9, null), new HerbComp("当归", 9, null),
+                                new HerbComp("陈皮", 6, null), new HerbComp("升麻", 6, null),
+                                new HerbComp("柴胡", 6, null), new HerbComp("甘草", 6, null))),
+                new FormulaSeed("玉屏风散", "yupingfengsan", "丹溪心法", "益气固表止汗，用于表虚自汗、易感风寒",
+                        List.of(new HerbComp("黄芪", 15, null), new HerbComp("白术", 9, null),
+                                new HerbComp("防风", 6, null))),
+                new FormulaSeed("六味地黄丸", "liuweidihuangwan", "小儿药证直诀", "滋补肾阴，用于肾阴虚亏、腰膝酸软",
+                        List.of(new HerbComp("熟地黄", 24, null), new HerbComp("山茱萸", 12, null),
+                                new HerbComp("山药", 12, null), new HerbComp("泽泻", 9, null),
+                                new HerbComp("茯苓", 9, null), new HerbComp("牡丹皮", 9, null))),
+                new FormulaSeed("平胃散", "pingweisan", "太平惠民和剂局方", "燥湿运脾行气，用于湿滞脾胃、脘腹胀满",
+                        List.of(new HerbComp("苍术", 12, null), new HerbComp("厚朴", 9, null),
+                                new HerbComp("陈皮", 9, null), new HerbComp("甘草", 6, null))),
+                new FormulaSeed("二陈汤", "erchantang", "太平惠民和剂局方", "燥湿化痰理气，用于痰湿停滞、咳嗽痰多",
+                        List.of(new HerbComp("半夏", 9, null), new HerbComp("陈皮", 9, null),
+                                new HerbComp("茯苓", 9, null), new HerbComp("甘草", 6, null))),
+                new FormulaSeed("八珍汤", "bazhentang", "正体类要", "气血双补，用于气血两虚、面色萎黄",
+                        List.of(new HerbComp("人参", 9, null), new HerbComp("白术", 9, null),
+                                new HerbComp("茯苓", 9, null), new HerbComp("甘草", 6, null),
+                                new HerbComp("熟地黄", 12, null), new HerbComp("当归", 9, null),
+                                new HerbComp("白芍", 9, null), new HerbComp("川芎", 6, null)))
+        );
+        for (FormulaSeed f : seeds) {
+            FormulaEntity formula = new FormulaEntity();
+            formula.setName(f.name());
+            formula.setPinyin(f.pinyin());
+            formula.setSource(f.source());
+            formula.setIndication(f.indication());
+            FormulaEntity saved = formulaRepository.save(formula);
+            backdateRow("formulas", saved.getId(), at(-20, 10, 0));
+            for (int i = 0; i < f.herbs().size(); i++) {
+                HerbComp h = f.herbs().get(i);
+                FormulaItemEntity item = new FormulaItemEntity();
+                item.setFormulaId(saved.getId());
+                item.setHerb(h.herb());
+                item.setWeight(h.weight());
+                item.setSpecial(h.special());
+                item.setSort(i);
+                formulaItemRepository.save(item);
+            }
+        }
+        log.info("种子·方剂库：检查完成");
     }
 
     /** 次卡：演示顾客持「经络推拿（10 次卡）」已用 3 次 */
