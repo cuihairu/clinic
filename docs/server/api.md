@@ -233,6 +233,18 @@
 | DELETE | `/api/v1/herb/{id}` | 删除药材（演示口径无引用检查，删后相关药味转「未比价」） |
 | GET | `/api/v1/herb/page` | 分页（current、pageSize、keyword 名称包含过滤），名称升序 |
 
+## 穴位字典 `/api/v1/acupoint`（需登录）
+
+经络穴位参考库（穴名唯一，`pinyin` 为全拼小写字母检索码，归经必填）。接诊单取穴字段仍为自由文本——字典只做选穴辅助，接诊页按穴名或拼音检索、选中即追加进取穴文本。
+
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| POST | `/api/v1/acupoint/` | 收录穴位：`name`（1–10 字，唯一）+ `pinyin`（全拼小写字母，录入自动转小写）+ `meridian`（归经，≤20 字）必填；`location`（体表定位）/`indication`（主治）可选 |
+| PUT | `/api/v1/acupoint/` | 按 id 全量更新；换名撞其他穴位报 400 |
+| GET | `/api/v1/acupoint/page` | 分页（id 倒序；`keyword` 模糊匹配穴名**或拼音码**，如「足三」或「zusanli」） |
+| GET | `/api/v1/acupoint/{id}` | 穴位详情（不存在报 400） |
+| DELETE | `/api/v1/acupoint/{id}` | 删除穴位（不影响已开接诊单；演示环境口径，无留痕） |
+
 ## 广告投屏 `/api/v1/ads`（tablet.md T1/T2）
 
 管理接口需登录；下发与媒体静态资源免登录（内网屏设备约定，见[平板展示设计](/design/tablet)）。

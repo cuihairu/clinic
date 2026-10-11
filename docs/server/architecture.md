@@ -48,6 +48,7 @@
 | ---- | ---------- | ---- |
 | 顾客（建档 / 查询 / 更新 / 删除 / 病史） | `CustomerController` | 可用 |
 | 诊疗单（中医四诊记录） | `TreatController` | 可用 |
+| 穴位字典（穴名/拼音检索选穴） | `AcupointController` | 可用 |
 | 预约（建约 / 排班网格 / 到店接待） | `AppointmentController` | 可用 |
 | 反馈（每日总结 / 员工复盘 / 顾客回访） | `ReviewController` | 可用 |
 | 卡项 | `ItemController` | 可用 |
