@@ -6,6 +6,7 @@ import com.sinomed.params.SignParams;
 import com.sinomed.security.JwtService;
 import com.sinomed.security.UserPrincipal;
 import com.sinomed.service.StaffService;
+import com.sinomed.service.StaffWeekTimesheetService;
 import com.sinomed.util.DateUtil;
 import com.sinomed.util.PhoneValidationUtil;
 import com.sinomed.util.TimesheetUtil;
@@ -34,9 +35,11 @@ import java.util.*;
 public class StaffController {
 
     private final StaffService staffService;
+    private final StaffWeekTimesheetService weekTimesheetService;
 
-    public StaffController(StaffService staffService) {
+    public StaffController(StaffService staffService, StaffWeekTimesheetService weekTimesheetService) {
         this.staffService = staffService;
+        this.weekTimesheetService = weekTimesheetService;
     }
 
 
@@ -366,5 +369,26 @@ public class StaffController {
         }
         builder.data(timesheetStaffViews);
         return builder.build();
+    }
+
+    @Operation(summary = "周班次对照", description = "包含 weekDate 的整周（周一至周日）：计划班次（员工班表按星期）"
+            + "对照实际打卡（signs，同日最早上班/最晚下班、整小时取整）；weekDate 为空取当周，非法格式报 400",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "员工 × 7 天的班次与打卡对照", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = StaffWeekTimesheetView.class)
+                    )),
+                    @ApiResponse(responseCode = "400", description = "周日期格式非法", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageView.class)
+                    )),
+                    @ApiResponse(responseCode = "401", description = "没有权限", content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageView.class)
+                    ))
+            })
+    @GetMapping("/timesheet/week")
+    public StaffWeekTimesheetView weekTimesheet(@Nullable @RequestParam String weekDate) {
+        return weekTimesheetService.weekTimesheet(weekDate);
     }
 }

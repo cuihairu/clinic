@@ -8,7 +8,8 @@ import java.util.Date;
 public class DateUtil {
     /**
      * 解析分页接口的日期过滤参数（支持 yyyy-MM-dd 与 yyyy-MM-dd HH:mm:ss），
-     * 不可解析返回 null（调用方跳过该过滤）。createTime 在 SQLite 以毫秒整数落库，
+     * 不可解析返回 null（调用方跳过该过滤）。严格模式：2026-13-40 这类越界日期
+     * 不允许被滚动成合法日期。createTime 在 SQLite 以毫秒整数落库，
      * 过滤必须转 Date 比较；直接拿字符串与列做词法比较永远不命中。
      */
     public static Date parseParam(String text) {
@@ -20,14 +21,19 @@ public class DateUtil {
             return null;
         }
         try {
-            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(t);
+            return parseStrict(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"), t);
         } catch (ParseException ignored) {
         }
         try {
-            return new SimpleDateFormat("yyyy-MM-dd").parse(t);
+            return parseStrict(new SimpleDateFormat("yyyy-MM-dd"), t);
         } catch (ParseException ignored) {
         }
         return null;
+    }
+
+    private static Date parseStrict(SimpleDateFormat format, String text) throws ParseException {
+        format.setLenient(false);
+        return format.parse(text);
     }
 
     private static final  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
