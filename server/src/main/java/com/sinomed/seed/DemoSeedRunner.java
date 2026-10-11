@@ -20,6 +20,7 @@ import com.sinomed.entity.ReviewStaffEntity;
 import com.sinomed.entity.SettlementEntity;
 import com.sinomed.entity.SignEntity;
 import com.sinomed.entity.StaffEntity;
+import com.sinomed.entity.StaffShiftEntity;
 import com.sinomed.entity.TreatEntity;
 import com.sinomed.repository.AppointmentRepository;
 import com.sinomed.repository.CardUsageRepository;
@@ -45,6 +46,7 @@ import com.sinomed.repository.ReviewRepository;
 import com.sinomed.repository.ReviewStaffRepository;
 import com.sinomed.repository.SignRepository;
 import com.sinomed.repository.StaffRepository;
+import com.sinomed.repository.StaffShiftRepository;
 import com.sinomed.repository.TreatRepository;
 import com.sinomed.util.DateUtil;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +61,7 @@ import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -98,6 +101,7 @@ public class DemoSeedRunner implements ApplicationRunner {
     private final FormulaRepository formulaRepository;
     private final FormulaItemRepository formulaItemRepository;
     private final AcupointRepository acupointRepository;
+    private final StaffShiftRepository shiftRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewCustomerRepository reviewCustomerRepository;
     private final ReviewStaffRepository reviewStaffRepository;
@@ -114,6 +118,7 @@ public class DemoSeedRunner implements ApplicationRunner {
             seedTemplates();
             seedFormulas();
             seedAcupoints();
+            seedShifts();
             Map<String, Long> customers = seedCustomers();
             seedTreats(customers);
             seedReviews();
@@ -559,6 +564,43 @@ public class DemoSeedRunner implements ApplicationRunner {
             backdateRow("acupoints", saved.getId(), at(-18, 9, 30));
         }
         log.info("种子·穴位字典：检查完成");
+    }
+
+    /** 员工班表：馆长/中医师/前台各一组周期班次（按周循环，同员工同星期唯一；考勤仍以打卡为准） */
+    private void seedShifts() {
+        if (shiftRepository.count() > 0) {
+            return;
+        }
+        Long shen = staffByAccount("shen");
+        Long su = staffByAccount("su");
+        Long gu = staffByAccount("gu");
+        record ShiftSeed(Long staffId, int weekday, String start, String end) {}
+        List<ShiftSeed> seeds = new ArrayList<>();
+        // 沈知远（中医师）：周一 ~ 周五 09:00-18:00
+        for (int weekday = 1; weekday <= 5; weekday++) {
+            seeds.add(new ShiftSeed(shen, weekday, "09:00", "18:00"));
+        }
+        // 苏文若（前台）：周一 ~ 周六 09:30-18:30
+        for (int weekday = 1; weekday <= 6; weekday++) {
+            seeds.add(new ShiftSeed(su, weekday, "09:30", "18:30"));
+        }
+        // 顾景明（馆长）：周三 ~ 周日 10:00-19:00
+        for (int weekday = 3; weekday <= 7; weekday++) {
+            seeds.add(new ShiftSeed(gu, weekday, "10:00", "19:00"));
+        }
+        for (ShiftSeed s : seeds) {
+            if (s.staffId() == null) {
+                continue;
+            }
+            StaffShiftEntity shift = new StaffShiftEntity();
+            shift.setStaffId(s.staffId());
+            shift.setWeekday(s.weekday());
+            shift.setStart(s.start());
+            shift.setEnd(s.end());
+            StaffShiftEntity saved = shiftRepository.save(shift);
+            backdateRow("staff_shifts", saved.getId(), at(-16, 9, 0));
+        }
+        log.info("种子·员工班表：检查完成");
     }
 
     /** 次卡：演示顾客持「经络推拿（10 次卡）」已用 3 次 */
