@@ -198,6 +198,11 @@ export default [
         path: '/prescription/herbs',
         component: './Herb/Query',
       },
+      {
+        name: 'herb-stock',
+        path: '/prescription/herb-stock',
+        component: './Herb/Stock',
+      },
     ],
   },
   {

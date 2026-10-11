@@ -32,6 +32,7 @@ export default {
   'menu.prescription.prescription-create': 'New Prescription',
   'menu.prescription.prescription-query': 'Prescription Query',
   'menu.prescription.prescription-herbs': 'Herb Dictionary',
+  'menu.prescription.herb-stock': 'Herb Stock',
   'menu.item': 'Service Items',
   'menu.item.item-create': 'New Item',
   'menu.item.item-query': 'Item Query',

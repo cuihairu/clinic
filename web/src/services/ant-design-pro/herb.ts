@@ -60,3 +60,73 @@ export async function queryHerbByPage(
     ...(options || {}),
   });
 }
+
+/** 出入库流水：type 1 入库 / 0 出库；quantity 克；expiry 批次效期（入库可带） */
+export interface HerbStockLog {
+  id?: number;
+  herbId?: number;
+  /** 联出 */
+  herbName?: string;
+  type?: number;
+  quantity?: number;
+  /** yyyy-MM-dd，可空 */
+  expiry?: string;
+  supplier?: string;
+  note?: string;
+  createTime?: string;
+}
+
+/** 药材库存余额：stock 克；FEFO 口径最早未消耗批次效期与预警 */
+export interface HerbStockBalance {
+  herbId?: number;
+  name?: string;
+  stock?: number;
+  nextExpiry?: string;
+  /** 负数表示已过期 */
+  expiryInDays?: number;
+  warnExpiry?: boolean;
+}
+
+/** 登记出入库（出库不得超过当前库存；入库效期不得早于今天） */
+export async function createStockLog(
+  body: { herbId: number; type: number; quantity: number; expiry?: string; supplier?: string; note?: string },
+  options?: { [key: string]: any },
+) {
+  return request<HerbStockLog>('/api/v1/herb-stock/', {
+    method: 'POST',
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 流水分页：herbId/type 可空过滤，id 倒序 */
+export async function queryStockPage(
+  params: { current?: number; pageSize?: number; herbId?: number; type?: number },
+  options?: { [key: string]: any },
+) {
+  return request<HerbPageResult>('/api/v1/herb-stock/page', {
+    method: 'GET',
+    params,
+    ...(options || {}),
+  });
+}
+
+/** 库存余额（仅含已有流水的药材，名称升序） */
+export async function queryStockBalance(
+  params: { expiryWithinDays?: number },
+  options?: { [key: string]: any },
+) {
+  return request<HerbStockBalance[]>('/api/v1/herb-stock/balance', {
+    method: 'GET',
+    params,
+    ...(options || {}),
+  });
+}
+
+/** 删除流水（演示口径无留痕，余额按剩余流水重算） */
+export async function deleteStockLog(id: number, options?: { [key: string]: any }) {
+  return request<HerbStockLog>(`/api/v1/herb-stock/${id}`, {
+    method: 'DELETE',
+    ...(options || {}),
+  });
+}

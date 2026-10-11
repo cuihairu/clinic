@@ -50,6 +50,7 @@ export default {
   'menu.prescription.prescription-templates':'病症模板',
   'menu.prescription.prescription-formulas':'方剂库',
   'menu.prescription.prescription-herbs':'药材字典',
+  'menu.prescription.herb-stock':'饮片库存',
   'menu.review.staff': '员工总结',
   'menu.review.customer': '顾客反馈',
   'menu.review.day': '每日总结',
