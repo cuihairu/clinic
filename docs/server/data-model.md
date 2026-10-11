@@ -49,6 +49,9 @@
 | five_rate_left / five_rate_right | TEXT | 五行比率 |
 | five_aux_left / five_aux_right | TEXT | 五行辅助 |
 | acupoint_left / acupoint_right | TEXT | 取穴（左/右手） |
+| acu_method / manipulation | String | 针灸处方：针法（毫针/电针/温针…）、手法（补法/泻法/平补平泻…），≤30 字，空白按空处理 |
+| retention_minutes | Integer | 针灸处方：留针分钟（1-240，可空） |
+| acu_course | TEXT | 针灸处方：疗程/频次（自由文本，≤100 字） |
 | diagnose | TEXT | 诊断 |
 | plan | TEXT | 调理方案 |
 | diet | TEXT | 饮食建议 |
