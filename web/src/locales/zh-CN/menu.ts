@@ -41,6 +41,7 @@ export default {
   'menu.billing.billing-settle':'结算台',
   'menu.treat.treat-create':'创建接诊单',
   'menu.treat.treat-query':'接诊查询',
+  'menu.treat.treat-acupoints':'穴位字典',
   'menu.prescription':'中药处方',
   'menu.prescription.prescription-create':'开方',
   'menu.prescription.prescription-query':'处方查询',

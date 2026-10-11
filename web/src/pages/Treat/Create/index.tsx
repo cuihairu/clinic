@@ -17,10 +17,11 @@ import {
   ProCard,
 } from '@ant-design/pro-components';
 import type { ProFormInstance } from '@ant-design/pro-components';
-import { Button, message } from 'antd';
+import { Button, Select, message } from 'antd';
 import { useSearchParams, history } from '@umijs/max';
 import moment from 'moment';
 import ScannerInput from '@/components/ScannerInput';
+import { queryAcupointPage, type Acupoint } from '@/services/ant-design-pro/acupoint';
 import './index.less';
 
 type Treat = {
@@ -85,6 +86,20 @@ const Create: React.FC = () => {
   const [treats, setTreats] = useState<TreatRow[]>([]);
   const [treatTotal, setTreatTotal] = useState(0);
   const [todayTotal, setTodayTotal] = useState<number>();
+  /** 穴位字典：接诊取穴选穴辅助（按穴名/拼音检索，选中即追加进取穴文本，仍可自由写） */
+  const [acupoints, setAcupoints] = useState<Acupoint[]>([]);
+
+  const loadAcupoints = async () => {
+    if (acupoints.length > 0) return;
+    const page = await queryAcupointPage({ current: 1, pageSize: 200 });
+    setAcupoints(page?.data || []);
+  };
+
+  const appendAcupoint = (field: 'acupointLeft' | 'acupointRight', name: string) => {
+    const cur = ((formRef.current?.getFieldValue(field) as string) || '').trim();
+    const next = cur ? `${cur}、${name}` : name;
+    formRef.current?.setFieldsValue({ [field]: next });
+  };
 
   // 顾客头卡数据：customerId 直取；编辑态（treatId）从单据反查；定位扫码经 onLocated 改写 customerId 后重跑
   useEffect(() => {
@@ -332,9 +347,38 @@ const Create: React.FC = () => {
             <section className="tc-panel">
               <h3>取穴</h3>
               <div className="tc-row cols-2">
-                <ProFormText name="acupointLeft" label="取穴-反应点 左" placeholder="" />
-                <ProFormText name="acupointRight" label="取穴-反应点 右" placeholder="" />
+                <div className="tc-ap">
+                  <ProFormText name="acupointLeft" label="取穴-反应点 左" placeholder="穴位名，如 足三里、三阴交" />
+                  <Select
+                    className="tc-ap-pick"
+                    showSearch
+                    optionFilterProp="label"
+                    allowClear
+                    value={null}
+                    placeholder="字典选穴"
+                    options={acupoints.map((a) => ({ label: `${a.name} ${a.pinyin}`, value: a.name! }))}
+                    onDropdownVisibleChange={loadAcupoints}
+                    onFocus={loadAcupoints}
+                    onChange={(v) => v && appendAcupoint('acupointLeft', v as string)}
+                  />
+                </div>
+                <div className="tc-ap">
+                  <ProFormText name="acupointRight" label="取穴-反应点 右" placeholder="穴位名，如 内关、太冲" />
+                  <Select
+                    className="tc-ap-pick"
+                    showSearch
+                    optionFilterProp="label"
+                    allowClear
+                    value={null}
+                    placeholder="字典选穴"
+                    options={acupoints.map((a) => ({ label: `${a.name} ${a.pinyin}`, value: a.name! }))}
+                    onDropdownVisibleChange={loadAcupoints}
+                    onFocus={loadAcupoints}
+                    onChange={(v) => v && appendAcupoint('acupointRight', v as string)}
+                  />
+                </div>
               </div>
+              <div className="tc-ap-note">穴位字典：按穴名/拼音检索（如 足三 / zusanli），选中即追加；维护见「接诊 → 穴位字典」</div>
             </section>
 
             <section className="tc-panel">

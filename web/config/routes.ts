@@ -146,6 +146,11 @@ export default [
         component: './Treat/Query',
       },
       {
+        name: 'treat-acupoints',
+        path: '/treat/acupoints',
+        component: './Treat/Acupoint',
+      },
+      {
         path: '/treat/history',
         component: './Treat/History',
       }
