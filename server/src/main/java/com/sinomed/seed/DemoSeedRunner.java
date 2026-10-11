@@ -259,6 +259,11 @@ public class DemoSeedRunner implements ApplicationRunner {
                     "归脾汤加减内服；配合耳穴压豆（神门、心、脾），两周后复诊。",
                     "忌浓茶咖啡，戌时后少食，睡前热水泡脚 15 分钟。",
                     "首次针灸留针 25 分钟，灸后温阳茶饮一杯。");
+            // 针灸处方补录（字段为空才写，幂等）
+            Long wangTreat = treatIdByCustomerId(wang);
+            if (wangTreat != null) {
+                seedTreatAcupuncture(wangTreat, "毫针、耳穴压豆", 25, "平补平泻", "每周 2 次 × 2 周");
+            }
         }
         if (li != null) {
             treatIfAbsent(li, daysAgoAt(7),
@@ -275,6 +280,10 @@ public class DemoSeedRunner implements ApplicationRunner {
                     "独活寄生汤加减内服；配合温针灸与推拿，一周两次，共三次。",
                     "避免久坐寒湿，护腰佩戴，睡硬板床。",
                     "本次推拿松解腰背 30 分钟，温针灸 20 分钟。");
+            Long liTreat = treatIdByCustomerId(li);
+            if (liTreat != null) {
+                seedTreatAcupuncture(liTreat, "温针", 20, "补法", "一周两次 × 3 次");
+            }
         }
         if (zhao != null) {
             treatIfAbsent(zhao, daysAgoAt(2),
@@ -293,6 +302,28 @@ public class DemoSeedRunner implements ApplicationRunner {
                     "本次穴位贴敷（天突、列缺），嘱声休。");
         }
         log.info("种子·诊疗记录：检查完成");
+    }
+
+    /** 按顾客找接诊单 id（演示种子内用；找不到返回 null） */
+    private Long treatIdByCustomerId(Long customerId) {
+        return treatRepository.findAll().stream()
+                .filter(t -> customerId.equals(t.getCustomerId()))
+                .map(TreatEntity::getId)
+                .findFirst().orElse(null);
+    }
+
+    /** 针灸处方补录：给已存在的接诊单补 针法/留针/手法/疗程（针法为空才写，幂等） */
+    private void seedTreatAcupuncture(Long treatId, String acuMethod, Integer retentionMinutes,
+                                      String manipulation, String acuCourse) {
+        treatRepository.findById(treatId).ifPresent(t -> {
+            if (t.getAcuMethod() == null) {
+                t.setAcuMethod(acuMethod);
+                t.setRetentionMinutes(retentionMinutes);
+                t.setManipulation(manipulation);
+                t.setAcuCourse(acuCourse);
+                treatRepository.save(t);
+            }
+        });
     }
 
     /** 每日复盘：昨日一条，沉淀到报表 */

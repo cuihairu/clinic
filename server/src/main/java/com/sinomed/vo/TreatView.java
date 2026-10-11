@@ -87,6 +87,14 @@ public class TreatView implements Serializable {
     String acupointLeft;
     @Schema(title = "取穴-反应点 右",description = "取穴",example = "很正常")
     String acupointRight;
+    @Schema(title = "针灸处方-针法",description = "如 毫针、电针、温针",example = "毫针")
+    String acuMethod;
+    @Schema(title = "针灸处方-留针分钟",description = "1-240",example = "25")
+    Integer retentionMinutes;
+    @Schema(title = "针灸处方-手法",description = "如 平补平泻、提插捻转",example = "平补平泻")
+    String manipulation;
+    @Schema(title = "针灸处方-疗程频次",description = "如 每周 2 次 × 4 周",example = "每周 2 次 × 4 周")
+    String acuCourse;
     @Schema(title = "诊断",description = "反应点",example = "很正常")
     String diagnose;
     @Schema(title = "方案",description = "方案",example = "多喝热水")
@@ -131,6 +139,10 @@ public class TreatView implements Serializable {
                 .fiveAuxRight(treat.getFiveAuxRight())
                 .acupointLeft(treat.getAcupointLeft())
                 .acupointRight(treat.getAcupointRight())
+                .acuMethod(treat.getAcuMethod())
+                .retentionMinutes(treat.getRetentionMinutes())
+                .manipulation(treat.getManipulation())
+                .acuCourse(treat.getAcuCourse())
                 .diagnose(treat.getDiagnose())
                 .plan(treat.getPlan())
                 .diet(treat.getDiet())
@@ -171,6 +183,10 @@ public class TreatView implements Serializable {
         treatEntity.setFiveAuxRight(fiveAuxRight);
         treatEntity.setAcupointLeft(acupointLeft);
         treatEntity.setAcupointRight(acupointRight);
+        treatEntity.setAcuMethod(acuMethod);
+        treatEntity.setRetentionMinutes(retentionMinutes);
+        treatEntity.setManipulation(manipulation);
+        treatEntity.setAcuCourse(acuCourse);
         treatEntity.setDiagnose(diagnose);
         treatEntity.setPlan(plan);
         treatEntity.setDiet(diet);

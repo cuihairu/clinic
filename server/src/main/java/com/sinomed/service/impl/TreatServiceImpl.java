@@ -55,9 +55,11 @@ public class TreatServiceImpl implements TreatService {
         if (view.getId() == null) {
             throw new IllegalArgumentException("接诊单id不能为空");
         }
+        TreatEntity treat = view.ToTreatEntity();
+        validAcupuncture(treat);
         treatRepository.findById(view.getId())
                 .orElseThrow(() -> new IllegalArgumentException("接诊单不存在：" + view.getId()));
-        return treatRepository.save(view.ToTreatEntity());
+        return treatRepository.save(treat);
     }
 
     @Override
@@ -112,6 +114,7 @@ public class TreatServiceImpl implements TreatService {
      */
     @Override
     public TreatEntity save(TreatEntity treatEntity) {
+        validAcupuncture(treatEntity);
         // 时间不更新
         if (treatEntity.getId() != null){
             Optional<TreatEntity> byId = treatRepository.findById(treatEntity.getId());
@@ -121,6 +124,38 @@ public class TreatServiceImpl implements TreatService {
             }
         }
         return treatRepository.save(treatEntity);
+    }
+
+    /** 针灸处方字段校验：针法/手法 ≤30 字、留针 1-240 分钟（可空）、疗程 ≤100 字；空白文本按空处理 */
+    private void validAcupuncture(TreatEntity treat) {
+        if (treat == null) {
+            return;
+        }
+        treat.setAcuMethod(trimOrNull(treat.getAcuMethod()));
+        if (treat.getAcuMethod() != null && treat.getAcuMethod().length() > 30) {
+            throw new IllegalArgumentException("针法限 30 字内");
+        }
+        if (treat.getRetentionMinutes() != null
+                && (treat.getRetentionMinutes() < 1 || treat.getRetentionMinutes() > 240)) {
+            throw new IllegalArgumentException("留针时长无效：" + treat.getRetentionMinutes() + "（应为 1-240 分钟）");
+        }
+        treat.setManipulation(trimOrNull(treat.getManipulation()));
+        if (treat.getManipulation() != null && treat.getManipulation().length() > 30) {
+            throw new IllegalArgumentException("手法限 30 字内");
+        }
+        treat.setAcuCourse(trimOrNull(treat.getAcuCourse()));
+        if (treat.getAcuCourse() != null && treat.getAcuCourse().length() > 100) {
+            throw new IllegalArgumentException("疗程限 100 字内");
+        }
+    }
+
+    /** 去除首尾空白；全空白返回 null */
+    private String trimOrNull(String text) {
+        if (text == null) {
+            return null;
+        }
+        String trimmed = text.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
     /**

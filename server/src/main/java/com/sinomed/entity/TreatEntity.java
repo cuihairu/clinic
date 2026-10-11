@@ -117,6 +117,22 @@ public class TreatEntity {
     @Column(name = "acupoint_right",columnDefinition = "TEXT")
     String acupointRight;
 
+    // 针灸处方：针法（毫针/电针/温针…）
+    @Column(name = "acu_method")
+    String acuMethod;
+
+    // 针灸处方：留针分钟（1-240，可空）
+    @Column(name = "retention_minutes")
+    Integer retentionMinutes;
+
+    // 针灸处方：手法（补法/泻法/平补平泻…）
+    @Column(name = "manipulation")
+    String manipulation;
+
+    // 针灸处方：疗程/频次（自由文本）
+    @Column(name = "acu_course",columnDefinition = "TEXT")
+    String acuCourse;
+
     // 诊断
     @Column(name = "diagnose",columnDefinition = "TEXT")
     String diagnose;
