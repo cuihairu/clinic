@@ -251,6 +251,17 @@
 | DELETE | `/api/v1/herb/{id}` | 删除药材（演示口径无引用检查，删后相关药味转「未比价」） |
 | GET | `/api/v1/herb/page` | 分页（current、pageSize、keyword 名称包含过滤），名称升序 |
 
+## 饮片库存 `/api/v1/herb-stock`（需登录）
+
+只记流水，当前库存 = 入库合计 - 出库合计（克）；出库按效期先进先出（FEFO）消耗批次，批次效期用于近期到期预警。台账口径，不涉采购单据与结算。
+
+| 方法 | 路径 | 功能 |
+| ---- | ---- | ---- |
+| POST | `/api/v1/herb-stock/` | 登记出入库：`herbId` + `type`（1 入库 / 0 出库）+ `quantity`（克，正整数）必填；入库可带 `expiry`（yyyy-MM-dd，不得早于今天）/`supplier`（≤50 字）/`note`（≤100 字）；出库不得超过当前库存（400「出库数量超过当前库存：N 克」），出库流水不带效期 |
+| GET | `/api/v1/herb-stock/page` | 流水分页（current、pageSize、herbId/type 可空过滤），联出药材名，id 倒序 |
+| GET | `/api/v1/herb-stock/balance?expiryWithinDays=30` | 库存余额：各药材当前克数 + 最早未消耗批次效期（FEFO）+ 距效期天数 + `warnExpiry`（阈值内到期或已过期，默认 30 天，上限 365）；无流水的药材不成行，名称升序 |
+| DELETE | `/api/v1/herb-stock/{id}` | 删除流水（演示口径无留痕，余额按剩余流水重算；流水不存在 400） |
+
 ## 穴位字典 `/api/v1/acupoint`（需登录）
 
 经络穴位参考库（穴名唯一，`pinyin` 为全拼小写字母检索码，归经必填）。接诊单取穴字段仍为自由文本——字典只做选穴辅助，接诊页按穴名或拼音检索、选中即追加进取穴文本。

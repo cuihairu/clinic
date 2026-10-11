@@ -60,6 +60,7 @@
 | 病症处方模板 | `PrescriptionTemplateController` | 可用 |
 | 方剂库（方名/拼音检索带出全方） | `FormulaController` | 可用 |
 | 药材字典（开方比价取数） | `HerbController` | 可用 |
+| 饮片出入库（流水登记 / 余额与效期预警） | `HerbStockController` | 可用 |
 | 收费结算与储值（收款 / 充值流水） | `SettlementController`、`RechargeController` | 可用 |
 | 次卡（发卡 / 停用 / 核销流水） | `CardController` | 可用 |
 | 结算小票套打（80mm HTML，模板可覆盖） | `ReceiptPrintController`、`PrintTemplateController` | 可用 |

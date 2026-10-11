@@ -167,9 +167,11 @@ append-only：每次结算抵扣（`payType=5`）在同一事务落一条，随�
 
 `herbs`（药材字典）：`name`（唯一，与处方药名精确同名比价）、`price`（每克分价，int，>0）、审计时间。处方计价按字典**实时试算**（不落库、无快照，未收录药名不计费）。
 
+`herb_stock_logs`（饮片出入库流水）：`herb_id`（非空，索引）+ `type`（1 入库 / 0 出库）+ `quantity`（克，正整数）+ `expiry`（批次效期，入库可带，出库恒空）+ `supplier`（≤50 字）+ `note`（≤100 字）+ 审计时间。**库存 = 入库合计 - 出库合计（不落余额列，按流水重算）**；出库按效期先进先出（FEFO）消耗批次，余额接口据此给「最早未消耗批次效期 + 到期预警（默认 30 天）」；台账口径，不涉采购单据与结算，见 [api](/server/api) 饮片库存组。
+
 `prescription_templates` / `prescription_template_items`（病症模板，结构同下）：模板侧多 `doses`/`decoction`/`usage`/`remark` 建议值与 `enabled` 上架位。`formulas` / `formula_items`（方剂库）：`formulas` 为 `name`（方名唯一 1–20 字）、`pinyin`（全拼小写检索码，非空）、`source`（出处）、`indication`（功效主治）；`formula_items` 为 `formula_id`（非空，索引）+ 药味四件套 `herb`/`weight`/`special`/`sort`。两者均为开方参考数据——模板按病症套用、方剂按方名/拼音检索带出全方，带出后随处方自由增减、不写回；方剂为文献常用量口径，不参与计价与审方。
 
-索引：`prescriptions` 顾客、接诊单；`prescription_items` 处方。代煎领取与膏方领取流转已实装（两条独立单向链：待煎→可取→已取；待制作→可取→已取）；库存为规划功能；配伍审方（十八反/十九畏）为静态规则比对（不落表），见 [api](/server/api) 处方组。
+索引：`prescriptions` 顾客、接诊单；`prescription_items` 处方；`herb_stock_logs` 药材、类型。代煎领取与膏方领取流转已实装（两条独立单向链：待煎→可取→已取；待制作→可取→已取）；饮片出入库流水已实装（余额按流水重算）；配伍审方（十八反/十九畏）为静态规则比对（不落表），见 [api](/server/api) 处方组。
 
 ## staffs — 员工（登录主体，诊所运营）
 
