@@ -30,7 +30,9 @@ import com.sinomed.repository.ItemRepository;
 import com.sinomed.repository.PrescriptionTemplateItemRepository;
 import com.sinomed.repository.PrescriptionTemplateRepository;
 import com.sinomed.repository.HerbRepository;
+import com.sinomed.repository.HerbStockLogRepository;
 import com.sinomed.entity.HerbEntity;
+import com.sinomed.entity.HerbStockLogEntity;
 import com.sinomed.repository.CustomerCardRepository;
 import com.sinomed.entity.CustomerCardEntity;
 import com.sinomed.repository.OrderRepository;
@@ -102,6 +104,7 @@ public class DemoSeedRunner implements ApplicationRunner {
     private final FormulaItemRepository formulaItemRepository;
     private final AcupointRepository acupointRepository;
     private final StaffShiftRepository shiftRepository;
+    private final HerbStockLogRepository herbStockLogRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewCustomerRepository reviewCustomerRepository;
     private final ReviewStaffRepository reviewStaffRepository;
@@ -119,6 +122,7 @@ public class DemoSeedRunner implements ApplicationRunner {
             seedFormulas();
             seedAcupoints();
             seedShifts();
+            seedHerbStock();
             Map<String, Long> customers = seedCustomers();
             seedTreats(customers);
             seedReviews();
@@ -632,6 +636,37 @@ public class DemoSeedRunner implements ApplicationRunner {
             backdateRow("staff_shifts", saved.getId(), at(-16, 9, 0));
         }
         log.info("种子·员工班表：检查完成");
+    }
+
+    /** 饮片库存：常用药材入库（带批次效期/供货方）+ 一笔出库演示；台账口径，不涉采购单据与结算 */
+    private void seedHerbStock() {
+        if (herbStockLogRepository.count() > 0) {
+            return;
+        }
+        record StockSeed(String herb, int type, int quantity, Integer expiryInDays, String supplier, String note) {}
+        List<StockSeed> seeds = List.of(
+                new StockSeed("黄芪", 1, 5000, 120, "亳州药市", null),
+                new StockSeed("当归", 1, 3000, 90, "亳州药市", null),
+                new StockSeed("茯苓", 1, 4000, 200, "安徽亳州", null),
+                new StockSeed("白术", 1, 2500, 25, "浙江磐安", "近期到期"),
+                new StockSeed("甘草", 1, 6000, 300, "内蒙古", null),
+                new StockSeed("甘草", 0, 800, null, null, "门诊领用"));
+        for (StockSeed s : seeds) {
+            HerbEntity herb = herbRepository.findByName(s.herb());
+            if (herb == null) {
+                continue;
+            }
+            HerbStockLogEntity entity = new HerbStockLogEntity();
+            entity.setHerbId(herb.getId());
+            entity.setType(s.type());
+            entity.setQuantity(s.quantity());
+            entity.setExpiry(s.expiryInDays() == null ? null : at(s.expiryInDays(), 12, 0));
+            entity.setSupplier(s.supplier());
+            entity.setNote(s.note());
+            HerbStockLogEntity saved = herbStockLogRepository.save(entity);
+            backdateRow("herb_stock_logs", saved.getId(), at(-15, 9, 0));
+        }
+        log.info("种子·饮片库存：检查完成");
     }
 
     /** 次卡：演示顾客持「经络推拿（10 次卡）」已用 3 次 */
