@@ -56,6 +56,7 @@
 | 订单（自助机下单 / 前台建单 / 状态流转） | `OrderController` | 可用 |
 | 中药处方（开方 / 代煎与膏方流转 / 实时计价 / 配伍与过敏审方） | `PrescriptionController` | 可用 |
 | 病症处方模板 | `PrescriptionTemplateController` | 可用 |
+| 方剂库（方名/拼音检索带出全方） | `FormulaController` | 可用 |
 | 药材字典（开方比价取数） | `HerbController` | 可用 |
 | 收费结算与储值（收款 / 充值流水） | `SettlementController`、`RechargeController` | 可用 |
 | 次卡（发卡 / 停用 / 核销流水） | `CardController` | 可用 |
