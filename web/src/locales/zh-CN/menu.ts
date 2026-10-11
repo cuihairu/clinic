@@ -21,6 +21,7 @@ export default {
   'menu.staff.staff-update':'更新员工',
   'menu.staff.staff-sign':'员工签到',
   'menu.staff.staff-query':'员工查询',
+  'menu.staff.staff-shifts':'员工班表',
   'menu.staff.staff-leave':'员工请假',
   'menu.staff.staff-today-timesheet':'今日考勤',
   'menu.staff.timesheet-list':'考勤列表',

@@ -78,6 +78,12 @@ export default [
         component: './Staff/Query',
       },
       {
+        access: 'canAdmin',
+        name: 'staff-shifts',
+        path: '/staff/shifts',
+        component: './Staff/Shift',
+      },
+      {
         path: '/staff/update',
         component: './Staff/Update',
       },
